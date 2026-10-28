@@ -10,6 +10,15 @@ with lib.fmf; let
   cfg = config.fmf.tools.agentic-ai;
   system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
+  llamaModels = lib.fmf.llamaCppModels {inherit pkgs;};
+  opencodePackage = if cfg.llamaCpp.enable then pkgs.writeShellScriptBin "opencode" ''
+    # Read at process startup, not Nix evaluation; GUI and non-zsh launches work.
+    # Missing Vault credentials must not break unrelated cloud providers.
+    if [ -z "''${LLAMA_CPP_API_KEY:-}" ] && [ -r ${lib.escapeShellArg (if cfg.llamaCpp.apiKeyFile == null then "/dev/null" else cfg.llamaCpp.apiKeyFile)} ]; then
+      export LLAMA_CPP_API_KEY="$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg (if cfg.llamaCpp.apiKeyFile == null then "/dev/null" else cfg.llamaCpp.apiKeyFile)})"
+    fi
+    exec ${pkgs.llm-agents.opencode}/bin/opencode "$@"
+  '' else pkgs.llm-agents.opencode;
   # Preserve the legacy @owner/repo/skill option format while using the
   # replacement skills CLI. Other entries are passed through as sources.
   remoteSkillArgs = skill: let
@@ -125,6 +134,19 @@ in {
 
     enableAider = mkBoolOpt true "Enable aider-chat AI pair programming tool.";
     enableOpencode = mkBoolOpt true "Enable opencode AI coding agent.";
+    llamaCpp = {
+      enable = lib.mkEnableOption "authenticated remote llama.cpp provider in OpenCode";
+      baseURL = mkOption {
+        type = types.str;
+        default = "http://127.0.0.1:18080/v1";
+        description = "OpenAI-compatible llama.cpp API base URL. Use HTTPS across the network.";
+      };
+      apiKeyFile = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "User-readable runtime API-key path, outside the Nix store.";
+      };
+    };
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode =
       mkBoolOpt true "Enable qwen-code CLI for Qwen3-Coder models.";
@@ -178,10 +200,16 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = lib.optionals cfg.llamaCpp.enable [{
+      assertion = cfg.enableOpencode && cfg.llamaCpp.apiKeyFile != null
+        && lib.hasPrefix "/" cfg.llamaCpp.apiKeyFile
+        && !(lib.hasPrefix "/nix/store/" cfg.llamaCpp.apiKeyFile);
+      message = "The llama.cpp OpenCode provider requires OpenCode and an absolute runtime apiKeyFile outside /nix/store.";
+    }];
     home.packages =
       (optionals cfg.enableAider [pkgs.aider-chat])
       ++ (optionals cfg.enableOpencode [
-        pkgs.llm-agents.opencode
+        opencodePackage
         pkgs.backlog-md
       ])
       ++ (optionals cfg.enableMistralVibe [pkgs.llm-agents.mistral-vibe])
@@ -401,6 +429,26 @@ in {
                       };
                     };
                   };
+                };
+              } // lib.optionalAttrs cfg.llamaCpp.enable {
+                "llama-cpp" = {
+                  npm = "@ai-sdk/openai-compatible";
+                  name = "llama.cpp";
+                  env = ["LLAMA_CPP_API_KEY"];
+                  options = {
+                    baseURL = cfg.llamaCpp.baseURL;
+                    apiKey = "{env:LLAMA_CPP_API_KEY}";
+                    timeout = 600000;
+                  };
+                  models = lib.mapAttrs (_: model: {
+                    name = model.name;
+                    tool_call = true;
+                    limit = {
+                      context = model.contextSize;
+                      output = model.maxOutputTokens;
+                    };
+                    modalities = {input = ["text"]; output = ["text"];};
+                  }) llamaModels;
                 };
               };
 
