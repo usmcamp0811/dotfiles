@@ -75,6 +75,9 @@ in {
           flash-attn = "auto";
           fit = "on";
           fit-target = 2048;
+          # Bound SWA/recurrent checkpoint overhead on small GPUs. Reusing
+          # older prefixes may require more recomputation, not less context.
+          ctx-checkpoints = 1;
           jinja = true;
           load-on-startup = false;
           sleep-idle-seconds = 300;

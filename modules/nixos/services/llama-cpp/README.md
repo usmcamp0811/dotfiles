@@ -14,9 +14,9 @@ Hugging Face revisions and published LFS SHA256 hashes. There is no mutable
 | Package suffix after `llama-model-` | Bytes | Default context |
 | --- | ---: | ---: |
 | `gpt-oss-20b-mxfp4` | 12,109,566,624 | 32768 |
-| `qwen36-35b-a3b-ud-iq3-s` | 13,676,723,168 | 8192 |
-| `qwen3-coder-30b-a3b-ud-q3-k-xl` | 13,806,312,608 | 4096 |
-| `devstral-small-2-24b-q4-k-m` | 14,334,446,752 | 2048 |
+| `qwen36-35b-a3b-ud-iq3-s` | 13,676,723,168 | 32768 |
+| `qwen3-coder-30b-a3b-ud-q3-k-xl` | 13,806,312,608 | 32768 |
+| `devstral-small-2-24b-q4-k-m` | 14,334,446,752 | 32768 |
 
 The shared lazy catalog is `lib.fmf.llamaCppModels { inherit pkgs; }`.
 `router.models` defaults to this catalog. Model paths in the generated preset
@@ -75,7 +75,9 @@ Router requests select the model via the OpenAI `model` field. Model IDs are
 `--models-max 1` limits loaded models, `--parallel 1` limits request slots, and
 `--offline` prevents runtime model downloads. Presets use embedded Jinja chat
 templates, explicit contexts, 256/128 batch/microbatch sizes, automatic GPU
-offload/Flash Attention, a 2048 MiB fit margin, and five-minute idle sleep.
+offload/Flash Attention, a 2048 MiB fit margin, one context checkpoint per slot,
+and five-minute idle sleep. Bounding checkpoints trades prefix-reuse speed for
+less SWA/recurrent state-cache overhead; it does not reduce the context window.
 Switching has cold-load latency and may wait for a busy model.
 
 This uses the pinned nixpkgs llama.cpp (currently b9190), not an unverified
@@ -85,23 +87,25 @@ inference, but `/health` is deliberately public upstream.
 
 ### GPU limits
 
-These are conservative starting contexts, **not guaranteed 16 GiB fits**.
+These are agent-sized contexts, **not guaranteed full-GPU 16 GiB fits**.
 Model file size is not VRAM usage; KV/recurrent state, CUDA buffers, display
 workloads and other applications need headroom. Automatic fit can move layers
-to CPU RAM. Devstral's 2K context is especially restrictive for agent prompts.
+to CPU RAM. Qwen Coder and dense Devstral can need substantial CPU offload at
+32K and can be much slower than GPT-OSS on the same card.
 No projector is included: Qwen3.6 and Devstral are configured for text only.
 Measure on the actual GPU and validate streaming/tool calls before depending
 on any model for unattended agent work.
 
-GPT-OSS uses 32K in both server presets and OpenCode metadata. The earlier 8K
-window left only about 6K usable in OpenCode 1.19.4; fixed instructions and tool
+All four profiles use 32K in both server presets and OpenCode metadata, with
+2048 output tokens. The earlier GPT-OSS 8K window left only about 6K usable in
+OpenCode 1.19.4; fixed instructions and tool
 schemas can exceed that even for a short message and trigger repeated
 compaction. Keep automatic compaction enabled; do not merely advertise more
 context than the server allocates. Restart the server and OpenCode and use a
-fresh session after changing the limit. The other three profiles retain their
-small experimental windows and may also be unsuitable for full OpenCode tool
-prompts until individually tuned. Increasing them on a 16 GiB GPU can require
-more CPU offload. No real-model memory/performance result is implied here.
+fresh session after changing the limit. A model switch no longer silently
+shrinks the advertised window to 2K–8K. Switching still changes tokenizers and
+templates, so actual model/tool behavior needs live validation. No real-model
+memory/performance result is implied by the CPU router test.
 
 ## Client
 
@@ -146,6 +150,9 @@ verifies presets are listed without loading weights, checks unauthenticated
 inference is rejected and tests systemd credential delivery. It neither contacts
 Vault nor downloads weights. It does not validate GPU memory fit, actual model
 generation/tool behavior, production Vault permissions, or site proxy routing.
+It also starts a worker for each real model ID with fake bytes, checking that
+all preset arguments parse and reach the GGUF loader. Invalid-byte failures are
+intentional; the fixture bounds the request and resets the router between cases.
 
 Additional checks require no Vault server or live credential files:
 
