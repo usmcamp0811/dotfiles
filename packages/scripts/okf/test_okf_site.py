@@ -272,26 +272,35 @@ class SiteTest(unittest.TestCase):
         self.assertNotIn("search-index.js", self.html("docs/a.html"))
 
     def test_themes_are_embedded_and_validated(self):
-        self.build(theme="lantern")
+        self.build(theme="navy-mk2-light")
         page = self.html("docs/a.html")
-        self.assertIn('data-theme="lantern"', page)
-        self.assertIn('data-themes="navy navy-light usmc docusaurus field-manual trail-map manpage lantern toc okf-visualizer okf-visualizer-dark"', page)
+        self.assertIn('data-theme="navy-mk2-light"', page)
+        self.assertIn('data-themes="navy-mk2 navy-mk2-light"', page)
         self.assertIn('src="../assets/theme.js"', page)
         self.assertIn('<select id="theme">', page)
         with self.assertRaisesRegex(ValueError, "unknown theme"):
-            okf_site.Site([self.docs], "T", "S", theme="nope")
+            okf_site.Site([self.docs], "T", "S", theme="navy")
 
-    def test_navy_is_the_default_theme_and_the_others_stay_available(self):
+    def test_navy_mk2_is_the_default_theme_with_a_light_variant(self):
         self.populate()
         self.assertEqual(okf.main(["site", "build", "--out", str(self.out), str(self.docs)]), 0)
-        self.assertIn('data-theme="navy"', self.html("index.html"))
+        self.assertIn('data-theme="navy-mk2"', self.html("index.html"))
         css = self.html("assets/style.css")
-        for theme, marker in (("navy", "#0a1020"), ("navy-light", "#1d4ed8"), ("usmc", "#101410"), ("docusaurus", "#25c2a0")):
+        for theme, marker in (("navy-mk2", "#0a1222"), ("navy-mk2-light", "#f7f9fc")):
             self.assertIn(f'html[data-theme="{theme}"]', css)
             self.assertIn(marker, css)
-        for theme in ("usmc", "navy-light"):
-            self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", theme, str(self.docs)]), 0)
-            self.assertIn(f'data-theme="{theme}"', self.html("index.html"))
+        self.assertIn("jetbrains-mono-500.woff2", css)
+        self.assertNotIn("usmc", css)
+        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", "navy-mk2-light", str(self.docs)]), 0)
+        self.assertIn('data-theme="navy-mk2-light"', self.html("index.html"))
+        self.assertIn('"navy-mk2": "navy-mk2-light"', self.html("assets/theme.js"))
+
+    def test_masthead_has_the_navy_mk2_emblem_and_the_graph_card_a_way_in(self):
+        self.build()
+        self.assertIn('<svg class="emblem-mk2"', self.html("index.html"))
+        graph = self.html("assets/graph.js")
+        for part in ('"legend-head"', '"Linked documents"', '"Open document"'):
+            self.assertIn(part, graph)
 
     def test_every_page_has_the_same_chrome(self):
         # Home, search and graph used to drop the sidebar; the layout must not change between pages.
@@ -320,21 +329,6 @@ class SiteTest(unittest.TestCase):
         self.assertNotIn('class="cta"', bare.page_html(next(p for p in bare.pages if p.kind == "concept")))
         self.assertIn("@font-face", self.html("assets/style.css"))
         self.assertIn("fonts/space-grotesk-700.woff2", self.html("assets/style.css"))
-
-    def test_toc_theme_is_available_from_the_cli(self):
-        self.populate()
-        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", "toc", str(self.docs)]), 0)
-        self.assertIn('data-theme="toc"', self.html("index.html"))
-
-    def test_okf_visualizer_theme_is_available_from_the_cli(self):
-        self.populate()
-        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", "okf-visualizer", str(self.docs)]), 0)
-        self.assertIn('data-theme="okf-visualizer"', self.html("index.html"))
-
-    def test_okf_visualizer_dark_theme_is_available_from_the_cli(self):
-        self.populate()
-        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--theme", "okf-visualizer-dark", str(self.docs)]), 0)
-        self.assertIn('data-theme="okf-visualizer-dark"', self.html("index.html"))
 
     def test_theme_script_carries_the_theme_between_pages(self):
         self.build()
@@ -387,8 +381,8 @@ class SiteTest(unittest.TestCase):
 
     def test_cli(self):
         self.populate()
-        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--title", "T", "--theme", "trail-map", str(self.docs)]), 0)
-        self.assertIn('data-theme="trail-map"', self.html("index.html"))
+        self.assertEqual(okf.main(["site", "build", "--out", str(self.out), "--title", "T", "--theme", "navy-mk2-light", str(self.docs)]), 0)
+        self.assertIn('data-theme="navy-mk2-light"', self.html("index.html"))
         self.assertEqual(okf.main(["site", "verify", str(self.out)]), 0)
         (self.out / "assets" / "app.js").unlink()
         self.assertEqual(okf.main(["site", "verify", str(self.out)]), 1)

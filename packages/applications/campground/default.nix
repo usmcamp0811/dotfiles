@@ -8,7 +8,7 @@
 #
 #   nix run .#campground                          # open it in a browser
 #   nix run .#campground -- --search 'vault'      # open the search page
-#   nix run .#campground -- --theme lantern
+#   nix run .#campground -- --theme navy-mk2-light
 #   nix run .#campground -- --browser qutebrowser
 #   nix run .#campground -- --print               # print the file:// URL only
 #

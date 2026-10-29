@@ -39,17 +39,8 @@ TIER_LABEL = {
 # The themes live in site/style.css as sets of CSS variables; this is the registry
 # the build, the footer picker and the launcher agree on. The first is the default.
 THEMES = {
-    "navy": "Navy (dark)",
-    "navy-light": "Navy (light)",
-    "usmc": "Marine Corps",
-    "docusaurus": "Docusaurus",
-    "field-manual": "Field manual",
-    "trail-map": "Trail map",
-    "manpage": "Man page",
-    "lantern": "Lantern",
-    "toc": "TOC",
-    "okf-visualizer": "OKF Visualizer",
-    "okf-visualizer-dark": "OKF Visualizer Dark",
+    "navy-mk2": "Navy Mk II (dark)",
+    "navy-mk2-light": "Navy Mk II (light)",
 }
 DEFAULT_THEME = next(iter(THEMES))
 SCHEME = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
@@ -57,13 +48,22 @@ MODE_ICON = (
     '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">'
     '<path fill="currentColor" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 2v14a7 7 0 0 1 0-14z"/></svg>'
 )
-# A small globe-and-anchor mark for the masthead. Only the Marine Corps theme shows it.
-EMBLEM = (
-    '<svg class="emblem" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">'
-    '<g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">'
-    '<circle cx="16" cy="16" r="13"/><ellipse cx="16" cy="16" rx="6" ry="13"/><path d="M3 16h26"/></g>'
-    '<g fill="none" stroke="var(--signal)" stroke-width="2.2" stroke-linecap="round">'
-    '<path d="M16 9v14M12.5 12.5h7M10 19c0 3 2.8 4.5 6 4.5s6-1.5 6-4.5"/></g></svg>'
+# The masthead mark: a gun line and a fire arc over a small graph, on a disc. Every colour comes
+# from the --cg-* variables, so it follows the light and dark variants.
+EMBLEM_MK2 = (
+    '<svg class="emblem-mk2" viewBox="0 0 64 64" width="34" height="34" aria-hidden="true" focusable="false">'
+    '<defs><clipPath id="cgclip"><circle cx="32" cy="32" r="28"/></clipPath></defs>'
+    '<circle class="cg-disc" cx="32" cy="32" r="28"/>'
+    '<g clip-path="url(#cgclip)"><path class="cg-near" d="M0 50 C 14 44, 30 44, 40 48 S 56 50, 64 46 L64 64 L0 64 Z"/></g>'
+    '<g fill="none" stroke-width="1.8"><line class="cg-edge" x1="33" y1="25" x2="41" y2="34"/>'
+    '<line class="cg-edge" x1="41" y1="34" x2="49" y2="40"/><line class="cg-edge" x1="41" y1="34" x2="36" y2="43"/></g>'
+    '<path class="cg-fire" d="M20 42 Q 26 14 46 12" stroke-width="3"/>'
+    '<line class="cg-gun" x1="14" y1="48" x2="22" y2="40" stroke-width="4.5"/>'
+    '<circle class="cg-no" cx="33" cy="25" r="2.6"/><circle class="cg-hub" cx="41" cy="34" r="3.4"/>'
+    '<circle class="cg-nd" cx="49" cy="40" r="2.4"/><circle class="cg-nd" cx="36" cy="43" r="2.4"/>'
+    '<circle class="cg-ring" cx="32" cy="32" r="28" stroke-width="4.5"/>'
+    '<polygon class="cg-star" points="50,4 51.03,8.51 54.95,6.05 52.49,9.97 57,11 52.49,12.03 54.95,15.95 51.03,13.49 50,18 '
+    '48.97,13.49 45.05,15.95 47.51,12.03 43,11 47.51,9.97 45.05,6.05 48.97,8.51"/></svg>'
 )
 # Only files a browser can show are copied into the site. Anything else a
 # document links to (a .nix file, a script) renders as plain text, so a build
@@ -518,7 +518,7 @@ class Site:
 <header class="top">
 <div class="brandrow">
 <button type="button" class="navtoggle" id="navtoggle" aria-label="Show or hide the document tree" aria-controls="docnav" hidden>&#9776;</button>
-<a class="brand" href="{up}index.html">{EMBLEM}<span class="brand-name">{esc(self.title)}</span><span class="brand-sub">Docs</span></a>
+<a class="brand" href="{up}index.html">{EMBLEM_MK2}<span class="brand-name">{esc(self.title)}</span><span class="brand-sub">Docs</span></a>
 </div>
 <nav class="bundles" aria-label="Bundles">{bundles}</nav>
 <form action="{up}search.html" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search" title="Press / to search" autocomplete="off"></form>

@@ -70,7 +70,7 @@ backlinks; no graph library or server is required. Fonts and all other assets ar
 so every page works from `file://` and offline.
 
 ```bash
-okf site build --out ./site --title "Campground" --theme docusaurus --start docs/OKF.md docs modules systems
+okf site build --out ./site --title "Campground" --theme navy-mk2-light --start docs/OKF.md docs modules systems
 okf site verify ./site        # every local href, src and form action must exist
 ```
 
@@ -107,7 +107,7 @@ pkgs.fmf.okf.mkSite {
   bundles = ["docs" "modules"];
   title = "My knowledge";
   start = "docs/OKF.md";              # optional: the landing page points here
-  theme = "trail-map";                # optional (default navy): navy, navy-light, usmc, docusaurus, field-manual, trail-map, manpage, lantern, toc, okf-visualizer, okf-visualizer-dark
+  theme = "navy-mk2-light";           # optional (default navy-mk2): navy-mk2 or navy-mk2-light
 }
 ```
 
@@ -116,7 +116,7 @@ pkgs.fmf.okf.mkSite {
 ```bash
 nix run .#campground                         # open in the first browser found
 nix run .#campground -- --browser qutebrowser
-nix run .#campground -- --theme lantern
+nix run .#campground -- --theme navy-mk2-light
 nix run .#campground -- --search 'vault'
 nix run .#campground -- --print              # print the file:// URL only
 ```

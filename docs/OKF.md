@@ -116,7 +116,7 @@ dummy host values are supplied, and no review/trust claims are generated.
 
 `campground` renders the authored bundles and generated options as a static website:
 one page per document, a persistent section sidebar and top navigation, an outline, backlinks,
-a local graph on concept pages, search, and a global graph of document links. The dark navy
+a local graph on concept pages, search, and a global graph of document links. The dark Navy Mk II
 theme is the default; its light variant is available from the header toggle. Nothing is fetched
 from the internet at view time, so it works offline straight from the Nix store. By default
 nothing is served either; `--serve` is there for reading it from another machine.
@@ -125,7 +125,7 @@ nothing is served either; `--serve` is there for reading it from another machine
 nix run .#campground                                  # open it in the first browser found
 nix run .#campground -- --browser qutebrowser         # or pick one (arguments are allowed)
 nix run .#campground -- --search 'vault tag:services' # open the search page for a query
-nix run .#campground -- --theme lantern               # use a theme for this visit
+nix run .#campground -- --theme navy-mk2-light             # use a theme for this visit
 nix run .#campground -- modules/nixos/services/niks3/README.html
 nix run .#campground -- --print                       # print the file:// URL, open nothing
 nix run .#campground -- --serve --bind 0.0.0.0 --port 8080   # serve it to the network
@@ -147,14 +147,9 @@ solid olive means machine-confirmed, and a heavy brass line means human-reviewed
 every page is dotted, because nothing has been reviewed yet. A page whose `stale_after` has
 passed also shows a warning.
 
-The footer theme picker remembers your choice in that browser. The available themes are
-**Navy** (the default; dark blue, blue links and sparing red accents; use the header toggle for
-**Navy Light**), **Marine Corps** (olive and coyote), **Docusaurus** (green, system sans, light
-or dark to match your system), **Field manual** (olive and brass), **Trail map** (survey blue and green),
-**Man page** (dense monospace), **Lantern** (always-dark forest and gold), and **TOC**
-(a slate tactical operations center with a subtle grid). **OKF Visualizer** mirrors the
-compact Slate, white-panel and Google-blue look of the upstream reference viewer; **OKF
-Visualizer Dark** is its dark Slate companion. The selected theme follows internal links and
+The footer theme picker remembers your choice in that browser. There are two themes, **Navy Mk II**
+(the default; dark blue, blue links and a one-row header) and **Navy Mk II Light**, and the header
+toggle flips between them. The selected theme follows internal links and
 search results, including when the site is opened from `file://`. The launcher can select one
 for a visit with `--theme`; it does not need a rebuild. The graph is built from resolved Markdown
 links: each concept is a node, each valid link between concepts is an edge, and the same links
@@ -173,7 +168,7 @@ pkgs.fmf.okf.mkSite {
   src = ./.;                       # a tree that contains the bundles
   bundles = ["docs" "systems"];
   title = "Campground";
-  theme = "docusaurus";
+  theme = "navy-mk2-light";
 }
 ```
 

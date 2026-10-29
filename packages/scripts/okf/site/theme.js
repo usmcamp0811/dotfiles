@@ -53,7 +53,7 @@
   }
 
   // The header button flips between a pair of themes (dark and light) when the current theme has one.
-  var pairs = { "navy": "navy-light", "navy-light": "navy" };
+  var pairs = { "navy-mk2": "navy-mk2-light", "navy-mk2-light": "navy-mk2" };
 
   document.addEventListener("DOMContentLoaded", function () {
     setTheme(selected, false);

@@ -13,7 +13,7 @@ Run these commands from the flake root:
 
 ```bash
 nix run .#campground
-nix run .#campground -- --theme usmc
+nix run .#campground -- --theme navy-mk2-light
 nix run .#campground -- --search 'bundle:options immich'
 nix run .#campground -- --browser firefox options/index.html
 nix run .#campground -- --print
@@ -26,9 +26,9 @@ and opens no browser; it has no authentication, so use `0.0.0.0` only on a trust
 `--print` prints the URL without opening a browser or serving. Use `--browser`, `OKF_BROWSER`,
 or `BROWSER` to select a browser, or let the launcher choose an installed one.
 
-The default is the dark navy theme with blue links and restrained red accents. The header button
-switches between dark and light navy; the footer picker also offers the Marine Corps, Docusaurus,
-and other treatments. Theme choice follows internal links and search submissions, including under
+The default is the dark Navy Mk II theme. The header button switches between dark and light, and
+the footer picker does the same. Theme choice follows internal links and search submissions,
+including under
 `file://`.
 
 ## Content

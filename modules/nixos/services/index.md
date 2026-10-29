@@ -10,6 +10,7 @@
 * [jitsi](jitsi/) - A comprehensive NixOS module for deploying Jitsi Meet video conferencing with Vault-based secret management.
 * [k3s](k3s/README.md) - NixOS module for deploying and managing K3s clusters with GitOps support.
 * [ldap-client](ldap-client/README.md) - This module provides LDAP client support for NixOS.
+* [llama-cpp](llama-cpp/README.md) - The llama.cpp service module with an on-demand model router, and the client module that gives OpenCode its provider and credential.
 * [niks3](niks3/README.md) - The niks3 binary cache: server module, auto-upload hook, client substituter setup and access model.
 * [nostalgex](nostalgex/README.md) - Serves the Nostalgex web tuner, a retro cable-TV channel guide for a Plex, Jellyfin or Emby library, with Nginx.
 * [openvpn](openvpn/README.md) - This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.

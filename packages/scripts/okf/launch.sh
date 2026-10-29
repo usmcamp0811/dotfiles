@@ -15,7 +15,7 @@ with --serve they are served over HTTP instead, for other machines to read.
 
   PAGE                  a page relative to the site, e.g. modules/nixos/services/niks3/README.html
   -s, --search QUERY    open the search page for QUERY (type:Guide, tag:vault, ...)
-  -t, --theme THEME     use a theme: navy, navy-light, usmc, docusaurus, field-manual, trail-map, manpage, lantern, toc, okf-visualizer or okf-visualizer-dark
+  -t, --theme THEME     use a theme: navy-mk2 or navy-mk2-light
   -b, --browser CMD     browser command; may include arguments
   -p, --print           print the URL and do not open or serve anything
       --serve           serve the site over HTTP instead of opening a browser
@@ -62,7 +62,7 @@ while [ $# -gt 0 ]; do
       ;;
     -t | --theme)
       [ $# -ge 2 ] || { echo "$name: $1 needs a theme" >&2; exit 2; }
-      case "$2" in navy|navy-light|usmc|docusaurus|field-manual|trail-map|manpage|lantern|toc|okf-visualizer|okf-visualizer-dark) theme="$2" ;; *)
+      case "$2" in navy-mk2|navy-mk2-light) theme="$2" ;; *)
         echo "$name: unknown theme: $2" >&2; exit 2 ;;
       esac
       shift 2

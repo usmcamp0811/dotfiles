@@ -187,7 +187,7 @@ instead of grepping. Conventions are in `docs/OKF.md`.
   invent `generated`, `sources` or `stale_after` values. A missing `verified` means unverified.
 - Check with `nix build .#checks.x86_64-linux.okf` (or `nix run .#okf -- check docs modules systems`).
 - To read them rendered, `nix run .#campground` opens a static, offline website of all three bundles in a
-  browser (`-- --search 'words'` opens the search page; `-- --theme lantern` chooses a look; `-- --print` prints the URL instead).
+  browser (`-- --search 'words'` opens the search page; `-- --theme navy-mk2-light` chooses the light look; `-- --print` prints the URL instead).
 
 ## Important Reminders for Claude
 

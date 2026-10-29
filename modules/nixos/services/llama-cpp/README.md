@@ -1,3 +1,11 @@
+---
+type: NixOS Module
+title: llama.cpp inference and OpenCode
+description: "The llama.cpp service module with an on-demand model router, and the client module that gives OpenCode its provider and credential."
+resource: ./default.nix
+tags: [services, llama-cpp, ai]
+---
+
 # llama.cpp inference and OpenCode
 
 `fmf.services.llama-cpp` extends the NixOS llama.cpp service. It supports the

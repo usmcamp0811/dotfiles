@@ -471,6 +471,7 @@
         if (n.tags.length) { card.appendChild(el("p", "m", "tags: " + n.tags.join(", "))); }
         var near = Array.from(n.nset).sort(function (a, b) { return a.title < b.title ? -1 : 1; });
         if (near.length) {
+          card.appendChild(el("h3", "", "Linked documents"));
           var list = el("ul");
           near.slice(0, 8).forEach(function (m) {
             var li = el("li"), a = el("a", "", m.title); a.href = themed(m.url); li.appendChild(a); list.appendChild(li);
@@ -483,9 +484,11 @@
           label.appendChild(box); label.appendChild(document.createTextNode(" Show only this neighbourhood"));
           card.appendChild(label);
         }
-        var close = el("button", "x", "Close"); close.type = "button";
+        var row = el("div", "row"), open = el("a", "open", "Open document"), close = el("button", "x", "Close");
+        open.href = themed(n.url); close.type = "button";
         close.addEventListener("click", function () { choose(null); });
-        card.appendChild(close);
+        row.appendChild(open); row.appendChild(close);
+        card.appendChild(row);
         card.hidden = false;
       }
       function choose(n) {
@@ -511,10 +514,12 @@
       });
 
       // Legend: one toggle per document type, coloured as in the graph.
+      if (g.types.length) { legend.appendChild(el("div", "legend-head", "Types")); }
       g.types.forEach(function (type) {
         var button = el("button", "legend-item"); button.type = "button"; button.setAttribute("aria-pressed", "true");
         var swatch = el("span", "swatch"); swatch.style.background = g.colorOf({ type: type });
-        button.appendChild(swatch); button.appendChild(document.createTextNode(type + " (" + g.typeCounts[type] + ")"));
+        button.appendChild(swatch); button.appendChild(document.createTextNode(type));
+        button.appendChild(el("span", "n", String(g.typeCounts[type])));
         button.addEventListener("click", function () {
           hidden[type] = !hidden[type]; button.setAttribute("aria-pressed", hidden[type] ? "false" : "true"); refresh();
         });

@@ -48,13 +48,9 @@ in
     test "$(${docs}/bin/campground --print)" = "file://${site}/index.html"
     test "$(OKF_BROWSER=echo ${docs}/bin/campground)" = "file://${site}/index.html"
     test "$(${docs}/bin/campground --browser echo --search 'type:Guide a b')" = "file://${site}/search.html?q=type%3AGuide%20a%20b"
-    test "$(${docs}/bin/campground --browser echo --theme docusaurus)" = "file://${site}/index.html?theme=docusaurus"
+    test "$(${docs}/bin/campground --browser echo --theme navy-mk2-light)" = "file://${site}/index.html?theme=navy-mk2-light"
     test "$(${docs}/bin/campground --serve --bind 0.0.0.0 --port 9000 --print)" = "http://localhost:9000/index.html"
     if ${docs}/bin/campground --serve --port nope 2>/dev/null; then exit 1; fi
-    test "$(${docs}/bin/campground --browser echo --theme lantern)" = "file://${site}/index.html?theme=lantern"
-    test "$(${docs}/bin/campground --browser echo --theme toc)" = "file://${site}/index.html?theme=toc"
-    test "$(${docs}/bin/campground --browser echo --theme okf-visualizer)" = "file://${site}/index.html?theme=okf-visualizer"
-    test "$(${docs}/bin/campground --browser echo --theme okf-visualizer-dark)" = "file://${site}/index.html?theme=okf-visualizer-dark"
     if ${docs}/bin/campground --browser echo --theme no-such-theme 2>/dev/null; then exit 1; fi
     if ${docs}/bin/campground --browser echo no-such-page.html 2>/dev/null; then exit 1; fi
     if ${docs}/bin/campground --browser no-such-browser 2>/dev/null; then exit 1; fi

@@ -37,7 +37,7 @@ with lib.fmf; let
     hash = "sha256-B+N9+pezN8zIU2XVft35m5cG8J2ztZsmDQMzsjs0PEs=";
   };
 
-  # Roboto (body) and Space Grotesk (headings), Latin subsets as woff2 from @fontsource, both
+  # Roboto (body), Space Grotesk (headings) and JetBrains Mono (the Navy Mk II labels), Latin subsets as woff2 from @fontsource, both
   # under the SIL Open Font License. style.css declares them with relative urls; they are copied
   # into the site, so nothing is fetched at view time. Without them pages use system fonts.
   fontFile = family: version: weight: hash:
@@ -51,6 +51,8 @@ with lib.fmf; let
     {name = "roboto-700.woff2"; path = fontFile "roboto" "5.3.0" "700" "sha256-udZtFwgVb3Za2lGTm8JO0lna+mnrYxs25ENoD+nhWHk=";}
     {name = "space-grotesk-500.woff2"; path = fontFile "space-grotesk" "5.3.0" "500" "sha256-GxqBMdnt+XXZ3s7oHi8r9QSBL3pPSY5VAPKKYT4i5kw=";}
     {name = "space-grotesk-700.woff2"; path = fontFile "space-grotesk" "5.3.0" "700" "sha256-NfiuxWz9XL/bA8xoczpUoLBbs2F//NX9MyutwLBFylU=";}
+    {name = "jetbrains-mono-400.woff2"; path = fontFile "jetbrains-mono" "5.3.0" "400" "sha256-FEJbqcaVdjwVR/SKIGt6pgNQozriPeCfBAeHfz/Nies=";}
+    {name = "jetbrains-mono-500.woff2"; path = fontFile "jetbrains-mono" "5.3.0" "500" "sha256-yxgv7u1NeY/2lh08efcCYnlEj8oGdkOKrssh8/w5VTo=";}
   ];
 
   # Build a static website from OKF bundles, plus a launcher that opens it.
@@ -70,7 +72,7 @@ with lib.fmf; let
     subtitle ? "Notes, runbooks and reference, read from their source files.",
     start ? null,
     exclude ? [],
-    theme ? "navy",
+    theme ? "navy-mk2",
     withMermaid ? true,
   }:
     pkgs.stdenvNoCC.mkDerivation {
