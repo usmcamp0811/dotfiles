@@ -143,6 +143,23 @@ cloud and agent defaults are unchanged. Select a model with `/models` or:
 opencode --model llama-cpp/gpt-oss-20b
 ```
 
+### Context overflow and compaction loops
+
+A 32K window overflows if one tool result (a large read or grep) adds ~15K tokens at
+once: llama-server answers `request (N tokens) exceeds the available context size`
+before the agent can react, and the compaction request, which sends the whole
+history, overflows too. Two settings keep a session inside the window:
+
+- `llamaCpp.compactionHeadroom` (default 6144) sets each model's OpenCode
+  `limit.input` to context minus max output minus the headroom (24576 for a 32K
+  model), so compaction starts while there is still room for the summary request.
+- `llamaCpp.toolOutput.maxLines` / `maxBytes` (default 500 / 16384) cap one tool
+  result (OpenCode's own defaults are 2000 / 51200). They apply to every model in
+  that OpenCode while llama.cpp is enabled.
+
+To diagnose a loop, look for the overflow message with
+`journalctl -u llama-cpp | grep 'exceeds the available context'`.
+
 Quit and restart OpenCode after configuration changes or key rotation. Keeping
 the credential in an environment variable does not hide it from the same user
 or root, but prevents embedding it in the store or command-line arguments.

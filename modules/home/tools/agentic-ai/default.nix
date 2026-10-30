@@ -138,6 +138,32 @@ in {
         default = null;
         description = "User-readable runtime API-key path, outside the Nix store.";
       };
+      compactionHeadroom = mkOption {
+        type = types.ints.unsigned;
+        default = 6144;
+        description = ''
+          Tokens kept free below each model's window when OpenCode decides to compact. OpenCode
+          compacts at context minus max output (30720 of 32768 here), but compaction sends the whole
+          history plus a summary prompt, so it has to fit in the window too. This sets limit.input to
+          context minus max output minus this headroom, so compaction starts early enough to succeed.
+        '';
+      };
+      toolOutput = {
+        maxLines = mkOption {
+          type = types.ints.positive;
+          default = 500;
+          description = ''
+            Lines of one tool result OpenCode keeps before truncating it to disk (its default is 2000).
+            A single large read or grep can add ~15K tokens at once; against a 32K local window that
+            overflows the server before the agent can compact, and compaction then overflows too.
+          '';
+        };
+        maxBytes = mkOption {
+          type = types.ints.positive;
+          default = 16384;
+          description = "Bytes of one tool result OpenCode keeps before truncating it to disk (its default is 51200).";
+        };
+      };
     };
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode =
@@ -437,10 +463,11 @@ in {
                   models = lib.mapAttrs (_: model: {
                     name = model.name;
                     tool_call = true;
-                    limit = {
-                      context = model.contextSize;
-                      output = model.maxOutputTokens;
-                    };
+                     limit = {
+                       context = model.contextSize;
+                       output = model.maxOutputTokens;
+                       input = model.contextSize - model.maxOutputTokens - cfg.llamaCpp.compactionHeadroom;
+                     };
                     modalities = {input = ["text"]; output = ["text"];};
                   }) llamaModels;
                 };
@@ -512,6 +539,13 @@ in {
             }
             // optAttrs cfg.enableOpencodeAnthropicAuthPlugin {
               plugin = [opencodeAnthropicMaxFixPlugin];
+            }
+            // optAttrs cfg.llamaCpp.enable {
+              # Global in OpenCode, so it also applies to cloud models while llama.cpp is enabled.
+              tool_output = {
+                max_lines = cfg.llamaCpp.toolOutput.maxLines;
+                max_bytes = cfg.llamaCpp.toolOutput.maxBytes;
+              };
             }
             // optAttrs (cfg.enableOpencode && cfg.enableSkills) {
               permission = {
