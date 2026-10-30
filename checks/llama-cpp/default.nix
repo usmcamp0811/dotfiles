@@ -57,7 +57,7 @@ pkgs.testers.nixosTest {
         assert result.strip() == "401", result
     with subtest("authenticated model listing works without loading weights"):
         data = json.loads(server.succeed("curl -fsS -H 'Authorization: Bearer synthetic-test-key-not-a-production-secret' http://127.0.0.1:18080/v1/models"))
-        assert {m["id"] for m in data["data"]} == {"gpt-oss-20b", "qwen3.6-35b-a3b", "qwen3-coder-30b-a3b", "devstral-small-2"}, data
+        assert {m["id"] for m in data["data"]} == {"gpt-oss-20b", "qwen3.6-35b-a3b", "qwen3.5-9b", "qwen3-coder-30b-a3b", "devstral-small-2"}, data
     with subtest("every preset passes worker argument parsing and reaches the fake GGUF"):
         for model in sorted(m["id"] for m in data["data"]):
             before = int(server.succeed("journalctl -u llama-cpp.service --no-pager | grep -c 'invalid magic' || true").strip())

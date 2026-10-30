@@ -17,6 +17,12 @@
       contextSize = 32768;
       maxOutputTokens = 2048;
     };
+    "qwen3.5-9b" = {
+      package = pkgs.fmf.llama-model-qwen35-9b-ud-q4-k-xl;
+      name = "Qwen3.5 9B (UD-Q4_K_XL)";
+      contextSize = 32768;
+      maxOutputTokens = 2048;
+    };
     qwen3-coder-30b-a3b = {
       package = pkgs.fmf.llama-model-qwen3-coder-30b-a3b-ud-q3-k-xl;
       name = "Qwen3 Coder 30B A3B (UD-Q3_K_XL)";
