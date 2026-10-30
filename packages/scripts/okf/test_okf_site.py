@@ -87,7 +87,7 @@ class SiteTest(unittest.TestCase):
     def test_builds_every_page_and_verifies_clean(self):
         _, summary = self.build()
         self.assertEqual(summary["problems"], [])
-        for rel in ("index.html", "search.html", "assets/style.css", "assets/theme.js", "assets/app.js", "assets/search-index.js",
+        for rel in ("index.html", "search.html", "assets/style.css", "assets/theme.js", "assets/app.js", "assets/search-index.js", "assets/campground-badge.png",
                     "docs/a.html", "docs/index.html", "docs/log.html", "docs/sub/index.html",
                     "systems/x86_64-linux/webb/README.html", "docs/images/pic.png"):
             self.assertTrue((self.out / rel).is_file(), rel)
@@ -307,7 +307,8 @@ class SiteTest(unittest.TestCase):
 
     def test_masthead_has_the_navy_mk2_emblem_and_the_graph_card_a_way_in(self):
         self.build()
-        self.assertIn('<svg class="emblem" viewBox="0 0 64 64" aria-hidden="true">', self.html("index.html"))
+        self.assertIn('<img class="emblem" src="assets/campground-badge.png" alt="" width="40" height="40">', self.html("index.html"))
+        self.assertTrue((self.out / "assets" / "campground-badge.png").is_file())
         graph = self.html("assets/graph.js")
         for part in ('"legend-head"', '"Linked documents"', '"Open document"'):
             self.assertIn(part, graph)
@@ -339,6 +340,7 @@ class SiteTest(unittest.TestCase):
         self.assertNotIn('class="cta"', bare.page_html(next(p for p in bare.pages if p.kind == "concept")))
         self.assertIn("@font-face", self.html("assets/style.css"))
         self.assertIn("fonts/space-grotesk-700.woff2", self.html("assets/style.css"))
+        self.assertIn('src="../assets/campground-badge.png" alt="" width="40" height="40"', page)
 
     def test_theme_script_carries_the_theme_between_pages(self):
         self.build()
