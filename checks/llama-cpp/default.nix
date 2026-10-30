@@ -4,10 +4,16 @@
   catalog = (import ../../lib/llama-cpp-models {}).llamaCppModels {inherit pkgs;};
   # Exercise every real ID/limit, substituting tiny files for weights only.
   testModels = pkgs.lib.mapAttrs (_: model: model // {package = fakeModel;}) catalog;
-# OpenCode 1.19.4's usable() uses context minus max output when limit.input is
-# absent. Check the shared default without realizing the GGUF derivation.
-in assert pkgs.lib.all (model: model.contextSize == 32768
-  && model.contextSize - model.maxOutputTokens == 30720) (builtins.attrValues catalog);
+  # Check advertised context budgets without realizing any GGUF derivations.
+  expectedContexts = {
+    gpt-oss-20b = 65536;
+    "qwen3.6-35b-a3b" = 65536;
+    "qwen3.5-9b" = 65536;
+    qwen3-coder-30b-a3b = 65536;
+    devstral-small-2 = 65536;
+  };
+in assert pkgs.lib.mapAttrs (_: model: model.contextSize) catalog == expectedContexts;
+assert pkgs.lib.all (model: model.maxOutputTokens == 2048) (builtins.attrValues catalog);
 pkgs.testers.nixosTest {
   name = "llama-cpp-authenticated-router";
   nodes.server = {config, lib, ...}: {
