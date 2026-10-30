@@ -232,6 +232,8 @@ class SiteTest(unittest.TestCase):
         self.assertIn("doc tier-human-reviewed", webb)
         self.assertIn('data-stale-after="2026-09-23T00:00:00Z"', webb)
         self.assertIn("Verified by human:me", webb)
+        self.assertIn('<span class="vby">Verified by human:me', webb)  # one block line per fact, no <br>
+        self.assertNotIn("<br>", webb.split('class="plate"')[1].split("</section>")[0])
         self.assertNotIn("tier-", self.html("search.html").split("<main")[1].split("</main>")[0])
 
     def test_tree_links_a_folder_with_one_document(self):
@@ -295,9 +297,17 @@ class SiteTest(unittest.TestCase):
         self.assertIn('data-theme="navy-mk2-light"', self.html("index.html"))
         self.assertIn('"navy-mk2": "navy-mk2-light"', self.html("assets/theme.js"))
 
+    def test_nix_identifiers_are_coloured_like_names(self):
+        # Pygments leaves them as plain text; the design colours them, so they get the name class.
+        html_out = okf_site._highlight('pkgs.fmf.okf.mkSite { name = "x"; }', "nix", None)
+        self.assertIn('<span class="n">pkgs</span>', html_out)
+        self.assertIn('<span class="n">mkSite</span>', html_out)
+        self.assertNotIn('<span class="n"> </span>', html_out)  # whitespace stays plain
+        self.assertNotIn('class="n"', okf_site._highlight("echo hi", "bash", None))
+
     def test_masthead_has_the_navy_mk2_emblem_and_the_graph_card_a_way_in(self):
         self.build()
-        self.assertIn('<svg class="emblem-mk2"', self.html("index.html"))
+        self.assertIn('<svg class="emblem" viewBox="0 0 64 64" aria-hidden="true">', self.html("index.html"))
         graph = self.html("assets/graph.js")
         for part in ('"legend-head"', '"Linked documents"', '"Open document"'):
             self.assertIn(part, graph)

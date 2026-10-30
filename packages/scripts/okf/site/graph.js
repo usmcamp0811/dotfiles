@@ -23,7 +23,8 @@
     return {
       palette: palette, paper: css("--paper", "#101410"), ink: css("--ink", "#e2e5d9"), soft: css("--soft", "#a2aa9b"),
       link: css("--graph-link", css("--rule", "#374333")), accent: css("--accent", "#a9bd78"),
-      signal: css("--signal", "#c0504d"), mark: css("--human", "#a58a64"), mono: css("--mono", "monospace")
+      signal: css("--signal", "#c0504d"), mark: css("--human", "#a58a64"), mono: css("--mono", "monospace"),
+      panel: css("--panel", "#0e1a30"), near: css("--tok-n", "#5eead4")
     };
   }
 
@@ -77,7 +78,12 @@
       return { types: types, counts: counts };
     }
     var typeInfo = assignColors();
-    function colorOf(n) { return colors.palette[typeColor[n.type] % colors.palette.length]; }
+    // The local graph is one picture, not a map of types: the document in the accent colour,
+    // what it links to and from in teal, the next ring out muted. The global graph colours by type.
+    function colorOf(n) {
+      if (opt.compact && n.ring !== undefined) { return n.ring === 0 ? colors.accent : (n.ring === 1 ? colors.near : colors.soft); }
+      return colors.palette[typeColor[n.type] % colors.palette.length];
+    }
 
     // layout ------------------------------------------------------------------
     function tick() {
@@ -157,9 +163,9 @@
       ctx.clearRect(0, 0, W, H);
       ctx.setTransform(dpr * view.k, 0, 0, dpr * view.k, dpr * view.x, dpr * view.y);
       ctx.lineCap = "round";
-      ctx.lineWidth = 1 / view.k;
-      ctx.strokeStyle = colors.link;
-      ctx.globalAlpha = set ? 0.15 : 0.7;
+      ctx.lineWidth = (opt.compact ? 1.5 : 1) / view.k;
+      ctx.strokeStyle = opt.compact ? colors.accent : colors.link;
+      ctx.globalAlpha = set ? 0.15 : (opt.compact ? 1 : 0.7);
       ctx.beginPath();
       for (i = 0; i < liveLinks.length; i++) {
         ctx.moveTo(liveLinks[i].a.x, liveLinks[i].a.y); ctx.lineTo(liveLinks[i].b.x, liveLinks[i].b.y);
@@ -180,7 +186,11 @@
         ctx.globalAlpha = set && !set.has(n) ? 0.2 : (n.ring === 2 ? 0.65 : 1);
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 6.2832);
         ctx.fillStyle = colorOf(n); ctx.fill();
-        if (n === selected || n === opt.center) {
+        if (opt.compact && n === opt.center) {
+          // A faint accent ring, as in the design; the global graph's selection ring is red.
+          ctx.lineWidth = 1.5 / view.k; ctx.strokeStyle = colors.accent; ctx.globalAlpha = 0.5;
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 4.5 / view.k, 0, 6.2832); ctx.stroke();
+        } else if (n === selected || n === opt.center) {
           ctx.lineWidth = 2 / view.k; ctx.strokeStyle = colors.signal; ctx.globalAlpha = 1;
           ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 2.5 / view.k, 0, 6.2832); ctx.stroke();
         } else if (matches && matches.has(n)) {
@@ -193,7 +203,7 @@
       ctx.globalAlpha = 1;
       ctx.font = (opt.compact ? 10 : 11) + "px " + colors.mono;
       ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = colors.paper;
+      ctx.lineJoin = "round"; ctx.lineWidth = 3; ctx.strokeStyle = opt.compact ? colors.panel : colors.paper;
       for (i = 0; i < live.length; i++) {
         n = live[i];
         var sx = screenX(n), sy = screenY(n);
@@ -418,6 +428,7 @@
       var model = build({ nodes: picks.map(function (n) { return n.raw; }), edges: edges });
       model.nodes.forEach(function (n, i) {
         n.ring = i === 0 ? 0 : (i <= first.length ? 1 : 2);
+        n.r = n.ring === 0 ? 5.5 : (n.ring === 1 ? 4.5 : 3.5); // the design's sizes, whatever the degree
         var ring = n.ring, count = ring === 1 ? first.length : Math.min(second.length, 24), at = ring === 1 ? i - 1 : i - 1 - first.length;
         if (ring) { n.x = (ring * 38) * Math.cos(at / count * 6.2832); n.y = (ring * 38) * Math.sin(at / count * 6.2832); }
         else { n.x = n.y = 0; }
