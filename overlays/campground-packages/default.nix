@@ -145,6 +145,28 @@ in {
   in
     channels.unstable.beets.override {python3 = unstablePython;};
 
+  # cadwyn's pyproject sets pytest `filterwarnings = error`, and anyio 4.15
+  # deprecated `anyio.abc.BlockingPortal`, which starlette's TestClient still
+  # touches. The DeprecationWarning becomes an ImportError in conftest.py, so
+  # cadwyn fails, taking apache-airflow-core and every Airflow VM with it.
+  # `-W` on the command line takes precedence over the ini filter (tests only;
+  # the installed package is unchanged). Done via
+  # pythonPackagesExtensions because nixpkgs' apache-airflow builds its own
+  # `python3.override { packageOverrides = ...; }` set, which would discard a
+  # packageOverrides passed in from outside. Drop once starlette/cadwyn catch up.
+  pythonPackagesExtensions =
+    prev.pythonPackagesExtensions
+    ++ [
+      (_: pyPrev: {
+        cadwyn = pyPrev.cadwyn.overridePythonAttrs (old: {
+          pytestFlags =
+            (old.pytestFlags or [])
+            # No spaces allowed: pytestFlags is word-split without structuredAttrs.
+            ++ ["-Wignore::DeprecationWarning"];
+        });
+      })
+    ];
+
   # Jupyter environment builder
   inherit (jupyenv.lib.${system}) mkJupyterlabNew mkKernel;
 }
