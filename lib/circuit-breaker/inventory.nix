@@ -1532,9 +1532,23 @@
         (r:
           lib.concatMap (u: let
             ep = parseEndpoint u;
+            # A loopback backend is a service on the proxy's own system.
+            selfSvc =
+              if ep == null || !(net.isLoopback ep.host || ep.host == "localhost")
+              then null
+              else serviceOnPort n ep.port;
             res =
               if ep == null
               then null
+              else if net.isLoopback ep.host || ep.host == "localhost"
+              then {
+                sys = n;
+                target =
+                  if selfSvc != null
+                  then selfSvc
+                  else ownerId n;
+                isService = selfSvc != null;
+              }
               else resolveBackend ep.host ep.port;
           in
             lib.optional (res != null) {

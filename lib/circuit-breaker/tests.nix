@@ -85,7 +85,16 @@
           service = "vault";
         };
         services.vault.loadBalancer.servers = [{url = "http://10.8.0.3:8200";}];
+        routers.topology = {
+          rule = "Host(`topology.lan.example`)";
+          service = "topology";
+        };
+        services.topology.loadBalancer.servers = [{url = "https://127.0.0.1:8443";}];
       };
+    };
+    fmf.services.circuit-breaker = {
+      enable = true;
+      port = 8443;
     };
     fmf.services.circuit-breaker.hints = {
       location = "rack-1";
@@ -374,6 +383,15 @@
     vaultClientEdgeUsesPublishedService = {
       expr = lib.elem "rel/uses/vm/vm-web/svc/vm-vault/vault" relIds;
       expected = true;
+    };
+    loopbackBackendResolvesToOwnService = {
+      expr = [
+        (lib.elem "rel/proxies_to/svc/alpha/traefik/svc/alpha/circuit-breaker/topology" relIds)
+        byId."svc/alpha/circuit-breaker".attributes.publishedHostnames
+        byId."svc/alpha/circuit-breaker".attributes.kind
+        (lib.elem "mon/svc/alpha/circuit-breaker/http" monIds)
+      ];
+      expected = [true ["topology.lan.example"] "monitoring" true];
     };
     hintDeviceAndConnection = {
       expr = [byId."device/core-switch".name (lib.elem "rel/connects_to/host/alpha/device/core-switch" relIds)];

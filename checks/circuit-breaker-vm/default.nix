@@ -383,7 +383,7 @@ in
               return bool(t.get("latest"))
           retry(has_telemetry, timeout_seconds=180)
           edge.succeed("test \"$(stat -c %a /var/lib/cb-agent/device.key)\" = 600")
-          edge.succeed("cb-agent status | grep -q 'link: accepted'")
+          edge.succeed("cb-agent status > /tmp/agent-status; grep -q 'link: accepted' /tmp/agent-status")
 
       with subtest("agent identity persists across restarts; no re-approval"):
           fp = edge.succeed("cb-agent status | sed -n 's/^fingerprint: //p'").strip()

@@ -28,6 +28,23 @@ volume, not virtiofs or RAM, and `/var/lib/circuit-breaker` and `/var/lib/circui
 must be persistent shares. **This layout has not been booted in tests**; the module is
 verified on a regular NixOS VM.
 
+### Running next to your reverse proxy
+
+If the host already runs Traefik (or another proxy), keep the server on loopback:
+`server.listenAddress = "127.0.0.1"` (the default), publish it with a router to
+`https://127.0.0.1:8443`, and no firewall port is needed. Two things to check:
+
+- **Port collisions.** The container publishes `httpProbePort` (default `8080`, loopback) in
+  addition to the UI port. Traefik with `api.insecure = true` listens on `:8080`, so set
+  `server.httpProbePort` to something free (for example `18080`) or the container will fail to
+  start with "address already in use".
+- **Resources.** Measured on the pinned image: about 1.2 GiB RSS and about 1 % of a core at
+  steady state, busier for the first minute (migrations). Set `server.resources.cpus` for
+  small hosts. Leave `flakeSync.git` off on a small host: it evaluates the flake with `nix`.
+
+The exporter follows loopback backends: a proxy route to `127.0.0.1:<port>` becomes a
+`proxies_to` edge to the service on the same system, and the published name gets its HTTPS monitor.
+
 ## 1. Install
 
 1. Pick a secret source (exactly one):

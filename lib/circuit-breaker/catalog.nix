@@ -215,6 +215,10 @@
       ports = [6443];
       upstream = true;
     };
+    circuit-breaker = {
+      kind = "monitoring";
+      ports = [8443];
+    };
     k8s-control-plane = {
       kind = "orchestrator";
       ports = [6443];
@@ -253,7 +257,6 @@
     "nix-snapshotter"
     "wazuh-agent"
     "openwrt-backup"
-    "circuit-breaker"
     "entrypoint"
     "busybox"
     "example_postgresql"
