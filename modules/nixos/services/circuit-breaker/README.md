@@ -146,7 +146,7 @@ URL, credentials, policy and state; run with `sudo`).
 | `resources.memoryMax` / `cpuQuota` | `2G` / `150%` | Cap for the whole stack (`circuit-breaker.slice`). Measured: about 1.2 GiB and about 1 % of a core at steady state. |
 | `secrets.generate` | `false` | Create `secrets/server.env` once. Never overwritten. |
 | `secrets.environmentFile` | `null` | Your own file defining the four variables. |
-| `secrets.vault.{enable,path,kvVersion,address,roleId,secretId}` | off | Render from Vault via `fmf.services.vault-agent`. Exactly one of the three secret sources. |
+| `secrets.vault.{enable,vault-path,kvVersion,vault-address,role-id,secret-id}` | off | Render from Vault via `fmf.services.vault-agent`, with the same option names and defaults as the other fmf modules (`vault-path` defaults to `secret/campground/circuit-breaker`, KV v2; address, role-id and secret-id come from `fmf.services.vault-agent.settings.vault`, and evaluation fails if those are unset). A change in Vault restarts `circuit-breaker-env` and with it the stack. Exactly one of the three secret sources. |
 | `backup.enable` / `keep` | `false` / `7` | |
 
 ### `flakeSync.*`

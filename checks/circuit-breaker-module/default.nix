@@ -186,7 +186,7 @@
       };
     in
       !(s.config.systemd.services ? circuit-breaker-ready) && s.config.systemd.services ? cb-agent && failed s == [];
-    "vault secrets: rendered via vault-agent, change-action none" = let
+    "vault secrets: rendered via vault-agent, change-action restart (like the other modules)" = let
       v = evalWith {
         fmf.services.vault-agent.enable = true;
         fmf.services.circuit-breaker = lib.recursiveUpdate good {
@@ -198,7 +198,24 @@
       };
       f = v.config.detsys.vaultAgent.systemd.services.circuit-breaker-env;
     in
-      failed v == [] && f.secretFiles.files."circuit-breaker.env".changeAction == "none";
+      failed v == [] && f.secretFiles.files."circuit-breaker.env".changeAction == "restart" && f.secretFiles.files."circuit-breaker.env".path == "/tmp/detsys-vault/circuit-breaker.env";
+    # Same option names and defaults as mealie/authentik/netbox: the global vault-agent settings
+    # flow through, the KV path defaults to secret/campground/<name>, KV v2.
+    "vault secrets: pattern options and defaults match the other modules" = let
+      v = evalWith {
+        fmf.services.vault-agent.enable = true;
+        fmf.services.circuit-breaker = lib.recursiveUpdate good {
+          server.secrets = {
+            generate = false;
+            vault.enable = true;
+          };
+        };
+      };
+      o = v.config.fmf.services.circuit-breaker.server.secrets.vault;
+      a = v.config.fmf.services.vault-agent.services.circuit-breaker-env.settings;
+      m = builtins.head a.auto_auth.method;
+    in
+      o.vault-path == "secret/campground/circuit-breaker" && o.kvVersion == "v2" && o.vault-address == "https://vault.example.invalid" && a.vault.address == o.vault-address && m.config.role_id_file_path == o.role-id && m.config.secret_id_file_path == o.secret-id && m.config.remove_secret_id_file_after_reading == false;
     # Regression: <dataDir>/secrets is only created when the module generates the secrets. With
     # Vault nothing creates it, the post-restart `touch` of the marker failed, and the provision
     # unit restarted the whole stack every minute. The directory must exist BEFORE any restart.

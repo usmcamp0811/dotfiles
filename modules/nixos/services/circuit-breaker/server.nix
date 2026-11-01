@@ -514,15 +514,30 @@ in {
       '';
       vault = {
         enable = mkBoolOpt false "Render the env file from HashiCorp Vault with the repository's vault-agent integration.";
-        path = mkOpt types.str "secret/campground/circuit-breaker" "KV path holding CB_DB_PASSWORD, CB_VAULT_KEY, CB_JWT_SECRET, NATS_AUTH_TOKEN.";
+        # Same option names and defaults as the other fmf modules (mealie, authentik, netbox, ...).
+        # The defaults read the global vault-agent settings without a fallback, so an
+        # unconfigured Vault fails at evaluation instead of producing an empty agent config.
+        role-id =
+          mkOpt types.str
+          config.fmf.services.vault-agent.settings.vault.role-id
+          "Absolute path to the Vault role-id";
+        secret-id =
+          mkOpt types.str
+          config.fmf.services.vault-agent.settings.vault.secret-id
+          "Absolute path to the Vault secret-id";
+        vault-path =
+          mkOpt types.str "secret/campground/circuit-breaker"
+          "The Vault path to the KV holding CB_DB_PASSWORD, CB_VAULT_KEY, CB_JWT_SECRET and NATS_AUTH_TOKEN";
         kvVersion = mkOption {
           type = types.enum ["v1" "v2"];
           default = "v2";
-          description = "KV engine version.";
+          description = "KV store version";
         };
-        address = mkOpt types.str (config.fmf.services.vault-agent.settings.vault.address or "") "Vault address.";
-        roleId = mkOpt types.str (config.fmf.services.vault-agent.settings.vault.role-id or "") "Path of the AppRole role-id file.";
-        secretId = mkOpt types.str (config.fmf.services.vault-agent.settings.vault.secret-id or "") "Path of the AppRole secret-id file.";
+        vault-address = mkOption {
+          type = types.str;
+          default = config.fmf.services.vault-agent.settings.vault.address;
+          description = "The address of your Vault";
+        };
       };
     };
 
@@ -779,24 +794,27 @@ in {
       # The vault-agent integration renders the env file just before the staging unit runs.
       fmf.services.vault-agent.services.circuit-breaker-env = {
         settings = {
-          vault.address = srv.secrets.vault.address;
+          vault.address = srv.secrets.vault.vault-address;
           auto_auth.method = [
             {
               type = "approle";
               config = {
-                role_id_file_path = srv.secrets.vault.roleId;
-                secret_id_file_path = srv.secrets.vault.secretId;
+                role_id_file_path = srv.secrets.vault.role-id;
+                secret_id_file_path = srv.secrets.vault.secret-id;
                 remove_secret_id_file_after_reading = false;
               };
             }
           ];
         };
         secrets.file.files."circuit-breaker.env" = {
-          # Never bounce the database because a secret was re-read.
-          change-action = "none";
+          # As in every other module: when the secret changes in Vault, restart the staging
+          # unit. Everything that needs the staged file requires that unit, so the stack
+          # restarts with the new values. (With "none", a change in Vault was rendered to the
+          # agent's file but never re-staged, so the services kept running on the old values.)
+          change-action = "restart";
           permissions = "0400";
           text = let
-            kv = k: ''{{ with secret "${srv.secrets.vault.path}" }}{{ if eq "${srv.secrets.vault.kvVersion}" "v1" }}{{ .Data.${k} }}{{ else }}{{ .Data.data.${k} }}{{ end }}{{ end }}'';
+            kv = k: ''{{ with secret "${srv.secrets.vault.vault-path}" }}{{ if eq "${srv.secrets.vault.kvVersion}" "v1" }}{{ .Data.${k} }}{{ else }}{{ .Data.data.${k} }}{{ end }}{{ end }}'';
           in
             concatMapStringsSep "\n" (k: "${k}=${kv k}") secretVars + "\n";
         };
