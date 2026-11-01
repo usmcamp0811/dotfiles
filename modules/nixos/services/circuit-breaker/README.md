@@ -14,9 +14,15 @@ topology map and monitor for homelabs. This module deploys it declaratively and 
 the flake the **source of truth for what is declared**, so nobody keeps a second
 inventory by hand:
 
-```
-nixosConfigurations ──► exporter ──► inventory.json (schema v1) ──► circuit-breaker-sync ──► Circuit Breaker
- (evaluated, not grepped)   lib.fmf.circuitBreaker      versioned, no secrets        idempotent reconciler        topology + monitors
+```mermaid
+flowchart LR
+    cfg["nixosConfigurations<br/>(evaluated, not grepped)"]
+    exp["exporter<br/>lib.fmf.circuitBreaker"]
+    inv["inventory.json (schema v1)<br/>versioned, no secrets"]
+    sync["circuit-breaker-sync<br/>idempotent reconciler"]
+    cb["Circuit Breaker<br/>topology + monitors"]
+
+    cfg --> exp --> inv --> sync --> cb
 ```
 
 Read [the architecture](../../../../docs/CIRCUIT-BREAKER.md) for the design, the

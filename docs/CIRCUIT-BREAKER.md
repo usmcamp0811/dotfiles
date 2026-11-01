@@ -29,18 +29,22 @@ Related: [module reference](../modules/nixos/services/circuit-breaker/README.md)
 | Module | `modules/nixos/services/circuit-breaker/` | Server as systemd units (PostgreSQL+TimescaleDB, Redis, NATS, migrations, API, workers), sync units, optional agent, hints, assertions. |
 | Agent package | `packages/circuit-breaker-agent` | Go `cb-agent` built from the pinned upstream commit, self-update disabled. |
 
-```
-                      deployment-driven                       git-driven
- nixos-rebuild/deploy ───────────────┐              trusted ref (fixed in config)
- (inventory built from the           ▼                          │ git ls-remote
-  exact config being deployed)  circuit-breaker-sync.service    ▼
-                                     │              circuit-breaker-sync-git.timer
-                                     │                          │ nix build git+URL?rev=SHA#circuit-breaker-inventory
-                                     ▼                          ▼
-                              circuit-breaker-sync --apply  (validate → guard → reconcile → record revision)
-                                     │
-                                     ▼
-                               Circuit Breaker  ◄── cb-agent (outbound only): telemetry, remote probes
+```mermaid
+flowchart TD
+    deploy["nixos-rebuild / deploy<br/>(inventory built from the exact config being deployed)"]
+    ref["trusted ref<br/>(fixed in config)"]
+    svc["circuit-breaker-sync.service"]
+    timer["circuit-breaker-sync-git.timer"]
+    apply["circuit-breaker-sync --apply<br/>validate → guard → reconcile → record revision"]
+    cb["Circuit Breaker"]
+    agent["cb-agent<br/>(outbound only)"]
+
+    deploy -->|"deployment-driven"| svc
+    ref -->|"git-driven: git ls-remote"| timer
+    timer -->|"nix build git+URL?rev=SHA#circuit-breaker-inventory"| apply
+    svc --> apply
+    apply --> cb
+    agent -->|"telemetry, remote probes"| cb
 ```
 
 ## What is extracted
