@@ -1,0 +1,49 @@
+--- a/apps/backend/src/app/api/auth_oauth.py
++++ b/apps/backend/src/app/api/auth_oauth.py
+@@ -218,8 +218,13 @@
+     expected_nonce: str,
+     *,
+     client_secret: str | None = None,
++    audience: str | None = None,
+ ) -> None:
+-    """Verify id_token signature and check the nonce claim.
++    """Verify id_token signature, its audience, and check the nonce claim.
++
++    `audience` is the client_id this application registered with the provider. PyJWT rejects
++    any token that carries an `aud` claim when no expected audience is given, so without it
++    every standards-compliant OIDC id_token failed with InvalidAudienceError.
+ 
+     Supports RSA, EC, and HS* (client_secret) per common OIDC deployments.
+     Raises HTTPException on signature failure, expiry, or nonce mismatch.
+@@ -246,6 +251,7 @@
+                 id_token,
+                 client_secret,
+                 algorithms=[alg],
++                audience=audience,
+                 options={"verify_exp": True},
+                 leeway=30,
+             )
+@@ -266,6 +272,7 @@
+                 id_token,
+                 public_key,
+                 algorithms=[alg],
++                audience=audience,
+                 options={"verify_exp": True},
+                 leeway=30,
+             )
+@@ -695,6 +702,7 @@
+                 {},
+                 oauth_state.nonce,
+                 client_secret=oidc_secret,
++                audience=cfg["client_id"],
+             )
+         else:
+             jwks_uri = disc.get("jwks_uri") or ""
+@@ -716,6 +724,7 @@
+                 jwks_resp.json(),
+                 oauth_state.nonce,
+                 client_secret=oidc_secret,
++                audience=cfg["client_id"],
+             )
+ 
+     userinfo_ep = disc.get("userinfo_endpoint")

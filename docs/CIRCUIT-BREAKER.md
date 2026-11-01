@@ -165,6 +165,18 @@ Honest account of what has actually been exercised.
   API serves the UI itself; TLS terminates at your proxy or in the API), no pgbouncer, and no
   certbot/ACME (the extra is not in upstream's lockfile). Upstream's agent binary download
   and self-update endpoints have nothing to serve; agents are Nix-managed.
+- **One local patch to upstream** (`packages/circuit-breaker-server/patches/`). In 0.4.6 (and
+  upstream `main`) the OIDC id_token is verified without an expected audience; PyJWT rejects every
+  token that carries an `aud` claim in that case, so OIDC sign-in (Authentik, Keycloak, ...) fails
+  with `InvalidAudienceError` whatever the provider is configured to do. The patch passes the
+  configured client ID as the audience (stricter, not looser). The package's install check mints
+  HMAC and RSA/JWKS id_tokens and checks that the right audience is accepted and a wrong one is
+  rejected. Drop the patch when upstream fixes it; the build fails loudly if the patch no longer
+  applies.
+- On first start CB stores `http://<detected-LAN-ip>:8088` as its **App URL**, an address nothing
+  serves here. It overrides the forwarded headers and becomes the OIDC `redirect_uri`, so set
+  Settings -> Connectivity -> External Access -> App URL to the public `https://` name before
+  configuring OIDC.
 - Discovery by ARP needs raw-socket access (the discovery worker holds `CAP_NET_RAW`) and a
   segment the server is attached to; use agents on other segments for L2 discovery.
 - After first-run setup the effective vault key is the one the wizard generated, kept in

@@ -38,6 +38,12 @@ in
       inherit (up) version;
       inherit src;
 
+      # Local fixes on top of the pinned upstream release (each is explained in its file).
+      #  - oidc-id-token-audience: upstream verifies the OIDC id_token without an expected
+      #    audience, which PyJWT rejects for every real provider (InvalidAudienceError), so
+      #    no OIDC login (Authentik, Keycloak, ...) could ever succeed.
+      patches = [./patches/oidc-id-token-audience.patch];
+
       nativeBuildInputs = [python python.pkgs.pip autoPatchelfHook makeWrapper];
       buildInputs = [stdenv.cc.cc.lib zlib];
 
@@ -100,6 +106,37 @@ in
         v = resolve_app_version()
         assert v == "${up.version}", v
         print("imports ok, version", v)
+        PY
+
+        # OIDC sign-in: the id_token audience must be the configured client_id (see the patch)
+        $out/bin/cb-python - <<'PY'
+        import json, time
+        import jwt
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from fastapi import HTTPException
+        from jwt.algorithms import RSAAlgorithm
+        from app.api.auth_oauth import _verify_id_token_nonce as verify
+
+        def rejected(fn):
+            try:
+                fn()
+            except HTTPException as e:
+                return e.status_code == 400
+            return False
+
+        claims = {"aud": "client-1", "nonce": "n1", "exp": int(time.time()) + 300, "iss": "https://idp.example"}
+        secret = "s" * 40
+        hs = jwt.encode(claims, secret, algorithm="HS256")
+        verify(hs, {}, "n1", client_secret=secret, audience="client-1")
+        assert rejected(lambda: verify(hs, {}, "n1", client_secret=secret, audience="someone-else"))
+        assert rejected(lambda: verify(hs, {}, "wrong-nonce", client_secret=secret, audience="client-1"))
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        jwk = json.loads(RSAAlgorithm.to_jwk(key.public_key())); jwk["kid"] = "k1"
+        rs = jwt.encode({**claims, "aud": ["other", "client-1"]}, key, algorithm="RS256", headers={"kid": "k1"})
+        verify(rs, {"keys": [jwk]}, "n1", audience="client-1")
+        assert rejected(lambda: verify(rs, {"keys": [jwk]}, "n1", audience="someone-else"))
+        print("oidc audience checks ok")
         PY
         runHook postInstallCheck
       '';
