@@ -17,30 +17,32 @@ the root-only API token.
 
 ## 0. Choose the host
 
-Requirements: podman (set automatically by the oci-containers backend), about 2 GB RAM for
-the container plus the OS, 10 GB of persistent disk, a persistent `/var/lib/circuit-breaker`,
-and outbound access to nothing (the app works air-gapped). Prefer a host that is always on
-and whose network can reach the machines you want probed. Do not co-locate it with your
-secrets manager.
+Requirements: about 1.5 GB of RAM for the stack plus the OS (measured: about 1.2 GiB at
+steady state; the default cap is 2 GiB), a few GB of persistent disk, persistent
+`/var/lib/circuit-breaker` and `/var/lib/circuit-breaker-sync`, and no outbound access (the app
+works air-gapped). There is no container runtime: PostgreSQL, Redis, NATS and the application
+run as plain systemd services. Prefer a host that is always on and whose network can reach the
+machines you want probed. Do not co-locate it with your secrets manager.
 
-On a MicroVM host the container store (`/var/lib/containers`, overlayfs) needs a real block
-volume, not virtiofs or RAM, and `/var/lib/circuit-breaker` and `/var/lib/circuit-breaker-sync`
-must be persistent shares. **This layout has not been booted in tests**; the module is
-verified on a regular NixOS VM.
+On a MicroVM host both directories must be persistent shares (virtiofs works: the data
+directory is owned by a fixed numeric id, `server.uid`, so ownership survives rebuilds). The
+module is verified on a regular NixOS VM; **a MicroVM boot has not been tested**.
 
 ### Running next to your reverse proxy
 
 If the host already runs Traefik (or another proxy), keep the server on loopback:
 `server.listenAddress = "127.0.0.1"` (the default), publish it with a router to
-`https://127.0.0.1:8443`, and no firewall port is needed. Two things to check:
+`http://127.0.0.1:8000`, and no firewall port is needed and no certificate has to be handled
+by the application (your proxy terminates TLS, and the loopback hop is plain HTTP). Two things
+to check:
 
-- **Port collisions.** The container publishes `httpProbePort` (default `8080`, loopback) in
-  addition to the UI port. Traefik with `api.insecure = true` listens on `:8080`, so set
-  `server.httpProbePort` to something free (for example `18080`) or the container will fail to
-  start with "address already in use".
-- **Resources.** Measured on the pinned image: about 1.2 GiB RSS and about 1 % of a core at
-  steady state, busier for the first minute (migrations). Set `server.resources.cpus` for
-  small hosts. Leave `flakeSync.git` off on a small host: it evaluates the flake with `nix`.
+- **Port collisions.** The API port (`server.port`, default `8000`) must be free. The bundled
+  PostgreSQL, Redis and NATS use private loopback ports (`server.internalPorts.*`, 15432, 16379,
+  14222), so they cannot collide with a database of your own.
+- **Resources.** The whole stack lives in `circuit-breaker.slice`; set
+  `server.resources.memoryMax` / `cpuQuota` and `server.apiWorkers` (each API worker holds a copy
+  of the application) for small hosts. Leave `flakeSync.git` off on a small host: it evaluates
+  the flake with `nix`.
 
 The exporter follows loopback backends: a proxy route to `127.0.0.1:<port>` becomes a
 `proxies_to` edge to the service on the same system, and the published name gets its HTTPS monitor.
@@ -56,14 +58,16 @@ The exporter follows loopback backends: a proxy route to `127.0.0.1:<port>` beco
    - `server.secrets.vault.enable = true;` – store those four keys in Vault at
      `server.secrets.vault.path` (KV v2 by default) and enable `fmf.services.vault-agent`.
 2. Enable the module (see the [module README](../modules/nixos/services/circuit-breaker/README.md)),
-   set `server.listenAddress` to the address clients use, deploy.
+   decide how clients reach it (loopback behind your proxy, or a LAN address with
+   `server.tls.*`), deploy. TimescaleDB is under the Timescale licence, so the host needs
+   `nixpkgs.config.allowUnfree = true` (or an allow-predicate for `timescaledb`).
 3. Wait for readiness:
    ```bash
    systemctl status circuit-breaker-ready.service      # active (exited) when /readyz is ready
-   circuit-breaker-admin status
-   journalctl -u podman-circuit-breaker -f
+   circuit-breaker-admin status                         # every circuit-breaker-* unit + readiness
+   journalctl -u circuit-breaker-postgres -u circuit-breaker-migrate -u circuit-breaker-api -f
    ```
-   A cold first start takes about a minute; the first image load a few minutes more.
+   A cold first start (database initialisation and migrations) takes under a minute.
 
 ## 2. First-run administrator
 
@@ -73,8 +77,7 @@ Until an administrator exists the API answers only the setup endpoints.
 circuit-breaker-admin setup-token    # prints the one-time token; refuses once setup is complete
 ```
 
-Open `https://<listenAddress>:8443` (accept the self-signed certificate once, or provide
-`server.tls.*`), create the administrator with the token, and complete the wizard. Set
+Open the UI through your proxy's name (or `<scheme>://<listenAddress>:<port>`), create the administrator with the token, and complete the wizard. Set
 **Settings → Connectivity → App URL** to the name users use and add an **Agent endpoint** with
 the URL agents should dial.
 
@@ -232,12 +235,18 @@ fmf.services.circuit-breaker.agent = {
 };
 ```
 
-Get the two public values from the running server (the script is only *read*, never run):
+Get the public values from the server:
 
 ```bash
-curl -ksS https://topology.lan.example.com/install-agent.sh -o /tmp/ia.sh
-sed -n 's/^CB_SERVER_STATIC_PK="\(.*\)"$/\1/p; s/^CB_TLS_PIN="\(.*\)"$/\1/p' /tmp/ia.sh
+sudo circuit-breaker-admin agent-key        # on the server: the 64-hex identity key (serverStaticPk)
+# tlsPin: only when the API itself serves a self-signed certificate (server.tls.*):
+openssl x509 -in <server.tls.certFile> -pubkey -noout | openssl pkey -pubin -outform der \
+  | openssl dgst -sha256 -binary | base64
 ```
+
+Agents that reach the server through a reverse proxy with a publicly trusted certificate need
+no pin. (Upstream's `/install-agent.sh` prints the same two values, but it needs a certificate
+in the data directory and is not used by the Nix-managed agent.)
 
 **Attended enrolment (default):** start the agent, run `cb-agent status` to read its
 fingerprint, then in the UI (**Agents → pending**) compare the fingerprint and approve.
@@ -296,21 +305,25 @@ and enrolled agents.
 
 File-level restore (the path used and reasoned about by this module):
 
-1. `systemctl stop podman-circuit-breaker circuit-breaker-sync circuit-breaker-sync-git`
-2. Restore `<dataDir>/data` and `<dataDir>/secrets/server.env` from backup, keeping the
-   original numeric ownership (`rsync -a --numeric-ids` or your backup tool's equivalent;
-   the data directory is owned by uid 1000 after first start).
-3. `systemctl start podman-circuit-breaker`, wait for `circuit-breaker-ready`.
+1. `systemctl stop circuit-breaker.target circuit-breaker-sync circuit-breaker-sync-git`
+2. Restore `<dataDir>/data` (including its hidden `.env`) and `<dataDir>/secrets/server.env`
+   from backup, keeping the original numeric ownership (`rsync -a --numeric-ids` or your backup
+   tool's equivalent; the data directory belongs to `server.uid`, default 1500).
+3. `systemctl start circuit-breaker.target`, wait for `circuit-breaker-ready`.
 4. Re-run the sync: `sudo cb-sync --apply`. Ownership tags in the restored database make it
    a no-op for everything already there.
 
-The upstream snapshot restore (`cb restore <archive>` inside the container) is **not
-exercised by this repository's tests**; prefer the file-level path or read upstream's
-backup guide first.
+The upstream snapshot restore (`cb restore <archive>`) is **not exercised by this
+repository's tests**, and the `cb` CLI is not installed; prefer the file-level path or read
+upstream's backup guide first.
 
-If you lose `server.env` but still have the data, the vault key can be recovered from
-`<dataDir>/data/.env` (CB rotates it there), but the database password and JWT secret cannot
-be guessed: restore the file.
+**The vault key moves.** The first-run wizard generates the vault key that actually protects
+stored credentials and writes it to `<dataDir>/data/.env`; the `CB_VAULT_KEY` from your secrets
+becomes stale (the application logs a warning on every start and uses the file). So
+`<dataDir>/data/.env` must be in every backup. If you lose `server.env` but still have the data,
+the vault key is recoverable from that file, but the database password and the JWT secret
+cannot be guessed: restore `server.env`. PostgreSQL's password is fixed when the cluster is
+first initialised; changing `CB_DB_PASSWORD` later requires `ALTER ROLE breaker` first.
 
 ## 13. Secret rotation
 
@@ -319,7 +332,7 @@ be guessed: restore the file.
 - **Server secrets** (`server.env`): do not edit casually; the database role password and the
   vault key are baked into stored data. Follow upstream's vault-key rotation procedure from
   the UI; update the stored `CB_VAULT_KEY` afterwards, then
-  `systemctl restart circuit-breaker-env` (this restarts the container).
+  `systemctl restart circuit-breaker-env` (this restarts every service that depends on it).
 - **Agent enrolment tokens:** single-use and short-lived; revoke unused ones in the UI.
 
 ## 14. Upgrade and rollback
@@ -328,18 +341,25 @@ Upgrade Circuit Breaker (rare; the API is not stable between releases):
 
 1. Read upstream's changelog for the target release.
 2. Take a snapshot and copy it off the host (section 11).
-3. Update `server.image` to the new digest (`skopeo inspect docker://ghcr.io/blkleg/circuitbreaker:<tag>`
-   shows it) and the agent source pin in `packages/circuit-breaker-agent`.
+3. Bump the pin in `lib/circuit-breaker/upstream.nix` (version, commit, source hash; the agent
+   package uses the same pin), regenerate the dependency lock
+   (`python packages/circuit-breaker-server/gen-lock.py <upstream-src> > packages/circuit-breaker-server/requirements.lock.txt`),
+   then fix the two fixed-output hashes: set `hash`/`npmDepsHash` in `wheelhouse.nix` and
+   `frontend.nix` to `lib.fakeHash`, build `.#circuit-breaker-server`, and copy the hashes Nix
+   reports (also `vendorHash` for the agent). If a new dependency ships no Linux wheel,
+   `gen-lock.py` says so.
 4. Re-run the tests: `nix build .#checks.x86_64-linux.circuit-breaker-sync` (update
    `tests/fixtures/openapi-*-subset.json` from the new release's `/api/openapi.json`) and the
    VM test (`…circuit-breaker-vm`). Update `TESTED_CB_VERSION` in `cb_sync/__init__.py`.
    The reconciler refuses a different minor version until you do (or set
    `allowUntestedVersion` temporarily and watch `cb-sync --dry-run`).
-5. Deploy. The app migrates its schema on start (`/readyz` reports `ready` afterwards).
+5. Deploy. `circuit-breaker-migrate` re-runs on every package change and migrates the schema
+   before the API and workers start (`/readyz` reports `ready` afterwards).
 
-Rollback: set `server.image` back to the previous digest and deploy. **A schema migration is
-not reversible by the image alone**: if the new version already migrated the database, restore
-the pre-upgrade snapshot (section 12) before starting the old image.
+Rollback: switch back to the previous NixOS generation (or revert the pin). **A schema
+migration is not reversible by the package alone**: if the new version already migrated the
+database, restore the pre-upgrade snapshot or file-level backup (section 12) before starting
+the old version.
 
 Rolling back the NixOS generation is safe for the reconciler: the next sync reapplies the
 older declared state and tags what is no longer declared as retired.
@@ -354,5 +374,5 @@ circuit-breaker-admin status
 sudo cb-sync --status --live
 systemctl --failed | grep circuit
 journalctl -u circuit-breaker-sync -u circuit-breaker-sync-git --since -1d
-curl -ksS https://<server>:8443/api/v1/health | jq     # liveness + dependency state
+curl -ksS <scheme>://<server>:<port>/api/v1/health | jq   # liveness + dependency state
 ```

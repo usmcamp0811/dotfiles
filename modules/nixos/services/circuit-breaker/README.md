@@ -1,7 +1,7 @@
 ---
 type: NixOS Module
 title: fmf.services.circuit-breaker
-description: Runs the Circuit Breaker homelab topology server and agent, and keeps its map in sync with the NixOS flake that declares the infrastructure.
+description: Runs the Circuit Breaker homelab topology server (natively, no container) and agent, and keeps its map in sync with the NixOS flake that declares the infrastructure.
 resource: ./default.nix
 tags: [services, circuit-breaker, topology, monitoring]
 generated: { by: claude-agent/sonnet-5-5, at: 2026-11-01T12:00:00Z }
@@ -32,8 +32,8 @@ fmf.services.circuit-breaker = {
   server = {
     enable = true;
     domain = "topology.lan.example.com";
-    listenAddress = "10.0.0.30";     # the LAN address your reverse proxy / agents reach
-    openFirewall = true;
+    # default: 127.0.0.1, plain HTTP behind a reverse proxy on this host that terminates TLS.
+    # For direct access set listenAddress to a LAN address and tls.certFile/keyFile.
     secrets.generate = true;         # or secrets.vault.enable / secrets.environmentFile
     backup.enable = true;
   };
@@ -79,8 +79,13 @@ fmf.services.circuit-breaker.hints = {
 
 | Unit | Purpose |
 | --- | --- |
-| `circuit-breaker-env.service` | Stages the container's secrets at `/run/circuit-breaker-secrets/server.env` (0400). Generates them once, takes an external file, or is rendered by vault-agent. |
-| `podman-circuit-breaker.service` (or `docker-…`) | The pinned container. Named by the oci-containers backend. |
+| `circuit-breaker-env.service` | Stages the secrets at `/run/circuit-breaker-secrets/server.env` (0400) and derives the database and Redis URLs. Generates the secrets once, takes an external file, or is rendered by vault-agent. |
+| `circuit-breaker-postgres.service` | PostgreSQL 15 + TimescaleDB, loopback only, its own port, SCRAM. Initialised on first start. |
+| `circuit-breaker-redis.service`, `circuit-breaker-nats.service` | Redis (cache, pub/sub, rate limits) and NATS with JetStream (internal bus), loopback only. |
+| `circuit-breaker-migrate.service` | Creates the database and runs the migrations before the API and workers start (re-runs when the package changes). |
+| `circuit-breaker-api.service` | uvicorn: the API, WebSockets and the web UI. The only service that can listen beyond loopback. |
+| `circuit-breaker-worker-*.service` | Discovery, notification, telemetry, integration, monitor scheduler, two monitor pollers, probe dispatch. The discovery worker alone holds `CAP_NET_RAW`. |
+| `circuit-breaker.slice`, `circuit-breaker.target` | One resource cap (memory, CPU) and one switch for the whole stack. |
 | `circuit-breaker-ready.service` | Succeeds once `/api/v1/readyz` reports ready. Everything that talks to the API orders after it. |
 | `circuit-breaker-provision.{service,timer}` | Every minute until an administrator exists: then mints the `nix-flake-sync` token to `flakeSync.tokenFile`. |
 | `circuit-breaker-sync.service` | Deployment-driven sync of the inventory built from the exact configuration being deployed. Restarts whenever the inventory changes. |
@@ -117,19 +122,22 @@ URL, credentials, policy and state; run with `sudo`).
 | Option | Default | Notes |
 | --- | --- | --- |
 | `enable` | `false` | |
-| `image` | digest of upstream 0.4.6 | Must contain `@sha256:`. Ignored when `imageFile` is set. |
-| `imageFile` | `null` | `dockerTools.pullImage` result; loaded instead of pulled (offline, tests). |
-| `dataDir` | `/var/lib/circuit-breaker` | Root-only parent; `data/` is mounted at `/data`. |
-| `listenAddress` | `127.0.0.1` | Host address the HTTPS port is published on. |
-| `port` | `8443` | Host port for the UI/API (HTTPS only). |
-| `httpProbePort` | `8080` | Loopback-only health probe port. |
+| `package` | `pkgs.fmf.circuit-breaker-server` | The natively built server: upstream's release, Python dependencies pinned by hash from its `poetry.lock`, web UI built from its `package-lock.json`. |
+| `dataDir` | `/var/lib/circuit-breaker` | `data/` (database, bus, uploads, vault-key file) is owned by the service account; `secrets/` is root-only. |
+| `user`, `uid` | `circuit-breaker`, `1500` | The one account everything runs as. The numeric id is pinned so a shared or persistent data volume stays readable. |
+| `listenAddress` | `127.0.0.1` | Address the API/UI listens on. Never `0.0.0.0`. |
+| `port` | `8000` | API/UI port. Plain HTTP unless `tls.*` is set. |
+| `apiWorkers` | `2` | uvicorn processes of the API (each holds a copy of the application in memory). |
+| `allowPlainHttp` | `false` | Needed to serve plain HTTP on a non-loopback address. |
+| `internalPorts.{postgres,redis,nats}` | `15432` / `16379` / `14222` | Loopback ports of the bundled services; chosen so they cannot collide with a database you already run. |
+| `postgres.{sharedBuffers,extraConfig}` | `128MB` | |
 | `domain` | `null` | Public name; used by reverse-proxy integration and docs. |
 | `openFirewall` | `false` | |
 | `trustedProxyCidrs` | loopback | Add your reverse proxy, or every client shares one rate-limit bucket. |
 | `updateCheck` | `false` | The app's daily GitHub release check. |
-| `tls.certFile` / `keyFile` | `null` | Runtime paths (never store paths). Both or neither. |
+| `tls.certFile` / `keyFile` | `null` | Runtime paths (never store paths). Both or neither. When set the API itself serves HTTPS (the key is delivered as a systemd credential) and the public certificate is published at `<dataDir>/data/tls/fullchain.pem`, where upstream computes agent pins from. |
 | `egress.allowDirect` / `proxyUrl` / `airgap` | `true` / `null` / `false` | Upstream refuses to start with neither a proxy nor direct egress. |
-| `resources.memory` / `cpus` | `2g` / `2` | |
+| `resources.memoryMax` / `cpuQuota` | `2G` / `150%` | Cap for the whole stack (`circuit-breaker.slice`). Measured: about 1.2 GiB and about 1 % of a core at steady state. |
 | `secrets.generate` | `false` | Create `secrets/server.env` once. Never overwritten. |
 | `secrets.environmentFile` | `null` | Your own file defining the four variables. |
 | `secrets.vault.{enable,path,kvVersion,address,roleId,secretId}` | off | Render from Vault via `fmf.services.vault-agent`. Exactly one of the three secret sources. |
@@ -163,14 +171,18 @@ URL, credentials, policy and state; run with `sudo`).
 
 ## Security properties (enforced by assertions and tests)
 
-- The image is pinned by digest; floating tags are rejected.
+- Everything is built from pinned inputs: the upstream commit, the wheels (sha256 per file
+  from upstream's `poetry.lock`), the npm dependencies (lockfile hash). No image, no
+  download at run time.
 - Secrets never enter the Nix store: they are generated at runtime, supplied as a runtime
-  file, or rendered by Vault. The container only sees `/run/circuit-breaker-secrets/server.env`.
-- The container is not privileged, drops all capabilities and re-adds only the eight
-  upstream's compose file grants, has a read-only root, `no-new-privileges`, and mounts
-  only its data directory (never a container-runtime socket).
-- The UI binds one configured address; the probe port is loopback only; the database,
-  cache and message bus are not published.
+  file, or rendered by Vault. Services read them from `/run/circuit-breaker-secrets/server.env`
+  through systemd; none appears on a command line (Redis gets its password on stdin, NATS from a
+  0700 runtime file, PostgreSQL from a password file removed after `initdb`).
+- One unprivileged account runs everything, in a sandbox (`ProtectSystem=strict`,
+  `NoNewPrivileges`, syscall filter, empty capability set). The only capability anywhere is
+  `CAP_NET_RAW` on the discovery worker.
+- The API binds one configured address (loopback by default); PostgreSQL, Redis and NATS bind
+  loopback on private ports. Plain HTTP on a non-loopback address is rejected at evaluation time.
 - The reconciler runs as an unprivileged account with an empty capability set and a
   system-call filter, reads its token as a systemd credential, and pins the server's
   certificate.

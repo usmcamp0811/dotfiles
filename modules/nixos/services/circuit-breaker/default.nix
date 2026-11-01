@@ -144,9 +144,13 @@ in {
     };
     scheme = mkOption {
       type = types.str;
-      default = "https";
+      default =
+        if cfg.server.tls.certFile != null
+        then "https"
+        else "http";
+      defaultText = literalExpression ''"https" if server.tls is set, otherwise "http"'';
       readOnly = true;
-      description = "Backend scheme for reverse-proxy discovery. The container only serves the API/UI over HTTPS.";
+      description = "Backend scheme for reverse-proxy discovery: https when the API terminates TLS itself, otherwise plain http on loopback.";
     };
 
     hints = mkOption {

@@ -1,4 +1,4 @@
-# Evaluation-level tests for fmf.services.circuit-breaker: generated systemd/OCI
+# Evaluation-level tests for fmf.services.circuit-breaker: generated systemd
 # configuration, secret handling, unit ordering and every invalid option
 # combination. Failing any expectation fails the build with the test name.
 {
@@ -59,28 +59,68 @@
   ok = mk {};
   c = ok.config;
   svc = c.systemd.services;
-  cont = c.virtualisation.oci-containers.containers.circuit-breaker;
   syncExec = svc.circuit-breaker-sync.serviceConfig.ExecStart;
   disabled = evalWith {};
-  noStoreSecret = !(lib.any (lib.hasPrefix builtins.storeDir) cont.environmentFiles);
+  appUnits = ["circuit-breaker-env" "circuit-breaker-postgres" "circuit-breaker-redis" "circuit-breaker-nats" "circuit-breaker-migrate" "circuit-breaker-api" "circuit-breaker-ready"] ++ map (w: "circuit-breaker-worker-${w}") ["discovery" "notification" "telemetry" "integration" "monitor-scheduler" "monitor-poll-0" "monitor-poll-1" "monitor-probe-dispatch"];
+  natsPrepareText = builtins.readFile svc.circuit-breaker-nats.serviceConfig.ExecStartPre;
+  svcUnits = lib.filter (n: n != "circuit-breaker-env" && n != "circuit-breaker-ready") appUnits;
   secretNames = ["CB_DB_PASSWORD" "CB_VAULT_KEY" "CB_JWT_SECRET" "NATS_AUTH_TOKEN"];
 
   tests = {
-    "disabled: no units, no container, no assertions" = !(disabled.config.systemd.services ? circuit-breaker-sync) && !(disabled.config.systemd.services ? circuit-breaker-env) && !(disabled.config.systemd.services ? cb-agent) && !(disabled.config.virtualisation.oci-containers.containers ? circuit-breaker) && failed disabled == [];
+    "disabled: no units, no assertions" = !(disabled.config.systemd.services ? circuit-breaker-sync) && !(disabled.config.systemd.services ? circuit-breaker-env) && !(disabled.config.systemd.services ? cb-agent) && !(disabled.config.systemd.services ? circuit-breaker-api) && failed disabled == [];
     "enabled: no failed assertions" = failed ok == [];
-    "image is pinned by digest" = lib.hasInfix "@sha256:" cont.image;
-    "secret variables never in the Nix-declared environment" = lib.all (n: !(cont.environment ? ${n})) secretNames;
-    "container env file is a runtime path, not the store" = noStoreSecret && cont.environmentFiles == ["/run/circuit-breaker-secrets/server.env"];
-    "container is not privileged" = cont.privileged == false;
-    "container drops all capabilities and only re-adds upstream's set" = lib.elem "--cap-drop=ALL" cont.extraOptions && lib.attrNames (lib.filterAttrs (_: v: v) cont.capabilities) == ["CHOWN" "DAC_OVERRIDE" "FOWNER" "KILL" "NET_BIND_SERVICE" "NET_RAW" "SETGID" "SETUID"];
-    "container fs is read-only, no-new-privileges" = lib.elem "--read-only" cont.extraOptions && lib.elem "--security-opt=no-new-privileges:true" cont.extraOptions;
-    "no container runtime socket is mounted" = !(lib.any (v: lib.hasInfix ".sock" v) cont.volumes);
-    "only the data directory is mounted" = cont.volumes == ["/var/lib/circuit-breaker/data:/data"];
-    "UI binds loopback by default, probe port is loopback" = lib.all (p: lib.hasPrefix "127.0.0.1:" p) cont.ports;
-    "firewall is not opened by default" = !(lib.elem 8443 c.networking.firewall.allowedTCPPorts);
-    "data directory ownership is never re-adjusted by tmpfiles" = lib.elem "d /var/lib/circuit-breaker/data - - - -" c.systemd.tmpfiles.rules;
+    "all services and workers are generated" = lib.all (n: svc ? ${n}) (["circuit-breaker-env" "circuit-breaker-postgres" "circuit-breaker-redis" "circuit-breaker-nats" "circuit-breaker-migrate" "circuit-breaker-api" "circuit-breaker-ready"] ++ map (w: "circuit-breaker-worker-${w}") ["discovery" "notification" "telemetry" "integration" "monitor-scheduler" "monitor-poll-0" "monitor-poll-1" "monitor-probe-dispatch"]);
+    "secret variables never in any unit's Nix-declared environment" = lib.all (n: !(lib.any (v: svc.${n}.environment ? ${v}) (secretNames ++ ["CB_DB_URL" "CB_REDIS_URL" "CB_REDIS_PASSWORD"]))) appUnits;
+    "services read secrets from the runtime env file, not the store" = lib.all (n: svc.${n}.serviceConfig.EnvironmentFile == "/run/circuit-breaker-secrets/server.env") svcUnits;
+    "secrets directory is its own RuntimeDirectory" = svc.circuit-breaker-env.serviceConfig.RuntimeDirectory == "circuit-breaker-secrets" && lib.all (n: (svc.${n}.serviceConfig.RuntimeDirectory or "") != "circuit-breaker-secrets") svcUnits;
+    "every service runs as the pinned unprivileged account" = lib.all (n: svc.${n}.serviceConfig.User == "circuit-breaker" && svc.${n}.serviceConfig.Group == "circuit-breaker") svcUnits && c.users.users.circuit-breaker.uid == 1500 && c.users.groups.circuit-breaker.gid == 1500;
+    "only the discovery worker holds a capability (CAP_NET_RAW)" = lib.all (n: let
+      sc = svc.${n}.serviceConfig;
+    in
+      if n == "circuit-breaker-worker-discovery"
+      then sc.AmbientCapabilities == "CAP_NET_RAW"
+      else (sc.AmbientCapabilities or "") == "")
+    svcUnits;
+    "services are sandboxed and in the resource slice" = lib.all (n: let sc = svc.${n}.serviceConfig; in sc.NoNewPrivileges && sc.ProtectSystem == "strict" && sc.PrivateTmp && sc.Slice == "circuit-breaker.slice" && lib.elem "~@privileged" sc.SystemCallFilter) svcUnits;
+    "slice caps memory and cpu" =
+      c.systemd.slices.circuit-breaker.sliceConfig
+      == {
+        MemoryMax = "2G";
+        CPUQuota = "150%";
+      };
+    "API is loopback + plain http by default (a TLS proxy terminates)" = let e = svc.circuit-breaker-api.serviceConfig.ExecStart; in lib.hasInfix "--host 127.0.0.1" e && !(lib.hasInfix "--ssl" e) && c.fmf.services.circuit-breaker.scheme == "http";
+    "API terminates TLS from credentials when configured" = let
+      t = mk {
+        server.tls = {
+          certFile = "/run/tls/c.pem";
+          keyFile = "/run/tls/k.pem";
+        };
+      };
+      sc = t.config.systemd.services.circuit-breaker-api.serviceConfig;
+    in
+      lib.hasInfix "--ssl-certfile %d/tls-cert --ssl-keyfile %d/tls-key" sc.ExecStart && sc.LoadCredential == ["tls-cert:/run/tls/c.pem" "tls-key:/run/tls/k.pem"] && t.config.fmf.services.circuit-breaker.scheme == "https";
+    "bundled postgres/redis/nats bind loopback on private ports" = let
+      pgc = builtins.readFile (lib.last (lib.splitString " " (lib.removePrefix "config_file=" (lib.last (lib.splitString " -c " svc.circuit-breaker-postgres.serviceConfig.ExecStart)))));
+      natsc = natsPrepareText;
+      redisScript = builtins.readFile (lib.head (lib.splitString " " svc.circuit-breaker-redis.serviceConfig.ExecStart));
+    in
+      lib.hasInfix "listen_addresses = '127.0.0.1'" pgc && lib.hasInfix "port = 15432" pgc && lib.hasInfix "shared_preload_libraries = 'timescaledb'" pgc && lib.hasInfix "listen: 127.0.0.1:14222" natsc && lib.hasInfix "--bind 127.0.0.1 --port 16379" redisScript;
+    "postgres allows loopback SCRAM only" = let
+      pgc = builtins.readFile (lib.last (lib.splitString " " (lib.removePrefix "config_file=" (lib.last (lib.splitString " -c " svc.circuit-breaker-postgres.serviceConfig.ExecStart)))));
+      hba = builtins.readFile (lib.head (builtins.match ".*hba_file = '([^']*)'.*" pgc));
+    in
+      lib.hasInfix "host all all 127.0.0.1/32 scram-sha-256" hba && !(lib.hasInfix "trust" hba) && !(lib.hasInfix "local " hba);
+    "no secret appears on a command line or in a config file" = let
+      prep = natsPrepareText;
+      redisScript = builtins.readFile (lib.head (lib.splitString " " svc.circuit-breaker-redis.serviceConfig.ExecStart));
+    in
+      !(lib.hasInfix "--requirepass" redisScript) && !(lib.hasInfix "--auth" svc.circuit-breaker-nats.serviceConfig.ExecStart) && lib.hasInfix "umask 077" prep && lib.hasInfix "$NATS_AUTH_TOKEN" prep && svc.circuit-breaker-nats.serviceConfig.RuntimeDirectoryMode == "0700" && lib.hasInfix "| exec" redisScript;
+    "migrations run before the API and every worker" = lib.elem "circuit-breaker-migrate.service" svc.circuit-breaker-api.requires && lib.all (n: lib.elem "circuit-breaker-migrate.service" svc.${n}.requires) (lib.filter (lib.hasPrefix "circuit-breaker-worker-") appUnits);
+    "migrate waits for postgres; services wait for the secrets" = lib.elem "circuit-breaker-postgres.service" svc.circuit-breaker-migrate.requires && lib.all (n: lib.elem "circuit-breaker-env.service" svc.${n}.requires) (lib.filter (n: n != "circuit-breaker-env" && n != "circuit-breaker-ready") appUnits);
+    "readiness gate orders after the API" = lib.elem "circuit-breaker-api.service" svc.circuit-breaker-ready.requires;
+    "firewall is not opened by default" = !(lib.elem 8000 c.networking.firewall.allowedTCPPorts);
+    "state tree is owned by the service account" = lib.elem "d /var/lib/circuit-breaker/data 0700 circuit-breaker circuit-breaker -" c.systemd.tmpfiles.rules;
     "every generated unit file renders (no conflicting definitions)" = let
-      names = ["podman-circuit-breaker" "circuit-breaker-env" "circuit-breaker-ready" "circuit-breaker-sync" "circuit-breaker-provision" "circuit-breaker-snapshot" "cb-agent"];
       full = mk {
         server.backup.enable = true;
         server.tls = {
@@ -93,24 +133,23 @@
         };
         agent.enrollTokenFile = "/run/secrets/t";
       };
+      names = appUnits ++ ["circuit-breaker-provision" "circuit-breaker-snapshot" "circuit-breaker-sync" "circuit-breaker-sync-git" "cb-agent"];
     in
-      lib.all (n: builtins.stringLength full.config.systemd.units."${n}.service".text > 0) (names ++ ["circuit-breaker-sync-git"]) && builtins.stringLength full.config.systemd.units."circuit-breaker-snapshot.timer".text > 0 && builtins.stringLength full.config.environment.etc."circuit-breaker/agent.toml".source > 0;
-    "secrets directory never collides with the container unit's RuntimeDirectory" = svc.podman-circuit-breaker.serviceConfig.RuntimeDirectory != svc.circuit-breaker-env.serviceConfig.RuntimeDirectory && !(lib.hasInfix "/${svc.podman-circuit-breaker.serviceConfig.RuntimeDirectory}/" (lib.head cont.environmentFiles));
-    "podman: tmpfs mounts opt out of copy-up (image ships 39 MB under /var/lib/postgresql)" = lib.all (o: lib.hasSuffix ",notmpcopyup" o) (lib.filter (lib.hasPrefix "--tmpfs=") cont.extraOptions);
-    "docker: tmpfs mounts use plain options" = let
-      d = evalWith {
-        virtualisation.oci-containers.backend = "docker";
-        virtualisation.docker.enable = true;
-        fmf.services.circuit-breaker = lib.recursiveUpdate good {};
-      };
-    in
-      lib.all (o: !(lib.hasInfix "notmpcopyup" o)) d.config.virtualisation.oci-containers.containers.circuit-breaker.extraOptions;
-    "container waits for the secrets unit" = lib.elem "circuit-breaker-env.service" svc.podman-circuit-breaker.requires && lib.elem "circuit-breaker-env.service" svc.podman-circuit-breaker.after;
-    "readiness gate orders after the container" = lib.elem "podman-circuit-breaker.service" svc.circuit-breaker-ready.requires;
+      lib.all (n: builtins.stringLength full.config.systemd.units."${n}.service".text > 0) names && builtins.stringLength full.config.systemd.units."circuit-breaker-snapshot.timer".text > 0 && builtins.stringLength full.config.systemd.units."circuit-breaker.target".text > 0 && builtins.stringLength full.config.systemd.units."circuit-breaker.slice".text > 0 && builtins.stringLength full.config.environment.etc."circuit-breaker/agent.toml".source > 0;
     "sync orders after readiness" = lib.elem "circuit-breaker-ready.service" svc.circuit-breaker-sync.after;
     "sync consumes a build-time inventory store path" = lib.hasInfix "--apply --inventory ${builtins.unsafeDiscardStringContext (toString inventorySrc)}" (builtins.unsafeDiscardStringContext syncExec);
     "sync reads the token as a systemd credential, not an argument" = lib.hasInfix "--token-file %d/token" syncExec && lib.any (lib.hasSuffix "/sync-token") svc.circuit-breaker-sync.serviceConfig.LoadCredential && !(lib.hasInfix "sync-token" syncExec);
-    "sync pins the server certificate" = lib.hasInfix "--tls-pin-file %d/server-cert" syncExec;
+    "sync talks plain http to a loopback API (no pin)" = !(lib.hasInfix "--tls-pin-file" syncExec) && lib.hasInfix "--url http://127.0.0.1:8000" syncExec;
+    "sync pins the server certificate when the API serves TLS" = let
+      t = mk {
+        server.tls = {
+          certFile = "/run/tls/c.pem";
+          keyFile = "/run/tls/k.pem";
+        };
+      };
+      sc = t.config.systemd.services.circuit-breaker-sync.serviceConfig;
+    in
+      lib.hasInfix "--tls-pin-file %d/server-cert" sc.ExecStart && lib.hasInfix "--url https://" sc.ExecStart && lib.any (lib.hasPrefix "server-cert:/run/tls/c.pem") sc.LoadCredential;
     "sync is sandboxed without capabilities" = svc.circuit-breaker-sync.serviceConfig.CapabilityBoundingSet == "" && svc.circuit-breaker-sync.serviceConfig.NoNewPrivileges && svc.circuit-breaker-sync.serviceConfig.User == "circuit-breaker-sync";
     "sync does not retry unrecoverable exit codes" = svc.circuit-breaker-sync.serviceConfig.RestartPreventExitStatus == "2 3 6 7";
     "no git timer unless enabled" = !(svc ? circuit-breaker-sync-git) && !(c.systemd.timers ? circuit-breaker-sync-git);
@@ -173,7 +212,18 @@
       == "switch";
 
     # ---- invalid combinations must be rejected
-    "reject: floating image tag" = rejects "pinned by digest" (mk {server.image = "ghcr.io/blkleg/circuitbreaker:latest";});
+    "reject: plain http on a LAN address" = rejects "serves plain HTTP" (mk {server.listenAddress = "10.0.0.5";});
+    "accept: plain http on a LAN address when explicitly allowed" =
+      failed (mk {
+        server.listenAddress = "10.0.0.5";
+        server.allowPlainHttp = true;
+      })
+      == [];
+    "reject: colliding ports" = rejects "must all differ" (mk {
+      server.internalPorts.redis = 5432;
+      server.internalPorts.postgres = 5432;
+    });
+    "reject: a system uid below 100" = rejects "normal service id" (mk {server.uid = 5;});
     "reject: no secret source" = rejects "choose exactly one" (mk {server.secrets.generate = false;});
     "reject: two secret sources" = rejects "choose exactly one" (mk {server.secrets.environmentFile = "/run/x";});
     "reject: env file in the store" = rejects "must not be in the Nix store" (mk {

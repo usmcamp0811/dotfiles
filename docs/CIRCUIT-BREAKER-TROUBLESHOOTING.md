@@ -19,7 +19,7 @@ See the [runbook](CIRCUIT-BREAKER-RUNBOOK.md) for procedures and the
 | 1 | Unexpected error, bad usage, unreadable state file | Read the message; state file ownership: `ls -l /var/lib/circuit-breaker-sync` |
 | 2 | Invalid inventory or policy | `cb-sync --validate`; the message lists the first problems. A secret-looking key or value is rejected here |
 | 3 | Authentication or authorisation | Token missing, expired, revoked or rotated. `sudo circuit-breaker-admin mint-sync-token` |
-| 4 | Server unreachable after retries | Is the container up? `circuit-breaker-admin status`; certificate pin mismatch also lands here |
+| 4 | Server unreachable after retries | Is the API up? `circuit-breaker-admin status`; certificate pin mismatch also lands here |
 | 5 | Partial failure | Some operations failed; **safe to re-run**. Retirement is skipped in a run with errors. See the `error` lines |
 | 6 | Incompatible server or schema | OpenAPI missing an operation/field, a different CB minor version, or an unknown inventory `schemaVersion`. See the runbook's upgrade section |
 | 7 | Safety guard | Empty inventory or large shrink. Look at why the evaluation shrank; `--force-shrink` only if intended |
@@ -29,30 +29,47 @@ The units do not retry codes 2, 3, 6 and 7 (`RestartPreventExitStatus`).
 
 ## Server
 
-**`circuit-breaker-ready` never succeeds**
-`journalctl -u podman-circuit-breaker -e`. Common causes:
-- `CB_EGRESS_PROXY_URL is required in production…` – set `server.egress.allowDirect` (default true) or `proxyUrl`; the app refuses to start with neither.
-- `No space left on device` from `crun` – podman's `tmpcopyup` copying the image into a small tmpfs. The module sets `notmpcopyup`; if you added your own `--tmpfs` for podman, add it too.
-- `parsing file "/run/circuit-breaker-secrets/server.env": no such file` – the secrets unit did not run or failed: `systemctl status circuit-breaker-env`. Check the source (`secrets.generate`, file, or Vault render).
-- The secrets directory must not equal the container's `RuntimeDirectory` (systemd deletes that when the container unit restarts). The module uses a separate one.
+The stack is plain systemd units; `circuit-breaker-admin status` lists them all.
+Start/stop everything with `systemctl start|stop circuit-breaker.target`. Order is
+`env` -> `postgres` (+ `redis`, `nats`) -> `migrate` -> `api` and the `worker-*` units -> `ready`.
 
-**`circuit-breaker-env` fails with "does not define CB_…"**
-The external or Vault-rendered file lacks one of `CB_DB_PASSWORD`, `CB_VAULT_KEY`, `CB_JWT_SECRET`, `NATS_AUTH_TOKEN`. `CB_JWT_SECRET` and `NATS_AUTH_TOKEN` need 32+ characters, and the vault key must differ from the JWT secret.
+**`circuit-breaker-ready` never succeeds** – find the first unit that failed:
+`systemctl --failed | grep circuit`, then `journalctl -u <unit> -e`.
 
-**Curl to the UI hangs for minutes right after a restart**
-A rootful podman port mapping can swallow SYNs while the container is down. Use `--max-time` in scripts.
+| Unit | Symptom | Cause / fix |
+| --- | --- | --- |
+| `circuit-breaker-env` | `does not define CB_…` | The external or Vault-rendered file lacks one of `CB_DB_PASSWORD`, `CB_VAULT_KEY`, `CB_JWT_SECRET`, `NATS_AUTH_TOKEN`. |
+| `circuit-breaker-env` | `must be at least 32 characters`, `must differ`, `may only contain …` | `CB_JWT_SECRET` and `NATS_AUTH_TOKEN` need 32+ characters, the vault key must differ from the JWT secret, and the NATS token is limited to letters, digits and `. _ ~ + / = -` (it is written, quoted, into a config file). |
+| `circuit-breaker-postgres` | `password authentication failed` from `migrate`/`api` | The cluster was initialised with a different `CB_DB_PASSWORD` than the one now staged. The role password is fixed at first initialisation: run `ALTER ROLE breaker PASSWORD '…'` through a working connection, or restore the matching `server.env`. |
+| `circuit-breaker-postgres` | `could not load library "timescaledb"` / unfree package error at build time | TimescaleDB is under the Timescale licence: allow it (`nixpkgs.config.allowUnfree = true`). |
+| `circuit-breaker-postgres` | `Permission denied` on the data directory | The state tree must belong to `server.uid` (default 1500); after restoring from backup use `--numeric-ids`. A MicroVM share that remaps ids breaks this. |
+| `circuit-breaker-migrate` | alembic error | `journalctl -u circuit-breaker-migrate`. A failed migration leaves the API stopped; fix, then `systemctl restart circuit-breaker-migrate`. |
+| `circuit-breaker-api` | `CB_EGRESS_PROXY_URL is required in production…` | Set `server.egress.allowDirect` (default true) or `proxyUrl`; the app refuses to start with neither. |
+| `circuit-breaker-api` | `address already in use` | Something else holds `server.port`. Pick another. |
+| `circuit-breaker-nats` | config parse error | Never supply the NATS token through a variable in a config file: the module writes it quoted into `/run/circuit-breaker-nats/nats.conf`. |
+| any worker | restart loops | `journalctl -u circuit-breaker-worker-<name>`; usually Redis/NATS not yet up (they start in seconds) or the database unreachable. |
+
+**Everything restarted after `systemctl restart circuit-breaker-env`**
+Intended: every service `Requires` the staged secrets, and Redis gets a new password at each start.
 
 **`setup-token` says setup is complete**
 Correct: tokens are only valid until the first administrator exists. Reset an administrator with `circuit-breaker-admin cli user …` (see `cli user --help`).
 
-**After `systemctl restart circuit-breaker-env` the container restarted**
-Intended: the container `Requires` its secrets unit.
+**`Vault is not initialized` from a script you run by hand**
+The credential vault is unlocked by the API at startup. Standalone scripts must do
+`get_vault().reinitialize(vault_service.load_vault_key(db))` first (see `circuit-breaker-admin agent-key`).
+After first-run setup the effective vault key is in `<dataDir>/data/.env`, not the `CB_VAULT_KEY` you supplied.
+
+**`/install-agent.sh` returns 500 "Cannot obtain TLS pin"**
+Upstream derives agent pins from `<dataDir>/data/tls/fullchain.pem`. With `server.tls.*` the module
+publishes the certificate there; with plain HTTP behind a proxy there is none, so read the public key
+with `circuit-breaker-admin agent-key` instead (agents behind a proxy with a trusted certificate need no pin).
 
 **TLS: reverse proxy shows 502/handshake errors**
-The container serves HTTPS only and its default certificate is self-signed. Configure the proxy to skip verification for that hop, or set `server.tls.certFile/keyFile`.
+With `server.tls.*` unset the API speaks plain HTTP: point the proxy at `http://` and do not enable TLS to the backend. With `server.tls.*` set it speaks HTTPS: use `https://` and either trust the certificate or pin it.
 
 **UI loads but websockets/agents fail behind a proxy**
-Add the proxy address to `server.trustedProxyCidrs` and make sure it forwards `Upgrade` headers and `X-Forwarded-*`.
+Add the proxy address to `server.trustedProxyCidrs` (loopback is already trusted) and make sure it forwards `Upgrade` headers and `X-Forwarded-*`.
 
 ## Provisioning and the sync token
 
@@ -70,7 +87,7 @@ Add the proxy address to `server.trustedProxyCidrs` and make sure it forwards `U
 
 **"ip_address X is already used by Y; synced without it"** – the flake declares one address on two machines (the exporter also emits `duplicate_address`). Fix the flake. The entity exists without the IP meanwhile.
 
-**A container is missing its IP** – containers that only publish ports on the host share the host's address; CB rejects duplicate IPs, so the address is intentionally not recorded for them.
+**A container is missing its IP** – containers declared on a host (for example `virtualisation.oci-containers`) that only publish ports share the host's address; CB rejects duplicate IPs, so the address is intentionally not recorded for them.
 
 **Entity kept after removal from the flake** – by design (`nix:retired`). See runbook section 6.
 
@@ -98,7 +115,7 @@ live there. Large first evaluations need `buildTimeoutSecs`.
 | Symptom | Fix |
 | --- | --- |
 | `cb-agent.service` skipped | `serverStaticPkFile` does not exist yet (ConditionPathExists) |
-| `server_static_pk is not 64 hex characters` / `tls_pin is not a base64 SHA-256 digest` | Wrong value copied; re-extract from `install-agent.sh` |
+| `server_static_pk is not 64 hex characters` / `tls_pin is not a base64 SHA-256 digest` | Wrong value copied; re-read with `circuit-breaker-admin agent-key` (key) or compute the pin from the served certificate |
 | Stays `pending` | Approve it in the UI; check the fingerprint with `cb-agent status` |
 | `link: tls trust matched policy` missing, handshake errors | TLS pin stale (server certificate regenerated): update `tlsPin`/`tlsPinFile`. Time skew over 60 s also fails |
 | Rejected/revoked | Re-enrol (runbook section 9) |
@@ -107,10 +124,10 @@ live there. Large first evaluations need `buildTimeoutSecs`.
 
 ## Monitors show `down` for things that are up
 
-Remember who runs the check: the **server** (inside the container, on the container
-network path) unless a remote probe is assigned. A host the *container* cannot reach from its
+Remember who runs the check: the **server's workers**, from the server's network position,
+unless a remote probe is assigned. A host the *server* cannot reach from its
 network position, or a firewall that only allows other sources, will look down. Test from
-inside: `podman exec circuit-breaker sh -c 'nc -zv <host> <port>'`. Assign the monitor to an
+from the server host: `nc -zv <host> <port>` (as the `circuit-breaker` user for firewall rules scoped to it). Assign the monitor to an
 agent on the right segment. HTTPS monitors verify certificates by default
 (`monitoring.httpVerifyTls`).
 
@@ -124,4 +141,4 @@ systemctl status circuit-breaker-* cb-agent --no-pager
 journalctl -u 'circuit-breaker-*' --since -2h --no-pager
 ```
 
-Do not attach `server.env`, snapshots, tokens, or an unredacted `podman inspect`.
+Do not attach `server.env`, snapshots, tokens, or an unredacted unit environment dumps.

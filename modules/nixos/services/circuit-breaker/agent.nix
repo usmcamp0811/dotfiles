@@ -71,12 +71,10 @@ in {
     serverUrl = mkOpt types.str "" "Server base URL the agent dials (scheme + host[:port] only), e.g. https://topology.lan.example.com.";
     serverStaticPk = mkOpt (types.nullOr types.str) null ''
       The server's X25519 identity public key (64 hex characters). It is public.
-      Read it from a running server with
-      `curl -fsS https://<server>/install-agent.sh | grep '^CB_SERVER_STATIC_PK='`
-      (the script is only read, never executed).
+      Read it on the server with `sudo circuit-breaker-admin agent-key`.
     '';
     serverStaticPkFile = mkOpt (types.nullOr types.str) null "Runtime file containing the same key (alternative to serverStaticPk).";
-    tlsPin = mkOpt types.str "" "Base64 SHA-256 SPKI pin (`CB_TLS_PIN` in install-agent.sh) for a self-signed server; empty for a publicly trusted certificate.";
+    tlsPin = mkOpt types.str "" "Base64 SHA-256 SPKI pin of the certificate the API serves itself (`server.tls.*`, self-signed); empty for a publicly trusted certificate.";
     tlsPinFile = mkOpt (types.nullOr types.str) null "Runtime file containing the pin (alternative to tlsPin).";
     logLevel = mkOpt (types.enum ["debug" "info" "warn" "error"]) "info" "Log level.";
     spoolCapBytes = mkOpt types.ints.positive 67108864 "Offline telemetry spool size.";

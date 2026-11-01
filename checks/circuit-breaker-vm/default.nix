@@ -1,6 +1,6 @@
-# End-to-end test of fmf.services.circuit-breaker against the REAL pinned upstream
-# image (0.4.6, content-pinned by the fixed-output hash below), running under the
-# module's own podman unit, with the real agent on a second VM.
+# End-to-end test of fmf.services.circuit-breaker: the natively built upstream server
+# (packages/circuit-breaker-server, 0.4.6 - no container) running as the module's own
+# systemd units, with the real agent on a second VM.
 #
 # What it proves (each step is a `subtest`):
 #   - the server starts, initialises persistent state, reports ready, is healthy
@@ -20,14 +20,6 @@
   inputs,
   ...
 }: let
-  image = pkgs.dockerTools.pullImage {
-    imageName = "ghcr.io/blkleg/circuitbreaker";
-    imageDigest = "sha256:a6ae4573294642a7bdf1912d4060b6a75e7b3960dc44bea7b142096946a20c3a";
-    sha256 = "sha256-8TPnAuwael2DC2DxR74b/kK8x3Pvqiqw26WCcoWx3SA=";
-    finalImageName = "ghcr.io/blkleg/circuitbreaker";
-    finalImageTag = "0.4.6";
-  };
-
   fixtures = import ../../lib/circuit-breaker/tests.nix {inherit lib;};
   device = id: name: addr: {
     inherit id name;
@@ -55,9 +47,9 @@
     (device "device/server-ip" "server-ip" "192.168.1.2")
   ];
   extraMonitors = [
-    (mon "mon/device/probe-target/up" "device/probe-target" "127.0.0.1" 8080 "loopback http port")
+    (mon "mon/device/probe-target/up" "device/probe-target" "192.168.1.2" 8000 "server api port")
     (mon "mon/device/probe-target/closed" "device/probe-target" "127.0.0.1" 9 "nothing listens here")
-    (mon "mon/device/server-ip/tcp-8443" "device/server-ip" "192.168.1.2" 8443 "server https from the edge")
+    (mon "mon/device/server-ip/tcp-8000" "device/server-ip" "192.168.1.2" 8000 "server https from the edge")
   ];
   inventory =
     fixtures.inv
@@ -96,6 +88,7 @@
   brokenFlake = pkgs.writeText "flake-broken.nix" ''
     { outputs = _: { packages.x86_64-linux.circuit-breaker-inventory = throw "evaluation failed on purpose"; }; }
   '';
+  serverPackage = pkgs.fmf.circuit-breaker-server;
   syncPackage = pkgs.fmf.circuit-breaker-sync;
   agentPackage = pkgs.fmf.circuit-breaker-agent;
   expected = {
@@ -110,7 +103,7 @@ in
     node.specialArgs = {inherit lib inputs;};
     # the vault-service module (imported by vault-agent) adds an overlay
     node.pkgsReadOnly = false;
-    # Booting a 1.1 GB image under podman + TimescaleDB init takes a few minutes.
+    # Database initialisation, migrations and the first start take a few minutes.
     globalTimeout = 2400;
 
     nodes.server = {pkgs, ...}: {
@@ -118,16 +111,40 @@ in
       virtualisation = {
         memorySize = 4096;
         cores = 2;
-        diskSize = 10240;
+        diskSize = 8192;
       };
-      environment.systemPackages = [pkgs.jq pkgs.curl pkgs.git];
+      # TimescaleDB is under the Timescale licence
+      nixpkgs.config.allowUnfree = true;
+      environment.systemPackages = [pkgs.jq pkgs.curl pkgs.git pkgs.openssl];
+      # a real (self-signed) certificate for the API, as an operator would supply one
+      systemd.services.cb-test-cert = {
+        wantedBy = ["multi-user.target"];
+        requiredBy = ["circuit-breaker-api.service"];
+        before = ["circuit-breaker-api.service" "circuit-breaker-sync.service"];
+        path = [pkgs.openssl];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          install -d -m 0755 /var/lib/cb-test
+          [ -s /var/lib/cb-test/server-cert.pem ] || openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes \
+            -keyout /var/lib/cb-test/server-key.pem -out /var/lib/cb-test/server-cert.pem -days 2 \
+            -subj /CN=circuit-breaker-test -addext subjectAltName=IP:192.168.1.2
+          chmod 0600 /var/lib/cb-test/server-key.pem
+        '';
+      };
       fmf.services.circuit-breaker = {
         enable = true;
         server = {
           enable = true;
-          imageFile = image;
+          package = serverPackage;
           listenAddress = "192.168.1.2";
           openFirewall = true;
+          tls = {
+            certFile = "/var/lib/cb-test/server-cert.pem";
+            keyFile = "/var/lib/cb-test/server-key.pem";
+          };
           secrets.generate = true;
           backup.enable = true;
         };
@@ -155,7 +172,7 @@ in
         agent = {
           enable = true;
           package = agentPackage;
-          serverUrl = "https://192.168.1.2:8443";
+          serverUrl = "https://192.168.1.2:8000";
           serverStaticPkFile = "/var/lib/cb-test/server-pk";
           tlsPinFile = "/var/lib/cb-test/tls-pin";
         };
@@ -165,7 +182,7 @@ in
     testScript = ''
       import json
 
-      BASE = "https://192.168.1.2:8443/api/v1"
+      BASE = "https://192.168.1.2:8000/api/v1"
       SYNC_TOKEN = "/var/lib/circuit-breaker-sync/sync-token"
       admin_jwt = ""
 
@@ -184,27 +201,43 @@ in
 
       start_all()
 
-      with subtest("server image loads, container starts, application reports ready"):
+      with subtest("services start in order, migrations run, application reports ready"):
           server.wait_for_unit("circuit-breaker-env.service")
-          server.wait_for_unit("podman-circuit-breaker.service")
-          server.wait_for_unit("circuit-breaker-ready.service", timeout=900)
+          for u in ["postgres", "redis", "nats", "migrate", "api"]:
+              server.wait_for_unit(f"circuit-breaker-{u}.service", timeout=240)
+          server.wait_for_unit("circuit-breaker-ready.service", timeout=300)
           server.succeed("circuit-breaker-admin status")
-          server.succeed("curl -fsS http://127.0.0.1:8080/api/v1/readyz | jq -e '.ready == true and .checks.db == \"ok\"'")
-          server.wait_until_succeeds("test \"$(podman inspect --format '{{.State.Health.Status}}' circuit-breaker)\" = healthy", timeout=180)
+          server.succeed("curl -ksfS https://192.168.1.2:8000/api/v1/readyz | jq -e '.ready == true and .checks.db == \"ok\" and .checks.redis == \"ok\"'")
+          for w in ["discovery", "notification", "telemetry", "integration", "monitor-scheduler", "monitor-poll-0", "monitor-poll-1", "monitor-probe-dispatch"]:
+              server.wait_for_unit(f"circuit-breaker-worker-{w}.service")
+          server.succeed("circuit-breaker-admin psql -tAc \"select extname from pg_extension where extname = 'timescaledb'\" | grep -qx timescaledb")
 
-      with subtest("container is least-privilege and reachable only where configured"):
-          info = json.loads(server.succeed("podman inspect circuit-breaker"))[0]
-          assert info["HostConfig"]["Privileged"] is False
-          assert info["HostConfig"]["ReadonlyRootfs"] is True
-          assert info["HostConfig"]["SecurityOpt"] == ["no-new-privileges"] or "no-new-privileges:true" in info["HostConfig"]["SecurityOpt"], info["HostConfig"]["SecurityOpt"]
-          # --cap-drop=ALL plus exactly the capabilities upstream's own compose file grants
-          bounding = sorted(info["BoundingCaps"])
-          assert bounding == ["CAP_CHOWN", "CAP_DAC_OVERRIDE", "CAP_FOWNER", "CAP_KILL", "CAP_NET_BIND_SERVICE", "CAP_NET_RAW", "CAP_SETGID", "CAP_SETUID"], bounding
-          assert [m["Source"] for m in info["Mounts"] if m["Type"] == "bind"] == ["/var/lib/circuit-breaker/data"], info["Mounts"]
-          assert not [m for m in info["Mounts"] if "podman.sock" in m["Source"] or "docker.sock" in m["Source"]]
-          server.fail("curl -fsS --max-time 3 http://192.168.1.2:8080/api/v1/livez")  # probe port is loopback-only
-          server.succeed("ss -ltn | grep -q '192.168.1.2:8443'")
-          server.fail("ss -ltn | grep -E '(0.0.0.0|\\[::\\]):(5432|6379|4222|8000|8443)'")  # nothing on the wildcard address
+      with subtest("least privilege: one unprivileged account, loopback-only internals, no secrets in argv"):
+          users = server.succeed("ps -eo user:20,args | grep -E 'postgres|redis-server|nats-server|uvicorn|app.workers' | grep -v grep | awk '{print $1}' | sort -u").split()
+          assert users == ["circuit-breaker"], users
+          listening = server.succeed("ss -ltnH")
+          for port in (15432, 16379, 14222):
+              assert f"127.0.0.1:{port}" in listening, (port, listening)
+              assert f"0.0.0.0:{port}" not in listening and f"*:{port}" not in listening
+          assert "192.168.1.2:8000" in listening
+          server.succeed("test \"$(id -u circuit-breaker)\" = 1500")
+          # the discovery worker alone holds a capability
+          for w in ["discovery", "telemetry"]:
+              caps = server.succeed(f"systemctl show -p AmbientCapabilities circuit-breaker-worker-{w}.service").strip()
+              assert (caps != "AmbientCapabilities=") == (w == "discovery"), (w, caps)
+          # secrets reach processes through the environment, never the command line
+          jwt = server.succeed("sed -n 's/^CB_JWT_SECRET=//p' /run/circuit-breaker-secrets/server.env").strip()
+          redis_pw = server.succeed("sed -n 's/^CB_REDIS_PASSWORD=//p' /run/circuit-breaker-secrets/server.env").strip()
+          nats = server.succeed("sed -n 's/^NATS_AUTH_TOKEN=//p' /run/circuit-breaker-secrets/server.env").strip()
+          for secret in (jwt, redis_pw, nats):
+              assert len(secret) >= 32
+              # the secret goes through a file: putting it in grep's argv would make grep find itself
+              server.succeed(f"printf %s {secret} > /tmp/secret-probe")
+              server.fail("cat /proc/[0-9]*/cmdline | tr '\\0' ' ' | grep -Ff /tmp/secret-probe")
+              server.succeed("rm -f /tmp/secret-probe")
+          # one slice caps the whole stack
+          server.succeed("systemctl show -p MemoryMax,CPUQuotaPerSecUSec circuit-breaker.slice | grep -q 'MemoryMax=2147483648'")
+          server.succeed("systemctl show -p Slice circuit-breaker-api.service | grep -q circuit-breaker.slice")
 
       with subtest("generated secrets are root-only, stable, and in no unit file"):
           server.succeed("test \"$(stat -c %a /var/lib/circuit-breaker/secrets/server.env)\" = 400")
@@ -215,13 +248,13 @@ in
           before = server.succeed("sha256sum /var/lib/circuit-breaker/secrets/server.env")
           server.succeed("systemctl restart circuit-breaker-env.service")
           assert before == server.succeed("sha256sum /var/lib/circuit-breaker/secrets/server.env"), "secrets must never be regenerated"
-          # restarting the secrets unit restarts the container that requires it; wait for it
-          server.wait_until_succeeds("curl -fsS --max-time 5 http://127.0.0.1:8080/api/v1/readyz | jq -e '.ready == true'", timeout=300)
+          # restarting the secrets unit restarts every service that requires it; wait for them
+          server.wait_until_succeeds("curl -ksfS --max-time 5 https://192.168.1.2:8000/api/v1/readyz | jq -e '.ready == true'", timeout=300)
           server.wait_for_unit("circuit-breaker-ready.service")
 
       with subtest("first-run bootstrap then module-provisioned API token"):
           rc, out = server.execute("circuit-breaker-admin setup-token 2>/tmp/setup-token.err >/tmp/setup-token")
-          assert rc == 0, server.succeed("cat /tmp/setup-token.err; curl -ksS https://192.168.1.2:8443/api/v1/bootstrap/status; podman exec circuit-breaker ls -la /data | head -20")
+          assert rc == 0, server.succeed("cat /tmp/setup-token.err; curl -ksS https://192.168.1.2:8000/api/v1/bootstrap/status; ls -la /var/lib/circuit-breaker/data | head -20")
           setup = server.succeed("cat /tmp/setup-token").strip()
           resp = json.loads(server.succeed(
               "curl -ksS -X POST -H 'content-type: application/json' "
@@ -240,6 +273,9 @@ in
 
       with subtest("sync token is provisioned (0400) and the deployment inventory is applied"):
           server.succeed("systemctl start circuit-breaker-provision.service")
+          # first-run setup replaced the vault key; the module restarts every application process once
+          # so that none of them keeps the old key in memory
+          server.succeed("test -e /var/lib/circuit-breaker/secrets/.vault-key-adopted")
           server.succeed(f"test \"$(stat -c %a {SYNC_TOKEN})\" = 400")
           server.wait_for_unit("circuit-breaker-sync.service", timeout=300)
           st = sync_state()
@@ -278,11 +314,11 @@ in
       with subtest("monitors report observed state independently of the declaration"):
           def ids():
               return {m["name"].split(" [nix:")[0]: m for m in api("GET", "/monitors", tok)}
-          for name in ("loopback http port", "nothing listens here"):
+          for name in ("server api port", "nothing listens here"):
               api("POST", f"/monitors/{ids()[name]['id']}/check", tok)
           def statuses(_):
               m = ids()
-              return m["loopback http port"]["status"] == "up" and m["nothing listens here"]["status"] == "down"
+              return m["server api port"]["status"] == "up" and m["nothing listens here"]["status"] == "down"
           retry(statuses, timeout_seconds=120)
           # a declared-but-unreachable host is observed as such, never assumed healthy
           assert ids()["alpha reachability"]["status"] != "up"
@@ -353,16 +389,18 @@ in
           server.succeed("systemctl restart circuit-breaker-sync.service")
 
       with subtest("agent enrols only after approval, then reports telemetry"):
-          # the installer script is only read for the two public values; it is never executed
-          server.succeed("curl -ksS --max-time 20 https://192.168.1.2:8443/install-agent.sh -o /tmp/install-agent.sh")
-          def script_value(name):
-              rc, out = server.execute(f"sed -n 's/^{name}=\"\\(.*\\)\"$/\\1/p' /tmp/install-agent.sh | head -1")
-              assert rc == 0, name
-              return out.strip()
-          pk = script_value("CB_SERVER_STATIC_PK")
-          pin = script_value("CB_TLS_PIN")
-          assert len(pk) == 64, (pk, server.succeed("head -c 1500 /tmp/install-agent.sh"))
-          assert pin, ("empty pin", server.succeed("grep -n 'CB_TLS' /tmp/install-agent.sh | head"))
+          # the server's public identity key straight from the application, and the SPKI pin of the
+          # certificate it serves
+          pk = server.succeed("circuit-breaker-admin agent-key").strip()
+          assert len(pk) == 64 and all(c in "0123456789abcdef" for c in pk), pk
+          # upstream's own install endpoint works too: it reads the published public certificate
+          server.succeed("test \"$(stat -c %a /var/lib/circuit-breaker/data/tls/fullchain.pem)\" = 644")
+          # repeated so that both API worker processes answer: each must hold the adopted vault key
+          for _ in range(12):
+              server.succeed("curl -ksfS --max-time 20 https://192.168.1.2:8000/install-agent.sh -o /tmp/install-agent.sh")
+          server.succeed(f"grep -qx 'CB_SERVER_STATIC_PK=\"{pk}\"' /tmp/install-agent.sh")
+          # the API serves the certificate we gave it, so the SPKI pin comes from that file
+          pin = server.succeed("openssl x509 -in /var/lib/cb-test/server-cert.pem -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64").strip()
           edge.succeed("mkdir -p /var/lib/cb-test")
           edge.succeed(f"printf %s {pk} > /var/lib/cb-test/server-pk; printf %s {pin} > /var/lib/cb-test/tls-pin")
           edge.succeed("systemctl start cb-agent.service")
@@ -405,9 +443,9 @@ in
               return x["status"] == "up"
           retry(probed, timeout_seconds=180)
 
-      with subtest("state survives a restart of the server container"):
+      with subtest("state survives a restart of the whole stack"):
           before_ids = sorted(h["id"] for h in api("GET", "/hardware", tok))
-          server.succeed("systemctl restart podman-circuit-breaker.service")
+          server.succeed("systemctl restart circuit-breaker-postgres.service circuit-breaker-api.service")
           server.wait_for_unit("circuit-breaker-ready.service")
           server.succeed("systemctl restart circuit-breaker-ready.service")
           assert before_ids == sorted(h["id"] for h in api("GET", "/hardware", tok))
@@ -415,6 +453,12 @@ in
           assert len(api("GET", "/agents", admin_jwt)) == 1
           server.succeed("systemctl restart circuit-breaker-sync.service")
           assert set(sync_state()["last_attempt"]["counts"]) <= {"noop", "skip", "drift"}
+
+      with subtest("the whole stack stays inside its resource cap (measured, not assumed)"):
+          mem = int(server.succeed("systemctl show -p MemoryCurrent --value circuit-breaker.slice").strip())
+          peak = int(server.succeed("systemctl show -p MemoryPeak --value circuit-breaker.slice").strip())
+          print(f"circuit-breaker.slice after the full workflow: {mem // 2**20} MiB in use, {peak // 2**20} MiB peak (cap 2048 MiB)")
+          assert 0 < mem < 2 * 2**30 and peak < 2 * 2**30, (mem, peak)
 
       with subtest("snapshot backup contains the vault key (so it must be treated as a secret)"):
           server.succeed("systemctl start circuit-breaker-snapshot.service")

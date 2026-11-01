@@ -25,7 +25,8 @@ Related: [module reference](../modules/nixos/services/circuit-breaker/README.md)
 | Exporter | `lib/circuit-breaker/` (`lib.fmf.circuitBreaker`) | Pure Nix. Reads *evaluated* `nixosConfigurations` through defensive accessors and emits inventory schema v1. |
 | Inventory | JSON, schema v1 | Normalised, deterministic, independent of CB's API, never contains secrets. |
 | Reconciler | `packages/circuit-breaker-sync` (`circuit-breaker-sync`, `cb-sync`) | Python, standard library only. Idempotent, narrow `PATCH` updates, ownership-tagged, non-destructive by default. |
-| Module | `modules/nixos/services/circuit-breaker/` | Server (pinned OCI image), sync units, optional agent, hints, assertions. |
+| Server package | `packages/circuit-breaker-server` | The upstream server built natively: backend from hash-pinned wheels (`poetry.lock`), web UI from `package-lock.json`. No container image. |
+| Module | `modules/nixos/services/circuit-breaker/` | Server as systemd units (PostgreSQL+TimescaleDB, Redis, NATS, migrations, API, workers), sync units, optional agent, hints, assertions. |
 | Agent package | `packages/circuit-breaker-agent` | Go `cb-agent` built from the pinned upstream commit, self-update disabled. |
 
 ```
@@ -64,7 +65,7 @@ From each evaluated system (nothing is read from source files):
   database, cache, DNS, auth, secrets, SCM, monitoring, storage, messaging, orchestrator,
   media, remote access) plus any `fmf.services.*` that declares a port. Low-level systemd
   units are deliberately not nodes. Firewall exposure is recorded per port.
-- **Containers** – `virtualisation.oci-containers` and NixOS containers.
+- **Containers** – `virtualisation.oci-containers` and NixOS containers declared on a host.
 - **Relationships** – `member_of` (network), `attached_to` (TAP → bridge), `proxies_to`
   (Traefik routers → resolved backend service), `uses` (Vault agent clients, DNS
   resolvers), `mounts_from` (NFS and similar), `connects_to` (only from hints).
@@ -141,11 +142,12 @@ Honest account of what has actually been exercised.
 
 | Area | Evidence |
 | --- | --- |
-| Exporter | 40 pure-Nix tests (`lib/circuit-breaker/tests.nix`); run on the real Campground (196 resources, 275 relationships, 117 monitors) |
-| Reconciler | 118 pytest cases against a fake of CB 0.4.6 built from its real OpenAPI document; mutation spot-checks; run repeatedly against the real pinned container |
-| Module | 62 evaluation-level tests including every invalid option combination, and a test that every unit renders |
-| End to end | NixOS VM test (`checks/circuit-breaker-vm`): real pinned image under podman, real agent on a second VM, hardened sync units, git-driven sync with a real `nix build` |
-| Not tested | MicroVM boot of the server; Vault-rendered secrets at runtime (evaluated only); a real Gitea credential flow; `cb restore` of an upstream snapshot; ARP/L2 discovery results (needs a helper outside the container) |
+| Exporter | 41 pure-Nix tests (`lib/circuit-breaker/tests.nix`); run on the real Campground (196 resources, 275 relationships, 117 monitors) |
+| Reconciler | 118 pytest cases against a fake of CB 0.4.6 built from its real OpenAPI document; mutation spot-checks; run repeatedly against the real server |
+| Package | The server derivation imports every pinned Python module (catching missing or unpatched native libraries) and checks the reported version; the web UI builds from its lockfile |
+| Module | 68 evaluation-level tests including every invalid option combination, mutation-checked security properties, and a test that every unit renders |
+| End to end | NixOS VM test (`checks/circuit-breaker-vm`): the native server (PostgreSQL+TimescaleDB, Redis, NATS, migrations, API, all workers), the real agent on a second VM, hardened sync units, git-driven sync with a real `nix build` |
+| Not tested | The server inside a MicroVM (it is tested in a regular NixOS VM); Vault-rendered secrets at runtime (evaluated only); a real Gitea credential flow; `cb restore` of an upstream snapshot; ARP/L2 discovery results; the optional ACME/certbot extra (not part of the package) |
 
 ## Known limitations
 
@@ -153,10 +155,17 @@ Honest account of what has actually been exercised.
   0.4.6 and checks the OpenAPI document; upgrading CB means re-running the tests.
 - CB has no endpoint to list hardware connections; the reconciler finds existing ones
   through the topology graph and remembers the ids it created.
-- The server serves the UI over HTTPS only; HTTP redirects. A reverse proxy to a self-signed
-  container certificate must skip verification for that hop unless `server.tls.*` is set.
-- Discovery by ARP needs host-side helper permissions the container does not have; use
-  agents on the segment for L2 discovery.
+- This is a native build of upstream's release, not upstream's tested artifact: upstream's CI
+  exercises its image and its `.deb`, not this packaging. The VM test above is what stands in
+  for that; re-run it on every upgrade. Differences from upstream's bundle: no nginx (the
+  API serves the UI itself; TLS terminates at your proxy or in the API), no pgbouncer, and no
+  certbot/ACME (the extra is not in upstream's lockfile). Upstream's agent binary download
+  and self-update endpoints have nothing to serve; agents are Nix-managed.
+- Discovery by ARP needs raw-socket access (the discovery worker holds `CAP_NET_RAW`) and a
+  segment the server is attached to; use agents on other segments for L2 discovery.
+- After first-run setup the effective vault key is the one the wizard generated, kept in
+  `<dataDir>/data/.env`; the `CB_VAULT_KEY` you supplied becomes stale (the app logs a warning and
+  uses the file). Back up `data/.env` with the database.
 - A server on one host cannot sync a flake whose hosts it cannot name: addresses come from
   static configuration or router DHCP reservations; DHCP-only machines without a
   reservation have no address and get no address-based monitors.

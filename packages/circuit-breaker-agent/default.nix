@@ -4,19 +4,16 @@
   fetchFromGitHub,
   ...
 }: let
-  version = "0.4.6";
+  # the single upstream pin shared with packages/circuit-breaker-server
+  up = import ../../lib/circuit-breaker/upstream.nix;
+  inherit (up) version;
 in
   buildGoModule {
     pname = "circuit-breaker-agent";
     inherit version;
 
     # Pinned to the exact upstream commit of v${version} (not a moving tag).
-    src = fetchFromGitHub {
-      owner = "BlkLeg";
-      repo = "CircuitBreaker";
-      rev = "fc44f2ec1ed930b0b8ca4b54979833f31ba1c00f";
-      hash = "sha256-T+m6jKPxCov2ovimiK8Z38zSMBLbDTumkUH+2XGWjQY=";
-    };
+    src = fetchFromGitHub {inherit (up) owner repo rev hash;};
     modRoot = "apps/agent";
     subPackages = ["cmd/cb-agent"];
     vendorHash = "sha256-2ffvqZIhJLp0ABomnQMeDt2cqBRhR8GwCxqPj4WwDpw=";

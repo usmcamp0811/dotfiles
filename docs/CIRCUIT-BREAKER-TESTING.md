@@ -13,10 +13,11 @@ repository root.
 
 | Check | Run | Proves | Typical time |
 | --- | --- | --- | --- |
-| Exporter | `nix build .#checks.x86_64-linux.circuit-breaker-inventory` | 40 fixture tests: hosts, VMs and placement, addresses (static and DHCP reservation), bridges/VLANs, TAP attachment, services, proxy edges, hints, throwing/absent options, determinism, id stability, no secrets; then the real reconciler validates the output | ~30 s |
+| Exporter | `nix build .#checks.x86_64-linux.circuit-breaker-inventory` | 41 fixture tests: hosts, VMs and placement, addresses (static and DHCP reservation), bridges/VLANs, TAP attachment, services, proxy edges, hints, throwing/absent options, determinism, id stability, no secrets; then the real reconciler validates the output | ~30 s |
 | Reconciler | `nix build .#checks.x86_64-linux.circuit-breaker-sync` | The package's pytest suite (118 tests) runs in the build | ~10 s |
-| Module | `nix build .#checks.x86_64-linux.circuit-breaker-module` | 62 evaluation tests: generated units and container options, secret handling, ordering, hardening, every invalid option combination, and that every unit renders | ~30 s |
-| End to end | `nix build -L .#checks.x86_64-linux.circuit-breaker-vm` | A NixOS VM test with the real pinned image under podman and the real agent on a second VM (below) | ~4 min, needs KVM and ~6 GB RAM |
+| Server package | `nix build .#circuit-breaker-server` | Wheelhouse fetched and verified against upstream's lockfile hashes, UI built from its lockfile, every pinned module imports (a missing or unpatched native library fails here) and the reported version matches the pin | ~1 min cold, seconds cached |
+| Module | `nix build .#checks.x86_64-linux.circuit-breaker-module` | 68 evaluation tests: generated units, secret handling (nothing secret on a command line), loopback binding, ordering, sandboxing and capabilities, every invalid option combination, and that every unit renders | ~30 s |
+| End to end | `nix build -L .#checks.x86_64-linux.circuit-breaker-vm` | A NixOS VM test with the native server (all units) and the real agent on a second VM (below) | ~3 min, needs KVM and ~6 GB RAM |
 
 Downstream flakes add their own: Campground's `circuit-breaker` (inventory of the real
 configuration) and `circuit-breaker-suite` (suite plus Traefik route).
@@ -57,12 +58,12 @@ To add a case, add an entry to `tests` with `expr` and `expected`; `failures` mu
 
 ## The VM test (`checks/circuit-breaker-vm`)
 
-Nodes: `server` (module, image loaded from a `dockerTools.pullImage` pinned by digest and
-content hash, so it needs no network) and `edge` (agent). The inventory comes from the exporter
-fixtures plus a few loopback devices. Subtests:
+Nodes: `server` (the module with the natively built package; TimescaleDB makes it need
+`allowUnfree`, and it gets a self-signed certificate like an operator would supply) and `edge`
+(agent). The inventory comes from the exporter fixtures plus a few loopback devices. Subtests:
 
-1. image loads, container starts, reports ready and healthy
-2. least privilege: not privileged, read-only root, exactly the eight upstream capabilities, only the data mount, no runtime socket, nothing on the wildcard address, probe port loopback-only
+1. units start in order (secrets, PostgreSQL, Redis, NATS, migrations, API), all workers come up, the application reports ready, the `timescaledb` extension is installed
+2. least privilege: one unprivileged account (uid 1500) runs every process; PostgreSQL/Redis/NATS listen on loopback only; only the discovery worker holds a capability; no secret appears in any process's command line; the slice caps memory
 3. secrets 0400, never regenerated, in no unit file
 4. first-run bootstrap through the real API
 5. manual hardware entity and a saved canvas layout created before the first sync
@@ -72,27 +73,38 @@ fixtures plus a few loopback devices. Subtests:
 9. a second sync performs no writes; `cb-sync --dry-run/--validate/--status`
 10. monitors report real `up`/`down` independent of the declaration
 11. retire/un-retire; layout still untouched
-12. empty inventory → exit 7, nothing retired
-13–16. git-driven sync from a local repository: new revision applied by the hardened unit with a real `nix build`; unchanged revision skipped; a revision that fails to evaluate changes nothing and backs off; the next good revision recovers
-17. agent pending until approved, then active with telemetry; key mode 0600
+12. empty inventory -> exit 7, nothing retired
+13-16. git-driven sync from a local repository: new revision applied by the hardened unit with a real `nix build`; unchanged revision skipped; a revision that fails to evaluate changes nothing and backs off; the next good revision recovers
+17. agent pending until approved, then active with telemetry; `circuit-breaker-admin agent-key` matches upstream's install script; key mode 0600
 18. agent identity survives restart without re-approval
 19. a monitor assigned to the agent runs from its vantage
-20. data survives a container restart
+20. data survives a restart of the whole stack
 21. snapshot created with mode 0600
 
-Debugging a failure: the log at `nix log` contains the VM consoles. Bring-up problems show
-up in subtest 1; a hung `curl` right after a restart needs `--max-time`.
+Debugging a failure: the log at `nix log` contains the VM consoles. A healthy start takes
+about 35 seconds, so the wait timeouts are short; a hang is a real fault. Use `--max-time` on
+`curl` in scripts, and never `cmd | grep -q` (the test shell runs with `pipefail`: `grep -q`
+closes the pipe early and the failure is reported as exit 141) - write to a file first.
 
-What this test found while being written (so these stay fixed): a secrets directory that
-collided with the container unit's `RuntimeDirectory`; podman's `tmpcopyup` overflowing the
-tmpfs mounts; a duplicate `TimeoutStopSec`; the sync service killed by seccomp on `chown`;
-a missing `cb-agent` on `PATH`; an over-eager provisioning timer.
+What this test found while being written (so these stay fixed): NATS parsing an environment
+variable as config syntax (a token starting with a digit is read as a number) and resolving
+`include` paths relative to the config; the sync service killed by seccomp on `chown`;
+`install-agent.sh` failing without a certificate in the data directory; a standalone script
+needing the credential vault initialised; a missing `cb-agent` on `PATH`; an over-eager
+provisioning timer. (Earlier container-based versions also found a secrets directory colliding
+with a unit's `RuntimeDirectory` and a duplicate `TimeoutStopSec`.)
 
-## Re-pinning the image or agent
+## Re-pinning the server or agent
 
-1. New digest: `skopeo inspect docker://ghcr.io/blkleg/circuitbreaker:<tag> | jq -r .Digest`.
-2. New image hash for the VM test: set `sha256 = lib.fakeHash`, build, copy the reported hash.
-3. Agent: update `rev` and `hash` in `packages/circuit-breaker-agent/default.nix`, then
-   `vendorHash` (same trick).
+Everything keys off `lib/circuit-breaker/upstream.nix` (version, commit, source hash).
+
+1. Set the new `version`, `rev` and (with `lib.fakeHash`) `hash`; build to learn the hash.
+2. Regenerate the Python lock from the new source and commit it:
+   `python packages/circuit-breaker-server/gen-lock.py <source-dir> > packages/circuit-breaker-server/requirements.lock.txt`
+   (it reports packages without a wheel; anything new needs a decision).
+3. Fix the fixed-output hashes by building with `lib.fakeHash` and copying what Nix reports:
+   `wheelhouse.nix` (`hash`), `frontend.nix` (`npmDepsHash`), and the agent's `vendorHash`.
+   Check the import list in `circuit-breaker-server/default.nix` still covers the dependencies.
 4. Refresh `tests/fixtures/openapi-*-subset.json` from `/api/openapi.json` of the new release
    and bump `TESTED_CB_VERSION`.
+5. Run all four checks above, then the VM test.

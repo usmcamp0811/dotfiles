@@ -30,8 +30,10 @@ with lib.fmf; let
     if srv.listenAddress == "0.0.0.0" || srv.listenAddress == "::"
     then "127.0.0.1"
     else srv.listenAddress;
-  apiUrl = "https://${apiHost}:${toString srv.port}";
-  serverCert = "${srv.dataDir}/data/tls/fullchain.pem";
+  tlsOn = srv.tls.certFile != null;
+  apiUrl = "${cfg.scheme}://${apiHost}:${toString srv.port}";
+  # With TLS the server's own certificate is pinned (read afresh at every start, so renewals work).
+  serverCert = srv.tls.certFile;
   user = "circuit-breaker-sync";
 
   exporterOptions =
@@ -93,13 +95,16 @@ with lib.fmf; let
       };
     }));
 
-  commonArgs = [
-    "--url ${apiUrl}"
-    "--token-file %d/token"
-    "--tls-pin-file %d/server-cert"
-    "--state-dir ${stateDir}"
-    "--policy-file ${policy}"
-  ];
+  commonArgs =
+    [
+      "--url ${apiUrl}"
+      "--token-file %d/token"
+    ]
+    ++ optional tlsOn "--tls-pin-file %d/server-cert"
+    ++ [
+      "--state-dir ${stateDir}"
+      "--policy-file ${policy}"
+    ];
   extraFlags = optional fs.allowUntestedVersion "--allow-untested";
 
   # Operator entry point: the same URL/credentials/policy/state as the services, so
@@ -111,7 +116,7 @@ with lib.fmf; let
     text = ''
       export CB_SYNC_URL=${escapeShellArg apiUrl}
       export CB_SYNC_TOKEN_FILE=${escapeShellArg fs.tokenFile}
-      export CB_SYNC_TLS_PIN_FILE=${escapeShellArg serverCert}
+      ${optionalString tlsOn "export CB_SYNC_TLS_PIN_FILE=${escapeShellArg serverCert}"}
       export CB_SYNC_STATE_DIR=${escapeShellArg stateDir}
       export CB_SYNC_POLICY_FILE=${policy}
       ${optionalString (inventoryFile != null) "export CB_SYNC_INVENTORY=${inventoryFile}"}
@@ -128,10 +133,9 @@ with lib.fmf; let
     Group = user;
     StateDirectory = stateName;
     StateDirectoryMode = "0750";
-    LoadCredential = [
-      "token:${fs.tokenFile}"
-      "server-cert:${serverCert}"
-    ];
+    LoadCredential =
+      ["token:${fs.tokenFile}"]
+      ++ optional tlsOn "server-cert:${serverCert}";
     WorkingDirectory = stateDir;
     NoNewPrivileges = true;
     ProtectSystem = "strict";
@@ -319,8 +323,10 @@ in {
       # (first administrator, via the web UI) cannot be automated safely.
       systemd.services.circuit-breaker-provision = {
         description = "Provision the Circuit Breaker flake-sync API token";
+        # Only ordered after (and wanting) the API, never `Requires=`: this unit restarts the API
+        # once after first-run setup, which would otherwise stop the unit doing it.
         after = ["circuit-breaker-ready.service"];
-        requires = ["circuit-breaker-ready.service"];
+        wants = ["circuit-breaker-ready.service"];
         unitConfig.ConditionPathExists = "!${fs.tokenFile}";
         path = [srv.adminPackage pkgs.jq pkgs.curl pkgs.coreutils pkgs.systemd];
         serviceConfig = {
@@ -330,7 +336,7 @@ in {
         script = ''
           # Cheap HTTP probe first: this timer runs every minute until a human has
           # finished first-run setup, and the admin CLI (a full Python application
-          # start inside the container) is far too heavy to run that often.
+          # start) is far too heavy to run that often.
           setup="$(curl -ksS --max-time 10 ${apiUrl}/api/v1/bootstrap/status 2>/dev/null | jq -r 'if .needs_bootstrap == false then "done" else "pending" end' 2>/dev/null || echo pending)"
           if [ "$setup" != "done" ]; then
             echo "first-run setup is not complete; open the web UI (token: circuit-breaker-admin setup-token)"
@@ -340,6 +346,17 @@ in {
           if [ "''${admins:-0}" -lt 1 ]; then
             echo "no active administrator; create one with: circuit-breaker-admin cli user create --role admin ..."
             exit 0
+          fi
+          # The first-run wizard replaces the vault key with a freshly generated one (kept in
+          # <data>/.env). Only the process that handled that request switches to it; every other
+          # API worker and worker process still holds the old key and would fail to decrypt what
+          # the new key encrypted. Restart them once so all of them load the key from disk.
+          marker=${srv.dataDir}/secrets/.vault-key-adopted
+          if [ ! -e "$marker" ]; then
+            echo "first-run setup finished: restarting the application services so every process adopts the new vault key"
+            systemctl restart circuit-breaker-api.service 'circuit-breaker-worker-*.service'
+            systemctl start circuit-breaker-ready.service
+            touch "$marker"
           fi
           circuit-breaker-admin mint-sync-token
           systemctl start --no-block circuit-breaker-sync.service circuit-breaker-sync-git.service 2>/dev/null || true

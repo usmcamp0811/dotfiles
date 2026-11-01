@@ -217,7 +217,7 @@
     };
     circuit-breaker = {
       kind = "monitoring";
-      ports = [8443];
+      ports = [8000];
     };
     k8s-control-plane = {
       kind = "orchestrator";
