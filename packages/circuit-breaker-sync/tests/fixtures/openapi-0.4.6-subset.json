@@ -1,0 +1,387 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Circuit Breaker",
+    "version": "0.4.6"
+  },
+  "paths": {
+    "/api/v1/hardware": {
+      "get": {
+        "operationId": "list_hardware_api_v1_hardware_get"
+      },
+      "post": {
+        "operationId": "create_hardware_api_v1_hardware_post"
+      }
+    },
+    "/api/v1/hardware/{hardware_id}": {
+      "patch": {
+        "operationId": "patch_hardware_api_v1_hardware__hardware_id__patch"
+      }
+    },
+    "/api/v1/hardware/{hardware_id}/connections": {
+      "post": {
+        "operationId": "create_hardware_connection_api_v1_hardware__hardware_id__connections_post"
+      }
+    },
+    "/api/v1/compute-units": {
+      "get": {
+        "operationId": "list_compute_units_api_v1_compute_units_get"
+      },
+      "post": {
+        "operationId": "create_compute_unit_api_v1_compute_units_post"
+      }
+    },
+    "/api/v1/compute-units/{cu_id}": {
+      "patch": {
+        "operationId": "patch_compute_unit_api_v1_compute_units__cu_id__patch"
+      }
+    },
+    "/api/v1/services": {
+      "get": {
+        "operationId": "list_services_api_v1_services_get"
+      },
+      "post": {
+        "operationId": "create_service_api_v1_services_post"
+      }
+    },
+    "/api/v1/services/{service_id}": {
+      "patch": {
+        "operationId": "patch_service_api_v1_services__service_id__patch"
+      }
+    },
+    "/api/v1/services/{service_id}/dependencies": {
+      "get": {
+        "operationId": "get_dependencies_api_v1_services__service_id__dependencies_get"
+      },
+      "post": {
+        "operationId": "add_dependency_api_v1_services__service_id__dependencies_post"
+      }
+    },
+    "/api/v1/networks": {
+      "get": {
+        "operationId": "list_networks_api_v1_networks_get"
+      },
+      "post": {
+        "operationId": "create_network_api_v1_networks_post"
+      }
+    },
+    "/api/v1/networks/{network_id}": {
+      "patch": {
+        "operationId": "patch_network_api_v1_networks__network_id__patch"
+      }
+    },
+    "/api/v1/networks/{network_id}/hardware-members": {
+      "get": {
+        "operationId": "list_hardware_members_api_v1_networks__network_id__hardware_members_get"
+      },
+      "post": {
+        "operationId": "add_hardware_member_api_v1_networks__network_id__hardware_members_post"
+      }
+    },
+    "/api/v1/networks/{network_id}/members": {
+      "get": {
+        "operationId": "list_members_api_v1_networks__network_id__members_get"
+      },
+      "post": {
+        "operationId": "add_member_api_v1_networks__network_id__members_post"
+      }
+    },
+    "/api/v1/monitors": {
+      "get": {
+        "operationId": "list_monitors_api_v1_monitors_get"
+      },
+      "post": {
+        "operationId": "create_monitor_api_v1_monitors_post"
+      }
+    },
+    "/api/v1/monitors/{monitor_id}": {
+      "patch": {
+        "operationId": "update_monitor_api_v1_monitors__monitor_id__patch"
+      }
+    },
+    "/api/v1/agents": {
+      "get": {
+        "operationId": "get_agents_api_v1_agents_get"
+      }
+    },
+    "/api/v1/graph/topology": {
+      "get": {
+        "operationId": "get_topology_api_v1_graph_topology_get"
+      }
+    },
+    "/api/v1/discovery/profiles": {
+      "get": {
+        "operationId": "get_profiles_api_v1_discovery_profiles_get"
+      },
+      "post": {
+        "operationId": "create_profile_api_v1_discovery_profiles_post"
+      }
+    },
+    "/api/v1/discovery/profiles/{profile_id}": {
+      "patch": {
+        "operationId": "update_profile_api_v1_discovery_profiles__profile_id__patch"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HardwareCreate": {
+        "properties": {
+          "name": {},
+          "role": {},
+          "vendor": {},
+          "model": {},
+          "cpu": {},
+          "memory_gb": {},
+          "location": {},
+          "notes": {},
+          "ip_address": {},
+          "wan_uplink": {},
+          "cpu_brand": {},
+          "vendor_icon_slug": {},
+          "custom_icon": {},
+          "tags": {},
+          "vendor_catalog_key": {},
+          "model_catalog_key": {},
+          "telemetry_config": {},
+          "environment_id": {},
+          "environment": {},
+          "source_scan_result_id": {},
+          "wifi_standards": {},
+          "wifi_bands": {},
+          "max_tx_power_dbm": {},
+          "port_count": {},
+          "software_platform": {},
+          "download_speed_mbps": {},
+          "upload_speed_mbps": {},
+          "port_map": {}
+        }
+      },
+      "HardwareUpdate": {
+        "properties": {
+          "name": {},
+          "role": {},
+          "vendor": {},
+          "model": {},
+          "cpu": {},
+          "memory_gb": {},
+          "location": {},
+          "notes": {},
+          "ip_address": {},
+          "wan_uplink": {},
+          "cpu_brand": {},
+          "vendor_icon_slug": {},
+          "custom_icon": {},
+          "tags": {},
+          "vendor_catalog_key": {},
+          "model_catalog_key": {},
+          "telemetry_config": {},
+          "environment_id": {},
+          "environment": {},
+          "status_override": {},
+          "wifi_standards": {},
+          "wifi_bands": {},
+          "max_tx_power_dbm": {},
+          "port_count": {},
+          "software_platform": {},
+          "download_speed_mbps": {},
+          "upload_speed_mbps": {},
+          "port_map": {}
+        }
+      },
+      "ComputeUnitCreate": {
+        "properties": {
+          "name": {},
+          "kind": {},
+          "hardware_id": {},
+          "os": {},
+          "icon_slug": {},
+          "cpu_cores": {},
+          "cpu_brand": {},
+          "memory_mb": {},
+          "disk_gb": {},
+          "ip_address": {},
+          "download_speed_mbps": {},
+          "upload_speed_mbps": {},
+          "environment": {},
+          "environment_id": {},
+          "status": {},
+          "notes": {},
+          "tags": {}
+        }
+      },
+      "ComputeUnitUpdate": {
+        "properties": {
+          "name": {},
+          "kind": {},
+          "hardware_id": {},
+          "os": {},
+          "icon_slug": {},
+          "cpu_cores": {},
+          "cpu_brand": {},
+          "memory_mb": {},
+          "disk_gb": {},
+          "ip_address": {},
+          "download_speed_mbps": {},
+          "upload_speed_mbps": {},
+          "environment": {},
+          "environment_id": {},
+          "status": {},
+          "status_override": {},
+          "notes": {},
+          "tags": {}
+        }
+      },
+      "ServiceCreate": {
+        "properties": {
+          "name": {},
+          "slug": {},
+          "compute_id": {},
+          "hardware_id": {},
+          "icon_slug": {},
+          "custom_icon": {},
+          "category": {},
+          "category_id": {},
+          "url": {},
+          "ports": {},
+          "description": {},
+          "environment": {},
+          "environment_id": {},
+          "status": {},
+          "ip_address": {},
+          "tags": {}
+        }
+      },
+      "ServiceUpdate": {
+        "properties": {
+          "name": {},
+          "slug": {},
+          "compute_id": {},
+          "hardware_id": {},
+          "icon_slug": {},
+          "custom_icon": {},
+          "category": {},
+          "category_id": {},
+          "url": {},
+          "ports": {},
+          "description": {},
+          "environment": {},
+          "environment_id": {},
+          "status": {},
+          "ip_address": {},
+          "tags": {}
+        }
+      },
+      "NetworkCreate": {
+        "properties": {
+          "name": {},
+          "icon_slug": {},
+          "cidr": {},
+          "vlan_id": {},
+          "gateway": {},
+          "description": {},
+          "gateway_hardware_id": {},
+          "site_id": {},
+          "tags": {}
+        }
+      },
+      "NetworkUpdate": {
+        "properties": {
+          "name": {},
+          "icon_slug": {},
+          "cidr": {},
+          "vlan_id": {},
+          "gateway": {},
+          "description": {},
+          "gateway_hardware_id": {},
+          "site_id": {},
+          "tags": {}
+        }
+      },
+      "MonitorCreate": {
+        "properties": {
+          "name": {},
+          "check_type": {},
+          "host": {},
+          "config": {},
+          "interval_secs": {},
+          "max_retries": {},
+          "retry_interval_secs": {},
+          "enabled": {},
+          "target_type": {},
+          "target_id": {},
+          "probe_agent_id": {}
+        }
+      },
+      "MonitorUpdate": {
+        "properties": {
+          "name": {},
+          "host": {},
+          "config": {},
+          "interval_secs": {},
+          "max_retries": {},
+          "retry_interval_secs": {},
+          "enabled": {},
+          "target_type": {},
+          "target_id": {},
+          "probe_agent_id": {}
+        }
+      },
+      "HardwareNetworkLink": {
+        "properties": {
+          "hardware_id": {},
+          "ip_address": {},
+          "connection_type": {}
+        }
+      },
+      "ComputeNetworkLink": {
+        "properties": {
+          "compute_id": {},
+          "ip_address": {},
+          "connection_type": {}
+        }
+      },
+      "ServiceDependencyCreate": {
+        "properties": {
+          "depends_on_id": {}
+        }
+      },
+      "DiscoveryProfileCreate": {
+        "properties": {
+          "name": {},
+          "cidr": {},
+          "vlan_ids": {},
+          "scan_types": {},
+          "scan_agent_id": {},
+          "nmap_arguments": {},
+          "snmp_community": {},
+          "snmp_version": {},
+          "snmp_port": {},
+          "docker_network_types": {},
+          "docker_port_scan": {},
+          "docker_socket_path": {},
+          "schedule_cron": {},
+          "enabled": {}
+        }
+      },
+      "DiscoveryProfileUpdate": {
+        "properties": {
+          "name": {},
+          "cidr": {},
+          "vlan_ids": {},
+          "scan_types": {},
+          "scan_agent_id": {},
+          "nmap_arguments": {},
+          "snmp_community": {},
+          "snmp_version": {},
+          "snmp_port": {},
+          "docker_network_types": {},
+          "docker_port_scan": {},
+          "docker_socket_path": {},
+          "schedule_cron": {},
+          "enabled": {}
+        }
+      }
+    }
+  }
+}

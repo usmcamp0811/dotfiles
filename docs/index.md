@@ -2,6 +2,10 @@
 okf_version: "0.2"
 ---
 
+# Architecture
+
+* [Circuit Breaker topology from the flake](CIRCUIT-BREAKER.md) - How the flake's evaluated NixOS configurations become a living, monitored Circuit Breaker topology, which side owns what, and what is and is not verified.
+
 # Guide
 
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.
@@ -19,11 +23,21 @@ okf_version: "0.2"
 
 # Reference
 
+* [Circuit Breaker inventory format (schema v1)](CIRCUIT-BREAKER-INVENTORY.md) - The versioned, Circuit-Breaker-independent document the flake exporter produces and the reconciler consumes.
 * [How to Use Hashicorp Vault for Managing Secrets on NixOS](SECRETS.md) - This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault.
 * [Service Dependency Map](SERVICE-DEPENDENCY-MAP.md) - Complete mapping of all services across the infrastructure with dependency relationships.
 
 # Runbook
 
+* [Circuit Breaker runbook](CIRCUIT-BREAKER-RUNBOOK.md) - Install, first-run setup, daily operation, agents, discovery, backup and restore, secret rotation, upgrade and rollback for the flake-driven Circuit Breaker.
 * [CVE-2026-39860 Fix for fmf-flake](CVE-2026-39860-MITIGATION.md) - Mitigation for CVE-2026-39860 in fmf-flake by upgrading to Nix 2.34.5.
 * [Quick Start: Patching CVE-2026-39860](CVE-2026-39860-QUICKSTART.md) - Your fmf-flake has been updated to use Nix 2.34.5 (patched) instead of the vulnerable Nix 2.31.3.
 * [Reformat & Install NixOS](Install.md) - Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.
+
+# Test Guide
+
+* [Circuit Breaker tests](CIRCUIT-BREAKER-TESTING.md) - Which checks exist for the Circuit Breaker integration, what each proves, how to run them, and how to extend them.
+
+# Troubleshooting
+
+* [Circuit Breaker troubleshooting](CIRCUIT-BREAKER-TROUBLESHOOTING.md) - Exit codes, symptoms and fixes for the Circuit Breaker server, reconciler, git-driven sync, agents and monitors.
