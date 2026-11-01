@@ -199,6 +199,23 @@
       f = v.config.detsys.vaultAgent.systemd.services.circuit-breaker-env;
     in
       failed v == [] && f.secretFiles.files."circuit-breaker.env".changeAction == "none";
+    # Regression: <dataDir>/secrets is only created when the module generates the secrets. With
+    # Vault nothing creates it, the post-restart `touch` of the marker failed, and the provision
+    # unit restarted the whole stack every minute. The directory must exist BEFORE any restart.
+    "provision creates the marker directory before it restarts anything (vault secrets)" = let
+      v = evalWith {
+        fmf.services.vault-agent.enable = true;
+        fmf.services.circuit-breaker = lib.recursiveUpdate good {
+          server.secrets = {
+            generate = false;
+            vault.enable = true;
+          };
+        };
+      };
+      script = v.config.systemd.services.circuit-breaker-provision.script;
+      beforeRestart = builtins.head (lib.splitString "systemctl restart" script);
+    in
+      lib.hasInfix ''install -d -m 0700 "$(dirname "$marker")"'' beforeRestart;
     "hints option is inert on ordinary hosts" =
       (evalWith {
         fmf.services.circuit-breaker.hints = {

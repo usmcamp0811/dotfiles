@@ -356,6 +356,11 @@ in {
           # API worker and worker process still holds the old key and would fail to decrypt what
           # the new key encrypted. Restart them once so all of them load the key from disk.
           marker=${srv.dataDir}/secrets/.vault-key-adopted
+          # <dataDir>/secrets only exists when the module generated the secrets itself; with
+          # Vault or an external file nothing else creates it. Make sure it exists BEFORE
+          # restarting anything: if the marker cannot be written after the restart, this
+          # unit fails and would restart the whole stack again every minute.
+          install -d -m 0700 "$(dirname "$marker")"
           if [ ! -e "$marker" ]; then
             echo "first-run setup finished: restarting the application services so every process adopts the new vault key"
             systemctl restart circuit-breaker-api.service 'circuit-breaker-worker-*.service'
