@@ -117,12 +117,15 @@ in {
       }
     ];
 
+    # Fixed ids, so enabling the agent never renumbers the host's other dynamic
+    # system accounts (see sync.nix).
     users.users.${user} = {
       isSystemUser = true;
+      uid = 1502;
       group = user;
       description = "Circuit Breaker agent";
     };
-    users.groups.${user} = {};
+    users.groups.${user}.gid = 1502;
 
     # `cb-agent status` is the supported way to read the fingerprint and link state.
     environment.systemPackages = [ag.package];

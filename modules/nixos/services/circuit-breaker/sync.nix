@@ -310,12 +310,16 @@ in {
         optional (fs.git.enable && inventoryFile != null)
         "fmf.services.circuit-breaker.flakeSync: both deployment-driven and git-driven sync are enabled; the most recent run wins (the git ref describes desired state, the deployment inventory describes what is being deployed).";
 
+      # Fixed ids. A dynamically allocated system id is handed out alphabetically, so
+      # adding this account would renumber every other dynamic account on the host
+      # (e.g. traefik) and orphan files they own on persistent storage.
       users.users.${user} = {
         isSystemUser = true;
+        uid = 1501;
         group = user;
         description = "Circuit Breaker inventory reconciler";
       };
-      users.groups.${user} = {};
+      users.groups.${user}.gid = 1501;
 
       environment.systemPackages = [cbSync];
 
