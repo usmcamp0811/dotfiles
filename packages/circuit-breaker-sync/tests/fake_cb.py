@@ -55,6 +55,10 @@ class FakeCB:
         self.deps: dict[int, list[dict[str, Any]]] = {}
         self.connections: list[dict[str, Any]] = []
         self.agents: list[dict[str, Any]] = []
+        # maps: a map draws only its members; entities created through the API belong to none
+        self.maps_api = True
+        self.maps: list[dict[str, Any]] = [{"id": 1, "name": "Main", "is_default": True, "sort_order": 0}]
+        self.map_nodes: dict[int, list[dict[str, Any]]] = {1: []}
         self.layout: dict[str, Any] = {"nodes": {}}  # canvas positions; the reconciler must never touch it
         self.log: list[tuple[str, str]] = []
         self.failures: list[Failure] = []
@@ -106,6 +110,9 @@ class FakeCB:
     def drop_after_apply(self, pattern: str, times: int = 1) -> None:
         """Apply the request, then close the connection without answering."""
         self.failures.append(Failure(pattern, 0, times, None, True, True))
+
+    def members(self, map_id: int = 1) -> set[tuple[str, int]]:
+        return {(n["entity_type"], n["entity_id"]) for n in self.map_nodes.get(map_id, [])}
 
     @property
     def writes(self) -> list[tuple[str, str]]:
@@ -250,6 +257,31 @@ class FakeCB:
         m = re.fullmatch(r"/api/v1/hardware-connections/(\d+)", path)
         if m and method == "DELETE":
             self.connections = [c for c in self.connections if c["id"] != int(m.group(1))]
+            return 204, None
+        if path.startswith(("/api/v1/maps", "/api/v1/topologies")) and not self.maps_api:
+            return 404, {"detail": "Not Found"}
+        if path == "/api/v1/maps" and method == "GET":
+            return 200, [{**m, "entity_count": len(self.map_nodes.get(m["id"], []))} for m in self.maps]
+        m = re.fullmatch(r"/api/v1/topologies/(\d+)", path)
+        if m and method == "GET":
+            tid = int(m.group(1))
+            topo = next((t for t in self.maps if t["id"] == tid), None)
+            if topo is None:
+                return 404, {"detail": "Topology not found"}
+            return 200, {**topo, "nodes": [dict(n) for n in self.map_nodes.get(tid, [])], "edges": []}
+        m = re.fullmatch(r"/api/v1/maps/(\d+)/entities", path)
+        if m and method == "POST":
+            tid = int(m.group(1))
+            if not any(t["id"] == tid for t in self.maps):
+                return 404, {"detail": f"Map {tid} not found"}
+            row = {"entity_type": body["entity_type"], "entity_id": body["entity_id"]}
+            if row not in self.map_nodes.setdefault(tid, []):
+                self.map_nodes[tid].append(row)
+            return 201, {"ok": True}
+        m = re.fullmatch(r"/api/v1/maps/(\d+)/entities/([a-z]+)/(\d+)", path)
+        if m and method == "DELETE":
+            tid, etype, eid = int(m.group(1)), m.group(2), int(m.group(3))
+            self.map_nodes[tid] = [n for n in self.map_nodes.get(tid, []) if (n["entity_type"], n["entity_id"]) != (etype, eid)]
             return 204, None
         if path == "/api/v1/agents" and method == "GET":
             return 200, list(self.agents)

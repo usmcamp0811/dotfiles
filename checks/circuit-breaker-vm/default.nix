@@ -298,6 +298,21 @@ in
           svc = api("GET", "/services", tok)
           assert all(not s.get("status") for s in svc), "declared services must not be marked running"
 
+      with subtest("the active map shows what the flake declares (a map draws only its members)"):
+          main = [m for m in api("GET", "/maps", tok) if m["is_default"]][0]
+          main_id = main["id"]
+          def on_map():
+              return {n["id"] for n in api("GET", f"/graph/topology?map_id={main_id}", tok)["nodes"]}
+          shown = on_map()
+          owned_hw = {f"hw-{h['id']}" for h in api("GET", "/hardware", tok) if "nix:managed" in h["tags"]}
+          owned_cu = {f"cu-{c['id']}" for c in api("GET", "/compute-units", tok)}
+          owned_svc = {f"svc-{s['id']}" for s in api("GET", "/services", tok)}
+          owned_net = {f"net-{n['id']}" for n in api("GET", "/networks", tok)}
+          for what, wanted in (("hardware", owned_hw), ("compute", owned_cu), ("services", owned_svc), ("networks", owned_net)):
+              assert wanted and wanted <= shown, (what, sorted(wanted - shown))
+          nas_id = [h["id"] for h in api("GET", "/hardware", tok) if h["name"] == "my-nas"][0]
+          assert f"hw-{nas_id}" not in shown, "a hand-made entity is not the flake's to place"
+
       with subtest("manual entity and canvas layout are untouched"):
           nas = [h for h in api("GET", "/hardware", tok) if h["name"] == "my-nas"][0]
           assert nas["tags"] == ["manual", "storage"] and nas["notes"] == "hand made" and nas["ip_address"] == "10.8.0.50", nas
@@ -329,9 +344,12 @@ in
           assert "nix:retired" in cu["vm-vault"]["tags"], cu["vm-vault"]
           assert [m for m in api("GET", "/monitors", tok) if "vm-vault" in m["name"] and m["enabled"]] == []
           assert api("GET", "/graph/layout", admin_jwt)["layout_data"] == layout_data
+          assert f"cu-{cu['vm-vault']['id']}" not in on_map(), "a retired VM leaves the map (it stays in Circuit Breaker)"
+          assert f"cu-{cu['vm-web']['id']}" in on_map()
           server.succeed("cb-sync --apply --inventory ${inventoryFile}")
           cu = {c["name"]: c for c in api("GET", "/compute-units", tok)}
           assert "nix:retired" not in cu["vm-vault"]["tags"]
+          assert f"cu-{cu['vm-vault']['id']}" in on_map(), "a returning VM is placed on the map again"
           assert [m for m in api("GET", "/monitors", tok) if "vm-vault" in m["name"] and not m["enabled"]] == []
 
       with subtest("an empty inventory can never retire anything"):

@@ -168,6 +168,7 @@ URL, credentials, policy and state; run with `sudo`).
 | `policy.retire` | `tag` | `tag` (non-destructive), `ignore`, or `delete` (needs `allowDelete`, waits `retireGraceDays`). |
 | `policy.pruneRelationships` | `false` | |
 | `policy.maxShrinkPercent` | `50` | Refuse an inventory this much smaller than the last good one. |
+| `policy.map.{enable,name}` | `true`, `null` | Put every entity the flake owns on one map (`null` = the default map). Circuit Breaker draws only the members of the active map, and an entity created through the API belongs to none, so without this the topology map stays empty. Entities added to the map by hand are never removed; a retired resource leaves the map but stays in Circuit Breaker. |
 
 ### `agent.*`
 

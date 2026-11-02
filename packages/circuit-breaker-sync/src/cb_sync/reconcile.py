@@ -56,7 +56,11 @@ KIND_PATHS: dict[str, tuple[str, str]] = {
     "discovery": ("/api/v1/discovery/profiles", "/api/v1/discovery/profiles/{id}"),
 }
 TAGGED_KINDS = ("network", "hardware", "compute", "service")
-WRITE_ACTIONS = frozenset({"create", "update", "adopt", "retire", "unretire", "delete", "link", "unlink"})
+WRITE_ACTIONS = frozenset({"create", "update", "adopt", "retire", "unretire", "delete", "link", "unlink", "place", "unplace"})
+#: inventory kind -> the entity_type Circuit Breaker's map membership API uses
+MAP_ENTITY_TYPES = {"network": "network", "hardware": "hardware", "compute": "compute", "service": "service"}
+MAPS_PATH = "/api/v1/maps"
+TOPOLOGIES_PATH = "/api/v1/topologies"
 
 
 class SafetyGuard(Exception):
@@ -69,7 +73,7 @@ class Incompatible(Exception):
 
 @dataclass
 class Op:
-    action: str   # create|update|adopt|retire|unretire|delete|link|unlink|skip|noop|drift|error
+    action: str   # create|update|adopt|retire|unretire|delete|link|unlink|place|unplace|skip|noop|drift|error
     kind: str
     key: str
     detail: dict[str, Any] = field(default_factory=dict)
@@ -308,6 +312,8 @@ class Reconciler:
             self.report.warnings.append("retirement deferred: this run had errors")
         else:
             self._retire(desired_keys)
+        if not self._aborted():
+            self._reconcile_map(desired_keys)
         return self.report
 
     def _aborted(self) -> bool:
@@ -728,6 +734,74 @@ class Reconciler:
                 self._record("unlink", "link", key, reason="no longer declared")
 
     # retirement ----------------------------------------------------------------------------
+    # map membership -----------------------------------------------------------------
+    def _target_map(self) -> dict[str, Any] | None:
+        maps = [m for m in (self.c.get(MAPS_PATH) or []) if isinstance(m, dict) and "id" in m]
+        if self.policy.map_name:
+            hits = [m for m in maps if (m.get("name") or "") == self.policy.map_name]
+        else:
+            hits = [m for m in maps if m.get("is_default")]
+            if not hits:
+                hits = sorted(maps, key=lambda m: (m.get("sort_order", 0), m["id"]))[:1]
+        return min(hits, key=lambda m: m["id"]) if hits else None
+
+    def _reconcile_map(self, desired_keys: set[str]) -> None:
+        """Keep the flake's entities on one map; the UI shows only what a map contains."""
+        if not self.policy.map_membership:
+            return
+        try:
+            target = self._target_map()
+            if target is None:
+                wanted = f"map {self.policy.map_name!r}" if self.policy.map_name else "a default map"
+                self.report.warnings.append(f"map membership not managed: Circuit Breaker has no {wanted}")
+                return
+            topo = self.c.get(f"{TOPOLOGIES_PATH}/{target['id']}") or {}
+        except NotFound:
+            self.report.warnings.append("map membership not managed: this server has no maps API")
+            return
+        except AuthError:
+            raise
+        except ApiError as exc:
+            self.report.warnings.append(f"map membership not managed: could not read the map: {exc}")
+            return
+        mid, label = target["id"], target.get("name")
+        members = {(n.get("entity_type"), int(n["entity_id"])) for n in topo.get("nodes") or [] if "entity_id" in n}
+        for d in self.desired:
+            if d.skip is not None or d.kind not in MAP_ENTITY_TYPES or d.key in self.failed:
+                continue
+            cb_id = self.cbid.get(d.key)
+            etype = MAP_ENTITY_TYPES.get(d.kind)
+            if cb_id is None or (cb_id > 0 and (etype, cb_id) in members):
+                continue
+            try:
+                if self.apply and cb_id > 0:
+                    self._guard_call(
+                        lambda: self.c.post(f"{MAPS_PATH}/{mid}/entities", {"entity_type": etype, "entity_id": cb_id})
+                    )
+                self._record("place", d.kind, d.key, cb_id=cb_id if cb_id > 0 else None, map=label)
+            except AuthError:
+                raise
+            except ApiError as exc:
+                self._fail(d.kind, d.key, exc)
+                if self._aborted():
+                    return
+        # Entities the flake no longer declares leave the map (they stay in Circuit Breaker, tagged
+        # retired). Like retirement this waits for a clean run and honours retire = ignore.
+        if self.policy.retire == "ignore" or self.report.errors:
+            return
+        for kind, etype in MAP_ENTITY_TYPES.items():
+            for key, e in sorted(self.managed[kind].items()):
+                if key in desired_keys or (etype, e["id"]) not in members:
+                    continue
+                try:
+                    if self.apply:
+                        self._guard_call(lambda: self.c.delete(f"{MAPS_PATH}/{mid}/entities/{etype}/{e['id']}"))
+                    self._record("unplace", kind, key, cb_id=e["id"], map=label)
+                except AuthError:
+                    raise
+                except ApiError as exc:
+                    self._fail(kind, key, exc)
+
     def _retire(self, desired_keys: set[str]) -> None:
         if self.policy.retire == "ignore":
             return

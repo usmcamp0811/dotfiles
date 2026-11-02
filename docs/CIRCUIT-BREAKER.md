@@ -147,11 +147,22 @@ Honest account of what has actually been exercised.
 | Area | Evidence |
 | --- | --- |
 | Exporter | 41 pure-Nix tests (`lib/circuit-breaker/tests.nix`); run on the real Campground (196 resources, 275 relationships, 117 monitors) |
-| Reconciler | 118 pytest cases against a fake of CB 0.4.6 built from its real OpenAPI document; mutation spot-checks; run repeatedly against the real server |
+| Reconciler | 130 pytest cases against a fake of CB 0.4.6 built from its real OpenAPI document; mutation spot-checks; run repeatedly against the real server |
 | Package | The server derivation imports every pinned Python module (catching missing or unpatched native libraries) and checks the reported version; the web UI builds from its lockfile |
 | Module | 68 evaluation-level tests including every invalid option combination, mutation-checked security properties, and a test that every unit renders |
 | End to end | NixOS VM test (`checks/circuit-breaker-vm`): the native server (PostgreSQL+TimescaleDB, Redis, NATS, migrations, API, all workers), the real agent on a second VM, hardened sync units, git-driven sync with a real `nix build` |
 | Not tested | The server inside a MicroVM (it is tested in a regular NixOS VM); Vault-rendered secrets at runtime (evaluated only); a real Gitea credential flow; `cb restore` of an upstream snapshot; ARP/L2 discovery results; the optional ACME/certbot extra (not part of the package) |
+
+## The map
+
+Circuit Breaker draws only the **members of the active map**; an entity created through its API
+belongs to no map until it is assigned (the UI assigns for you when you add something by hand).
+The reconciler therefore also makes every entity it owns (networks, hardware, VMs and containers,
+services) a member of one map: the default map unless `flakeSync.policy.map.name` names another.
+It never moves anything (positions are yours), never removes an entity you put there yourself, and
+takes a retired resource off the map while leaving it in Circuit Breaker. Set
+`flakeSync.policy.map.enable = false` to manage membership by hand. Without this a fresh install
+shows an empty map even though the inventory holds hundreds of entities.
 
 ## Known limitations
 

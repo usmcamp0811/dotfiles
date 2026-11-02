@@ -14,7 +14,7 @@ repository root.
 | Check | Run | Proves | Typical time |
 | --- | --- | --- | --- |
 | Exporter | `nix build .#checks.x86_64-linux.circuit-breaker-inventory` | 41 fixture tests: hosts, VMs and placement, addresses (static and DHCP reservation), bridges/VLANs, TAP attachment, services, proxy edges, hints, throwing/absent options, determinism, id stability, no secrets; then the real reconciler validates the output | ~30 s |
-| Reconciler | `nix build .#checks.x86_64-linux.circuit-breaker-sync` | The package's pytest suite (118 tests) runs in the build | ~10 s |
+| Reconciler | `nix build .#checks.x86_64-linux.circuit-breaker-sync` | The package's pytest suite (130 tests) runs in the build | ~10 s |
 | Server package | `nix build .#circuit-breaker-server` | Wheelhouse fetched and verified against upstream's lockfile hashes, UI built from its lockfile, every pinned module imports (a missing or unpatched native library fails here) and the reported version matches the pin | ~1 min cold, seconds cached |
 | Module | `nix build .#checks.x86_64-linux.circuit-breaker-module` | 68 evaluation tests: generated units, secret handling (nothing secret on a command line), loopback binding, ordering, sandboxing and capabilities, every invalid option combination, and that every unit renders | ~30 s |
 | End to end | `nix build -L .#checks.x86_64-linux.circuit-breaker-vm` | A NixOS VM test with the native server (all units) and the real agent on a second VM (below) | ~3 min, needs KVM and ~6 GB RAM |

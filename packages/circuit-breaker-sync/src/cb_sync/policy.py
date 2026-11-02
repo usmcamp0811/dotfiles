@@ -52,6 +52,12 @@ class Policy:
     git: dict[str, Any] | None = None
     #: Resource types to leave out of Circuit Breaker even though they are in the inventory.
     skip_types: tuple[str, ...] = ()
+    #: Make every entity this reconciler owns a member of one map. Circuit Breaker draws only the
+    #: members of the active map, and an entity created through the API belongs to no map until it
+    #: is assigned, so without this the topology map stays empty.
+    map_membership: bool = True
+    #: Name of the map to populate; ``None`` means the default map.
+    map_name: str | None = None
 
     def validate(self) -> None:
         if self.retire not in RETIRE_MODES:
@@ -65,6 +71,8 @@ class Policy:
             raise PolicyError("retire_grace_days must be >= 0")
         if not 0 <= self.max_shrink_percent <= 100:
             raise PolicyError("max_shrink_percent must be within 0..100")
+        if self.map_name is not None and not (isinstance(self.map_name, str) and self.map_name.strip()):
+            raise PolicyError("map_name must be a non-empty string or null")
         for prof in self.discovery:
             _validate_discovery_profile(prof, allow_public=self.discovery_allow_public)
         if self.git is not None:

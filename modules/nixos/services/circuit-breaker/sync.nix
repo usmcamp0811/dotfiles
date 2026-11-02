@@ -81,6 +81,8 @@ with lib.fmf; let
       allow_delete = fs.policy.allowDelete;
       prune_relationships = fs.policy.pruneRelationships;
       max_shrink_percent = fs.policy.maxShrinkPercent;
+      map_membership = fs.policy.map.enable;
+      map_name = fs.policy.map.name;
       sync_monitors = cfg.monitoring.enable;
       remote_probes = cfg.monitoring.remoteProbes;
       discovery = discoveryProfiles;
@@ -265,6 +267,15 @@ in {
       retireGraceDays = mkOpt types.ints.unsigned 30 "Days a retired resource is kept before `delete` may remove it.";
       allowDelete = mkBoolOpt false "Permit hard deletes (only with retire = \"delete\").";
       pruneRelationships = mkBoolOpt false "Remove memberships/dependencies between flake-owned entities that are no longer declared.";
+      map = {
+        enable = mkBoolOpt true ''
+          Put every entity the flake owns on one map. Circuit Breaker draws only the members of the
+          active map and an entity created through the API belongs to none, so without this the
+          topology map stays empty. Entities added to the map by hand are never removed; a flake
+          resource that is retired leaves the map (it stays in Circuit Breaker, tagged retired).
+        '';
+        name = mkOpt (types.nullOr types.str) null "Name of the map to populate. null = the default map.";
+      };
       maxShrinkPercent = mkOpt (types.ints.between 0 100) 50 "Abort when the inventory shrinks by more than this percentage versus the last successful sync (0 disables).";
     };
   };

@@ -167,6 +167,13 @@
       p = builtins.fromJSON (builtins.readFile (lib.head (lib.filter (lib.hasInfix "policy.json") (lib.splitString " " syncExec))));
     in
       p.retire == "tag" && p.allow_delete == false && p.prune_relationships == false && p.discovery == [];
+    "sync puts the flake's entities on the default map unless told otherwise" = let
+      pol = x: builtins.fromJSON (builtins.readFile (lib.head (lib.filter (lib.hasInfix "policy.json") (lib.splitString " " x.config.systemd.services.circuit-breaker-sync.serviceConfig.ExecStart))));
+      dflt = pol ok;
+      named = pol (mk {flakeSync.policy.map.name = "Nix";});
+      off = pol (mk {flakeSync.policy.map.enable = false;});
+    in
+      dflt.map_membership == true && dflt.map_name == null && named.map_name == "Nix" && off.map_membership == false;
     "agent: unprivileged, netlink allowed, no capabilities" = let
       a = svc.cb-agent.serviceConfig;
     in

@@ -271,9 +271,15 @@ def test_canvas_layout_is_never_read_or_written(cb, run, inv):
     cb.layout["nodes"]["host/router"] = {"x": 100, "y": 200}
     run(inv)
     run(remove_resource(inv, "vm/vm-vault"))
-    assert not [p for _, p in cb.log if "/graph/layout" in p or "/graph/place-node" in p or "/maps" in p or "/topologies" in p]
+    # Positions are the operator's: nothing may read or write the layout, replace node positions
+    # (PUT /topologies/{id}/nodes), or edit/delete the maps themselves. Adding or removing an
+    # entity's membership of a map (POST/DELETE /maps/{id}/entities) does not move anything.
+    assert not [p for _, p in cb.log if "/graph/layout" in p or "/graph/place-node" in p]
     assert not [(m, p) for m, p in cb.writes if "/graph" in p]
+    assert not [(m, p) for m, p in cb.writes if p.startswith("/api/v1/topologies")]
+    assert not [(m, p) for m, p in cb.writes if p.startswith("/api/v1/maps") and "/entities" not in p]
     assert cb.layout == {"nodes": {"host/router": {"x": 100, "y": 200}}}
+    assert all("x" not in n and "y" not in n for n in cb.map_nodes[1])
 
 
 def test_service_slug_collision_with_foreign_service_fails_cleanly_and_retries_safely(cb, run, inv):
@@ -544,3 +550,126 @@ def test_removing_a_remote_probe_policy_returns_the_monitor_to_the_server_vantag
     assert run(inv, policy=pol).changes == []
     run(inv)
     assert m["probe_agent_id"] is None
+
+
+# ------------------------------------------------------------- map membership
+# Circuit Breaker draws only the members of the active map; an entity created through the API
+# belongs to no map, so without this the topology map stays empty.
+MAPPED = {"networks": "network", "hardware": "hardware", "compute-units": "compute", "services": "service"}
+
+
+def expected_members(cb, map_id=1):
+    out = set()
+    for coll, etype in MAPPED.items():
+        out |= {(etype, e["id"]) for e in cb.data[coll] if any(t.startswith("nix:id:") for t in e.get("tags") or [])}
+    return out
+
+
+def test_every_owned_entity_is_placed_on_the_default_map(cb, run, inv):
+    report = run(inv)
+    assert not report.errors
+    placed = actions(report, "place")
+    members = cb.members(1)
+    assert members and members == expected_members(cb)
+    assert len(placed) == len(members)
+    assert {o.kind for o in placed} == {"network", "hardware", "compute", "service"}
+    assert all(o.detail["map"] == "Main" for o in placed)
+    # monitors are not map entities
+    assert not any(t == "monitor" for t, _ in members)
+    # the unplaced MicroVM was skipped, so it is not on the map either
+    assert "vm-orphan" not in {e["name"] for e in cb.data["compute-units"] if ("compute", e["id"]) in members}
+
+
+def test_placement_is_idempotent_and_writes_nothing_the_second_time(cb, run, inv):
+    run(inv)
+    cb.log.clear()
+    report = run(inv)
+    assert not actions(report, "place") and not actions(report, "unplace")
+    assert not [w for w in cb.writes if "/maps/" in w[1]]
+    assert not report.changes
+
+
+def test_dry_run_reports_placements_but_writes_nothing(cb, run, inv):
+    report = run(inv, apply=False)
+    assert actions(report, "place") and not cb.writes
+    assert cb.members(1) == set()
+
+
+def test_entities_added_by_hand_are_left_alone(cb, run, inv):
+    hand = cb.add("hardware", name="hand-made", tags=[])
+    cb.map_nodes[1].append({"entity_type": "hardware", "entity_id": hand["id"]})
+    run(inv)
+    assert ("hardware", hand["id"]) in cb.members(1)
+    inv2 = remove_resource(inv, "vm/vm-vault")
+    run(inv2)
+    assert ("hardware", hand["id"]) in cb.members(1)
+
+
+def test_named_map_is_used_and_the_default_map_is_not_touched(cb, run, inv):
+    cb.maps.append({"id": 2, "name": "Nix", "is_default": False, "sort_order": 1})
+    cb.map_nodes[2] = []
+    run(inv, policy={"map_name": "Nix"})
+    assert cb.members(2) == expected_members(cb) and cb.members(1) == set()
+
+
+def test_missing_named_map_is_a_warning_not_a_failure(cb, run, inv):
+    report = run(inv, policy={"map_name": "Does not exist"})
+    assert not report.errors
+    assert any("no map 'Does not exist'" in w for w in report.warnings)
+    assert cb.members(1) == set()
+    assert len(cb.data["hardware"]) == 3  # everything else still synced
+
+
+def test_membership_can_be_switched_off(cb, run, inv):
+    cb.log.clear()
+    report = run(inv, policy={"map_membership": False})
+    assert not actions(report, "place")
+    assert not [x for x in cb.log if "/maps" in x[1] or "/topologies" in x[1]]
+
+
+def test_server_without_a_maps_api_only_warns(cb, run, inv):
+    cb.maps_api = False
+    report = run(inv)
+    assert not report.errors
+    assert any("no maps API" in w for w in report.warnings)
+    assert len(cb.data["services"]) == 3
+
+
+def test_retired_entities_leave_the_map_but_stay_in_circuit_breaker(cb, run, inv):
+    run(inv)
+    vm = tagged(cb, "compute-units", "vm/vm-vault")[0]
+    assert ("compute", vm["id"]) in cb.members(1)
+    report = run(remove_resource(inv, "vm/vm-vault"))
+    assert ("compute", "vm/vm-vault") in {(o.kind, o.key) for o in actions(report, "unplace")}
+    assert ("compute", vm["id"]) not in cb.members(1)
+    assert "nix:retired" in tagged(cb, "compute-units", "vm/vm-vault")[0]["tags"]  # still in Circuit Breaker
+    # everything still declared stays on the map
+    assert {("compute", e["id"]) for e in cb.data["compute-units"] if "nix:retired" not in e["tags"]} <= cb.members(1)
+
+
+def test_retire_ignore_keeps_membership(cb, run, inv):
+    run(inv, policy={"retire": "ignore"})
+    vm = tagged(cb, "compute-units", "vm/vm-vault")[0]
+    report = run(remove_resource(inv, "vm/vm-vault"), policy={"retire": "ignore"})
+    assert not actions(report, "unplace") and ("compute", vm["id"]) in cb.members(1)
+
+
+def test_a_failed_placement_is_reported_and_does_not_stop_the_rest(cb, run, inv):
+    cb.fail(r"POST /api/v1/maps/1/entities", status=500, times=1)
+    report = run(inv)
+    assert report.errors
+    # one entity missed this run; the next clean run completes the map
+    report2 = run(inv)
+    assert not report2.errors and cb.members(1) == expected_members(cb)
+
+
+def test_unplacing_waits_for_a_clean_run(cb, run, inv):
+    run(inv)
+    vm = tagged(cb, "compute-units", "vm/vm-vault")[0]
+    cb.fail(r"PATCH /api/v1/(compute-units|services)/\d+", status=422, times=50)  # retiring fails -> errors
+    report = run(remove_resource(inv, "vm/vm-vault"))
+    assert report.errors
+    assert not actions(report, "unplace") and ("compute", vm["id"]) in cb.members(1)
+    cb.failures.clear()
+    report = run(remove_resource(inv, "vm/vm-vault"))
+    assert not report.errors and ("compute", vm["id"]) not in cb.members(1)
