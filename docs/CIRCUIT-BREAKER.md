@@ -165,7 +165,7 @@ Honest account of what has actually been exercised.
   API serves the UI itself; TLS terminates at your proxy or in the API), no pgbouncer, and no
   certbot/ACME (the extra is not in upstream's lockfile). Upstream's agent binary download
   and self-update endpoints have nothing to serve; agents are Nix-managed.
-- **One local patch to upstream** (`packages/circuit-breaker-server/patches/`). In 0.4.6 (and
+- **Two local patches to upstream** (`packages/circuit-breaker-server/patches/`). In 0.4.6 (and
   upstream `main`) the OIDC id_token is verified without an expected audience; PyJWT rejects every
   token that carries an `aud` claim in that case, so OIDC sign-in (Authentik, Keycloak, ...) fails
   with `InvalidAudienceError` whatever the provider is configured to do. The patch passes the
@@ -173,6 +173,13 @@ Honest account of what has actually been exercised.
   HMAC and RSA/JWKS id_tokens and checks that the right audience is accepted and a wrong one is
   rejected. Drop the patch when upstream fixes it; the build fails loudly if the patch no longer
   applies.
+- **OIDC sign-in left the browser unable to write** (`oidc-csrf-cookie.patch`). The CSRF middleware
+  refuses any write that has a session cookie but no `cb_csrf` cookie and header; only password
+  login set that cookie, so a user who signed in through an identity provider could read but every
+  change failed with 403 `CSRF token missing` (visible in the journal as "CSRF check failed: missing
+  token"; the UI only shows e.g. "Failed to save acknowledgment"). The patch sets the same cookie on
+  both OAuth redirects, with the attributes password login uses. The package's install check
+  verifies the cookie attributes and that both redirect paths call the helper.
 - On first start CB stores `http://<detected-LAN-ip>:8088` as its **App URL**, an address nothing
   serves here. It overrides the forwarded headers and becomes the OIDC `redirect_uri`, so set
   Settings -> Connectivity -> External Access -> App URL to the public `https://` name before

@@ -42,7 +42,14 @@ in
       #  - oidc-id-token-audience: upstream verifies the OIDC id_token without an expected
       #    audience, which PyJWT rejects for every real provider (InvalidAudienceError), so
       #    no OIDC login (Authentik, Keycloak, ...) could ever succeed.
-      patches = [./patches/oidc-id-token-audience.patch];
+      #  - oidc-csrf-cookie: the OAuth/OIDC redirects set the session cookie but not the CSRF
+      #    cookie, and the CSRF middleware refuses every write without one, so anyone signed
+      #    in through an identity provider could read but not change anything (HTTP 403,
+      #    "CSRF token missing", e.g. the scan acknowledgment and the settings page).
+      patches = [
+        ./patches/oidc-id-token-audience.patch
+        ./patches/oidc-csrf-cookie.patch
+      ];
 
       nativeBuildInputs = [python python.pkgs.pip autoPatchelfHook makeWrapper];
       buildInputs = [stdenv.cc.cc.lib zlib];
@@ -137,6 +144,35 @@ in
         verify(rs, {"keys": [jwk]}, "n1", audience="client-1")
         assert rejected(lambda: verify(rs, {"keys": [jwk]}, "n1", audience="someone-else"))
         print("oidc audience checks ok")
+        PY
+
+        # OIDC sign-in must leave the browser able to write: both cookies, same attributes as password login
+        $out/bin/cb-python - <<'PY'
+        import inspect
+        from fastapi.responses import RedirectResponse
+        from starlette.requests import Request
+        from app.core import auth_cookie
+        from app.api import auth_oauth
+
+        def req(scheme):
+            return Request({"type": "http", "method": "GET", "path": "/", "query_string": b"", "scheme": scheme,
+                            "server": ("topology.example", 443), "client": ("10.0.0.9", 1234),
+                            "headers": [(b"host", b"topology.example")]})
+
+        for scheme, secure in (("https", True), ("http", False)):
+            r = RedirectResponse("/")
+            auth_cookie.set_auth_cookie_on_response(req(scheme), r, "tok", 24)
+            auth_cookie.set_csrf_cookie_on_response(req(scheme), r, 24)
+            cookies = {c.split("=", 1)[0]: c for c in r.headers.getlist("set-cookie")}
+            assert set(cookies) == {"cb_session", "cb_csrf"}, cookies
+            csrf, sess = cookies["cb_csrf"], cookies["cb_session"]
+            assert "httponly" not in csrf.lower(), csrf          # JS must be able to read it
+            assert "httponly" in sess.lower(), sess
+            assert ("secure" in csrf.lower()) == secure and "samesite=strict" in csrf.lower(), csrf
+            assert len(csrf.split("=", 1)[1].split(";")[0]) == 64, csrf
+        for fn in (auth_oauth._issue_jwt_and_redirect, auth_oauth._bootstrap_redirect_or_none):
+            assert "set_csrf_cookie_on_response(" in inspect.getsource(fn), fn.__name__
+        print("oidc csrf cookie checks ok")
         PY
         runHook postInstallCheck
       '';

@@ -1,0 +1,67 @@
+--- a/apps/backend/src/app/api/auth_oauth.py
++++ b/apps/backend/src/app/api/auth_oauth.py
+@@ -577,7 +577,7 @@
+     user: User, base_url: str, db: Session, request: Request
+ ) -> RedirectResponse:
+     """Issue a CB JWT for the user and redirect to frontend with token."""
+-    from app.core.auth_cookie import set_auth_cookie_on_response
++    from app.core.auth_cookie import set_auth_cookie_on_response, set_csrf_cookie_on_response
+     from app.services.auth_service import issue_session
+     from app.services.settings_service import get_or_create_settings
+ 
+@@ -608,6 +608,7 @@
+     response = RedirectResponse(url=f"{base_url}/?cb_auth_code={code}", status_code=302)
+     response.headers["Cache-Control"] = "no-store"
+     set_auth_cookie_on_response(request, response, token, cfg.session_timeout_hours)
++    set_csrf_cookie_on_response(request, response, cfg.session_timeout_hours)
+     return response
+ 
+ 
+@@ -625,7 +626,7 @@
+     """
+     import secrets as _secrets_mod
+ 
+-    from app.core.auth_cookie import set_auth_cookie_on_response
++    from app.core.auth_cookie import set_auth_cookie_on_response, set_csrf_cookie_on_response
+     from app.services.auth_service import issue_session
+     from app.services.settings_service import get_or_create_settings
+ 
+@@ -645,6 +646,7 @@
+     )
+     response.headers["Cache-Control"] = "no-store"
+     set_auth_cookie_on_response(request, response, token, cfg.session_timeout_hours)
++    set_csrf_cookie_on_response(request, response, cfg.session_timeout_hours)
+     return response
+ 
+ 
+--- a/apps/backend/src/app/core/auth_cookie.py
++++ b/apps/backend/src/app/core/auth_cookie.py
+@@ -35,6 +35,28 @@
+     )
+ 
+ 
++def set_csrf_cookie_on_response(
++    request: Request, response: Response, session_timeout_hours: int | None
++) -> None:
++    """Set the readable double-submit CSRF cookie on an existing response.
++
++    `CSRFMiddleware` rejects every PUT/POST/PATCH/DELETE that has a `cb_session` cookie but no
++    matching `cb_csrf` cookie and `X-CSRF-Token` header. Password login sets both cookies
++    (`auth_response_with_cookie`); the OAuth/OIDC redirects set only the session cookie, so a
++    user who signed in through an identity provider could read but never write (HTTP 403,
++    "CSRF token missing").
++    """
++    response.set_cookie(
++        key=CSRF_COOKIE_NAME,
++        value=secrets.token_hex(32),
++        max_age=(session_timeout_hours or 24) * 3600,
++        httponly=False,  # must be readable by JS for the double-submit pattern
++        secure=_is_secure_request(request),
++        samesite="strict",
++        path="/",
++    )
++
++
+ def auth_response_with_cookie(
+     request: Request,
+     token: str,
