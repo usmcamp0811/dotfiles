@@ -1526,11 +1526,11 @@
         "upgrade-predecessor": "upgrade-predecessor"
       },
       "locked": {
-        "lastModified": 1793581575,
-        "narHash": "sha256-cT03ydcqiLZJW3qrZTjunYsL9HUKsaychqs5qw/7aFw=",
+        "lastModified": 1793591977,
+        "narHash": "sha256-OjcEAepvFf1Mew3dnUJj/j5FIumMRXGxlv1lLyEJE9Q=",
         "ref": "TASK-508-management-modes",
-        "rev": "9122782b994d5407d897c2efe7ebd3ec7302642f",
-        "revCount": 5693,
+        "rev": "bcb3b79ea7b8a160eca6a90fdbd60a6f025d55f3",
+        "revCount": 5701,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
