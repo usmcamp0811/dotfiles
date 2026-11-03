@@ -41,3 +41,4 @@ okf_version: "0.2"
 # Troubleshooting
 
 * [Circuit Breaker troubleshooting](CIRCUIT-BREAKER-TROUBLESHOOTING.md) - Exit codes, symptoms and fixes for the Circuit Breaker server, reconciler, git-driven sync, agents and monitors.
+* [MicroVM boot and configuration pitfalls](MICROVM-TROUBLESHOOTING.md) - Failures we hit bringing up fmf/Campground MicroVMs (stale store overlay, emergency mode, duplicate option definitions, surprise sudo and NetworkManager) with the check and the fix for each.
