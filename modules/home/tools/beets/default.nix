@@ -114,14 +114,23 @@ in {
 
         fetchart = {
           auto = true;
-          sources = ["coverart" "itunes" "amazon" "google" "albumart"];
+          # "google" was removed as a fetchart source in modern beets (it needed a paid
+          # Google Custom Search API key and is no longer a recognized source name) -
+          # listing it is a hard UserError on plugin load, not just a no-op.
+          sources = ["coverart" "itunes" "amazon" "albumart"];
           minwidth = 500;
         };
         embedart = {
           auto = true;
           ifempty = true;
         };
-        replaygain = {auto = true;};
+        # Legacy "command" backend (the plugin's default) needs an external
+        # mp3gain/aacgain/mp3rgain binary that isn't installed; "ffmpeg" backend needs
+        # nothing extra - beets already depends on ffmpeg for chroma/fpcalc anyway.
+        replaygain = {
+          auto = true;
+          backend = "ffmpeg";
+        };
         scrub = {auto = true;};
 
         lastgenre = {
