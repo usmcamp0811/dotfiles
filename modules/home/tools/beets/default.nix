@@ -12,6 +12,16 @@ in {
   options.fmf.tools.beets = with types; {
     enable = mkBoolOpt false "Whether or not to enable beets.";
     music-dir = mkOpt str "/export/media/music" "Directory for music files.";
+    acoustid-apikey-file = mkOpt (types.nullOr types.str) null ''
+      Path to a file (e.g. rendered by vault-agent at activation time)
+      containing the AcoustID API key, used by the chroma plugin for audio
+      fingerprint matching. Not read at build time - the file's contents are
+      merged into ~/.config/beets/config.yaml by a home-manager activation
+      script, so the key never lands in the Nix store (programs.beets writes
+      that file as a symlink into the store, which would otherwise make any
+      secret in `settings` permanently world-readable there). Get a free key
+      at https://acoustid.org/api-key.
+    '';
   };
 
   config = mkIf cfg.enable {
@@ -124,5 +134,24 @@ in {
         chroma = {auto = true;};
       };
     };
+
+    # Merge the AcoustID key into the generated config.yaml after
+    # home-manager (re)creates its symlink into the store, every activation -
+    # so it always reflects both the latest declarative settings and the
+    # latest key, without the key ever being written to the store itself.
+    home.activation.beetsAcoustidApikey = mkIf (cfg.acoustid-apikey-file != null) (
+      lib.hm.dag.entryAfter ["writeBoundary"] ''
+        configFile="$HOME/.config/beets/config.yaml"
+        keyFile="${cfg.acoustid-apikey-file}"
+        if [ -s "$keyFile" ]; then
+          baseConfig=$(readlink -f "$configFile")
+          cat "$baseConfig" > "$configFile.tmp"
+          printf 'acoustid_apikey: %s\n' "$(cat "$keyFile")" >> "$configFile.tmp"
+          mv "$configFile.tmp" "$configFile"
+        else
+          echo "Warning: beets acoustid-apikey-file '$keyFile' is missing or empty; chroma plugin will have no AcoustID key." >&2
+        fi
+      ''
+    );
   };
 }
