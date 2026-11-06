@@ -38,10 +38,23 @@ Both are meant to be committed, so a module change that widens access shows up a
 
 ## How it works
 
-`extract.nix` evaluates one host's `config.fmf.services.vault-agent`, collects every template (inline
-`text` or `source` file) and pulls out the `secret` / `pkiCert` calls. `vault-access.sh` runs that for
-each host (one `nix eval` at a time, a few in parallel, so memory stays small), then groups by service
-name and writes the policies.
+The rules (what a service reads, naming, capabilities) live in
+[`lib/vault-access`](../../../lib/vault-access/default.nix), exposed as `lib.fmf.vaultAccess`. It is pure
+Nix with regression tests (`tests.nix`), so this CLI and downstream checks share one implementation.
+
+- `extractHost` reads one host's evaluated `config.fmf.services.vault-agent`, collects every template
+  (inline `text` or `source` file) and pulls out the `secret` / `pkiCert` calls.
+- `render` turns every host's result into the policies and the host -> policies map.
+
+This script only evaluates the hosts, one `nix eval` at a time with a few in parallel so memory stays
+small, hands the results to `render`, and writes the files.
+
+## Keeping it fresh
+
+- fmf's CI runs `vault-access` right after it bumps a downstream repo's `fmf` lock and commits the
+  result (`update_fmf_in_gitea` in `.gitlab-ci.yml`).
+- A downstream repo should also run a drift check built on `lib.fmf.vaultAccess` (Campground:
+  `checks/vault-access`), which catches changes made only downstream.
 
 ## Limits
 

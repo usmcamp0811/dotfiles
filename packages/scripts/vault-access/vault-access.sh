@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
-# vault-access: derive one least-privilege Vault policy PER SERVICE from what the vault-agent
-# templates actually read, and say which hosts need which policy.
+# vault-access: write (or check) the per-service Vault policies and the host -> policies map that
+# lib.fmf.vaultAccess derives from the vault-agent templates of every host in a flake.
 #
-# Run it from the root of the flake that defines your nixosConfigurations (it evaluates every
-# host of that flake):
+# Run it from the root of the flake that defines your nixosConfigurations:
 #
 #   vault-access                   write <vault-dir>/policies/svc-*.hcl and
 #                                  <vault-dir>/generated/service-policies.nix
-#   vault-access --check           regenerate to a temp dir; exit non-zero if the repo differs (CI)
+#   vault-access --check           derive again; exit non-zero if the committed files differ (CI)
 #   vault-access --show vm-media   print the policies one host needs (writes nothing)
 #
-# A "service" is a key of fmf.services.vault-agent.services (gitea's secrets, pia-vpn, rkvm, ...).
-# Its policy grants exactly the secrets its templates read. When the same service name reads
-# different secrets on different hosts, each distinct set becomes its own policy, named after the
-# secrets (svc-k3s--argocd-repo-k3s), so no host is granted another host's extras.
-# The whole fleet is always evaluated (naming depends on every host); hosts are evaluated one
-# `nix eval` at a time, a few in parallel, so memory stays small.
+# The rules (what a service reads, naming, capabilities) live in lib/vault-access/default.nix and
+# are shared with the Nix-side check. This script only evaluates each host (one `nix eval` at a
+# time, a few in parallel, so memory stays small) and writes the result.
 set -euo pipefail
 
 usage() {
@@ -31,7 +27,7 @@ usage: vault-access [--check | --show HOST] [options]
 USAGE
 }
 
-mount="secret/campground" # the KV v2 mount that vault-agent templates resolve under
+mount="secret/campground"
 jobs=3
 mode="write"
 flake=""
@@ -46,8 +42,8 @@ while [ $# -gt 0 ]; do
     --hosts-dir) hosts_dir="$2"; shift 2 ;;
     --vault-dir) vault_rel="$2"; shift 2 ;;
     --jobs) jobs="$2"; shift 2 ;;
-    --check) mode=check; shift ;;
-    --show) mode=show; show_host="${2:?--show needs a host}"; shift 2 ;;
+    --check) mode="check"; shift ;;
+    --show) mode="show"; show_host="${2:?--show needs a host}"; shift 2 ;;
     -h | --help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
@@ -58,21 +54,23 @@ flake="${flake:-git+file://$root}"
 vault_dir="$root/$vault_rel"
 policy_dir="$vault_dir/policies"
 mapping_file="$vault_dir/generated/service-policies.nix"
-extract="@EXTRACT@"
+lib_file="@LIB@"
 
 mapfile -t hosts < <(find "$root/$hosts_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-mkdir -p "$work/json" "$work/policies"
+mkdir -p "$work/json" "$work/out"
 
 extract_host() {
   local h="$1" try
   # nix sometimes fails with "Stale file handle" reading its git cache while other evals run;
   # retry a few times, but a real evaluation error fails the same way every time and still fails.
   for try in 1 2 3; do
-    if nix eval --impure --json --expr \
-      "(import $extract) { flake = \"$flake\"; host = \"$h\"; }" >"$work/json/$h.json" 2>"$work/json/$h.err"; then
-      jq --arg h "$h" '. + {host: $h}' "$work/json/$h.json" >"$work/json/$h.host.json"
+    if nix eval --impure --json --expr "
+      let c = (builtins.getFlake \"$flake\").nixosConfigurations.\"$h\";
+      in (import $lib_file { lib = c.pkgs.lib; }).vaultAccess.extractHost c.config" \
+      >"$work/json/$h.json" 2>"$work/json/$h.err"; then
       return 0
     fi
     sleep "$try"
@@ -82,7 +80,7 @@ extract_host() {
   : >"$work/json/$h.failed"
 }
 export -f extract_host
-export work flake extract
+export work flake lib_file
 
 printf '%s\n' "${hosts[@]}" | xargs -P "$jobs" -I{} bash -c 'extract_host {}'
 
@@ -91,85 +89,38 @@ if [ -n "$(find "$work/json" -name '*.failed' -print -quit)" ]; then
   exit 1
 fi
 
-# All hosts -> { policies: { <name>: <hcl> }, hosts: { <host>: [<policy>...] } }
-read -r -d '' JQ <<'JQ' || true
-def leaf: .path | split("/") | last;
+# {host: extractHost result} for the whole fleet, then the shared derivation.
+for h in "${hosts[@]}"; do jq -c --arg h "$h" '{($h): .}' "$work/json/$h.json"; done | jq -s 'add' >"$work/hosts.json"
 
-def rule($m):
-  if (.path | test("-pki/|/pki/"))
-    then {path: .path, caps: (if (.path | test("/issue/")) then ["update"] else ["read"] end), kind: "pki"}
-  elif (.path | startswith($m + "/data/"))
-    then {path: .path, caps: ["read"], kind: "kv", logical: ($m + "/" + (.path | ltrimstr($m + "/data/")))}
-  elif (.path | startswith($m + "/"))
-    then {path: ($m + "/data/" + (.path | ltrimstr($m + "/"))), caps: ["read"], kind: "kv", logical: .path}
-  else {path: .path, caps: [], kind: "unresolved"} end;
+first="${hosts[0]}"
+nix eval --impure --json --expr "
+  let
+    c = (builtins.getFlake \"$flake\").nixosConfigurations.\"$first\";
+    va = (import $lib_file { lib = c.pkgs.lib; }).vaultAccess;
+  in va.render { mount = \"$mount\"; hosts = builtins.fromJSON (builtins.readFile $work/hosts.json); }" \
+  >"$work/result.json"
 
-def stanza($m):
-  if .kind == "unresolved" then
-    "# UNRESOLVED (not under \($m) and not a PKI path), no access granted: \(.path)\n"
-  else
-    "path \"\(.path)\" {\n  capabilities = [\(.caps | map("\"" + . + "\"") | join(", "))]\n}\n"
-    + (if .kind == "kv" then
-        "# KV v2 mount discovery for the agent, no secret data\n"
-        + "path \"sys/internal/ui/mounts/\(.logical)\" {\n  capabilities = [\"read\"]\n}\n"
-      else "" end)
-  end;
-
-# one row per (host, service) that reads at least one secret
-[ .[] | select(.enabled) | .host as $h | .services | to_entries[]
-  | {svc: .key, host: $h,
-     rules: ([.value[] | rule($m)] | group_by(.path) | map(.[0]) | sort_by(.path))}
-  | select(.rules | length > 0) ] as $rows
-
-# a unit = a service name + one distinct set of secrets; several sets => name carries the secrets
-| ($rows | group_by(.svc) | map(
-    group_by([.rules[].path]) as $variants
-    | $variants | map({svc: .[0].svc, rules: .[0].rules, hosts: (map(.host) | unique),
-                       multi: (($variants | length) > 1)}))
-  | flatten
-  | map(. + {name: ("svc-" + (.svc | ascii_downcase)
-        + (if .multi then "--" + ([.rules[] | leaf] | join("-") | ascii_downcase) else "" end))})) as $units
-
-| ($units | group_by(.name) | map(select(length > 1)) ) as $collisions
-| if ($collisions | length) > 0
-  then error("policy name collision (names are case-insensitive in Vault): " + ($collisions | map(.[0].name) | join(", ")))
-  else
-    { policies: ($units | map({key: .name, value:
-        ("# GENERATED by `vault-access` from the vault-agent templates of service \"\(.svc)\".\n"
-        + "# Do not edit: change the module/host config and regenerate with `vault-access` (fmf package; see docs/VAULT-APPROLES.md).\n"
-        + "# Grants exactly the secrets that service reads. KV mount: \($m) (v2).\n\n"
-        + (.rules | map(stanza($m)) | join("\n")))}) | from_entries),
-      hosts: ($units | map(. as $u | $u.hosts[] | {h: ., n: $u.name}) | group_by(.h)
-              | map({key: .[0].h, value: (map(.n) | unique)}) | from_entries) }
-  end
-JQ
-
-jq -s --arg m "$mount" "$JQ" "$work"/json/*.host.json >"$work/result.json"
-
-# materialise
 jq -r '.policies | keys[]' "$work/result.json" | while read -r name; do
-  jq -r --arg n "$name" '.policies[$n]' "$work/result.json" >"$work/policies/$name.hcl"
+  jq -j --arg n "$name" '.policies[$n]' "$work/result.json" >"$work/out/$name.hcl"
 done
 mkdir -p "$work/generated"
-jq -r '"# GENERATED by `vault-access`; do not edit; regenerate with `vault-access` (fmf package).\n# host -> generated per-service policies its vault-agent services need.\n{\n"
-  + (.hosts | to_entries | map("  \"\(.key)\" = [" + (.value | map("\"" + . + "\"") | join(" ")) + "];") | join("\n"))
-  + "\n}"' "$work/result.json" >"$work/generated/service-policies.nix"
+jq -j '.mapping' "$work/result.json" >"$work/generated/service-policies.nix"
 
 case "$mode" in
   show)
     names=$(jq -r --arg h "$show_host" '.hosts[$h] // [] | .[]' "$work/result.json")
     [ -n "$names" ] || { echo "# $show_host: no vault-agent templates"; exit 0; }
-    for n in $names; do echo "##### $n"; cat "$work/policies/$n.hcl"; done
+    for n in $names; do echo "##### $n"; cat "$work/out/$n.hcl"; done
     ;;
   check)
     rc=0
-    for f in "$work"/policies/*.hcl; do
+    for f in "$work"/out/*.hcl; do
       b=$(basename "$f")
       if [ -f "$policy_dir/$b" ]; then diff -u "$policy_dir/$b" "$f" || rc=1; else echo "missing: $b"; rc=1; fi
     done
     for f in "$policy_dir"/svc-*.hcl "$policy_dir"/host-*.hcl; do
       [ -e "$f" ] || continue
-      [ -f "$work/policies/$(basename "$f")" ] || { echo "stale: $(basename "$f")"; rc=1; }
+      [ -f "$work/out/$(basename "$f")" ] || { echo "stale: $(basename "$f")"; rc=1; }
     done
     if [ -f "$mapping_file" ]; then diff -u "$mapping_file" "$work/generated/service-policies.nix" || rc=1
     else echo "missing: $mapping_file"; rc=1; fi
@@ -177,14 +128,14 @@ case "$mode" in
     exit $rc
     ;;
   write)
-    mkdir -p "$vault_dir/generated"
+    mkdir -p "$vault_dir/generated" "$policy_dir"
     # drop policies that are no longer generated (this tool owns svc-*; host-* was an earlier layout)
     for f in "$policy_dir"/svc-*.hcl "$policy_dir"/host-*.hcl; do
       [ -e "$f" ] || continue
-      [ -f "$work/policies/$(basename "$f")" ] || { rm -f "$f"; echo "removed $(basename "$f")"; }
+      [ -f "$work/out/$(basename "$f")" ] || { rm -f "$f"; echo "removed $(basename "$f")"; }
     done
-    for f in "$work"/policies/*.hcl; do cp "$f" "$policy_dir/$(basename "$f")"; done
+    for f in "$work"/out/*.hcl; do cp "$f" "$policy_dir/$(basename "$f")"; done
     cp "$work/generated/service-policies.nix" "$mapping_file"
-    echo "wrote $(find "$work/policies" -name "*.hcl" | wc -l) policies and $(basename "$mapping_file") ($(jq '.hosts | length' "$work/result.json") hosts)"
+    echo "wrote $(find "$work/out" -name '*.hcl' | wc -l) policies and $(basename "$mapping_file") ($(jq '.hosts | length' "$work/result.json") hosts)"
     ;;
 esac

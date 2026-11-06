@@ -50,6 +50,15 @@ update_fmf_in_gitea:
       echo "Updating flake input 'fmf'..."
       nix flake update fmf
 
+      echo "Regenerating the per-service Vault policies from the updated fmf..."
+      # Not fatal on purpose: a failure here must not stall the fmf bump. Campground's
+      # checks/vault-access fails on stale policies, so a missed regeneration is still caught.
+      if nix run --inputs-from . fmf#vault-access; then
+        git add systems/x86_64-linux/vm-vault/vault
+      else
+        echo "WARNING: vault-access failed; Vault policies were not regenerated"
+      fi
+
       if [ -z "$(git status --porcelain)" ]; then
         echo "No changes to commit after syncing lock + updating fmf"
         exit 0

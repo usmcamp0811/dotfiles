@@ -167,8 +167,22 @@ host runs services A, B, C                    ------->  role <host> carries svc-
 
    Both are committed, not computed at deploy time. A module change that widens a service's access, or
    moves a service onto another host, shows up as a diff to review instead of taking effect silently
-   on the next Vault deploy. Enabling a service on a host means: rebuild, rerun `vault-access`,
-   commit, deploy Vault.
+   on the next Vault deploy. The Vault host only ever evaluates the committed files, so its build does
+   not evaluate the other hosts.
+
+   Keeping them fresh is automatic, in three layers that all use the same rules, which are one
+   pure-Nix library (`lib.fmf.vaultAccess`, [`lib/vault-access`](../lib/vault-access/default.nix), with
+   regression tests in `tests.nix`):
+
+   - **fmf CI.** After it bumps the downstream repo's `fmf` lock (`update_fmf_in_gitea` in
+     `.gitlab-ci.yml`), it runs `vault-access` in that clone and commits the result in the same
+     bot commit. A failure there is a warning, not a blocker, so it cannot stall the bump.
+   - **A drift check** in the downstream repo (Campground: `checks/vault-access`) derives the policies
+     from the real host configs at evaluation time and fails if they differ from the committed
+     files. This is what catches a downstream-only change (a host or service enabled in Campground),
+     which does not trigger the fmf pipeline. It evaluates every host, so budget about a minute and
+     several GB; it skips itself while the locked fmf predates the feature.
+   - **By hand**, when the check fails: run `vault-access` and commit.
 2. **Naming.** `svc-` plus the vault-agent service name, **lowercased**: Vault lowercases policy names,
    and the module's `remove-unknown-policies` compares names literally, so a mixed-case file name
    would be deleted on the next run. When the same service name reads different secrets on different
