@@ -173,6 +173,9 @@ with lib.campground;
 | `storage`  | Configure the Vault storage backend (`file` or `raft`).    |
 | `settings` | Additional runtime configuration for Vault.                |
 | `policies` | Define Vault policies as inline HCL or paths to HCL files. |
+| `mutable-policies` | When `false` (default), policies not declared in `policies` are deleted. |
+| `approles` | Declare AppRoles by name: `{ <role> = { token_policies = [...]; settings = {...}; }; }`. See [AppRoles](#approles). |
+| `prune-approles` | When `true`, AppRoles not declared in `approles` are **deleted**. Default `false` (report only). |
 
 ### Storage Configuration
 
@@ -194,6 +197,43 @@ policies = {
   '';
 };
 ```
+
+---
+
+## AppRoles
+
+Policies are files; AppRoles used to be created by hand with `vault write auth/approle/role/...`,
+so Vault was the only record of which roles exist. `approles` makes them declarative the same
+way `policies` are:
+
+```nix
+fmf.services.vault.approles = {
+  vm-media.token_policies = ["vm-media"];
+  gitlab-runner = {
+    token_policies = ["gitlab-runner"];
+    settings.token_ttl = 180; # any AppRole role parameter, passed through verbatim
+  };
+};
+```
+
+The `vault-policies` service writes policies first, then each role (`vault write
+auth/approle/role/<name> @<json>`), then compares Vault's role list with the declared one.
+
+- **Not managed:** `role-id` and `secret-id`. Secret-ids must never enter the Nix store. Re-writing
+  an existing role does not change its role-id or invalidate issued secret-ids.
+- **Update semantics:** only the parameters you declare are written; a parameter you leave out keeps
+  whatever value the role already has. Set a parameter explicitly if you want Nix to enforce it.
+- **Undeclared roles** are logged as `UNMANAGED approle (exists in Vault, not declared in Nix): <name>`
+  (`journalctl -u vault-policies`). They are only **deleted** with `prune-approles = true`, which
+  immediately breaks any host still logging in with that role, including the role the policy agent
+  itself uses. Turn it on last, after the audit is clean.
+- With `approles = {}` (the default) none of this runs and the service behaves exactly as before.
+
+The policy agent logs in as an AppRole with a policy that allows `auth/approle/role/*`. If it does
+not (anything narrower than `admin`), the role writes fail and the service retries.
+
+See [Vault AppRoles](../../../../docs/VAULT-APPROLES.md) for the naming convention, auditing, and the migration
+plan.
 
 ---
 

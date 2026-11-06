@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-06
+* **Vault AppRoles**: added `fmf.services.vault.approles` and `prune-approles` so AppRoles are declared in Nix like policies (report-only by default), and VAULT-APPROLES.md covering the one-role-per-host rule, auditing live roles, and the migration plan.
+
 ## 2026-11-03
 * **MicroVM troubleshooting**: added MICROVM-TROUBLESHOOTING.md covering the stale store overlay (whiteouts that hide real store paths), emergency-mode diagnosis, duplicate `boot.kernelParams`, NetworkManager taking static NICs, Snowfall's default `wheel` membership, Vault netrc sidecars, gid 10000 and agent forwarding.
 

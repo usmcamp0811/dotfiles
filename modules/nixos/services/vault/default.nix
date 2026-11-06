@@ -91,6 +91,61 @@ with lib.fmf; let
 
   known-policies = mapAttrsToList (name: _value: name) policies;
 
+  # AppRoles: declared role definitions only. role-id / secret-id are NEVER managed
+  # here (secret-ids must not enter the Nix store); `vault write` on an existing role
+  # leaves its role-id and issued secret-ids untouched.
+  has-approles = (builtins.length (builtins.attrNames cfg.approles)) != 0;
+
+  approle-files =
+    mapAttrs (name: role:
+      pkgs.writeText "approle-${strings.sanitizeDerivationName name}.json"
+      (builtins.toJSON (role.settings // {token_policies = role.token_policies;})))
+    cfg.approles;
+
+  write-approles-commands =
+    mapAttrsToList (name: file: ''
+      echo ${escapeShellArg "Writing approle '${name}': ${file}"}
+      vault write ${escapeShellArg "auth/approle/role/${name}"} ${escapeShellArg "@${file}"}
+    '')
+    approle-files;
+  write-approles = concatStringsSep "\n" write-approles-commands;
+
+  known-approles = builtins.attrNames cfg.approles;
+  unmanaged-approle-action =
+    if cfg.prune-approles
+    then ''
+      echo "Removing undeclared approle: $current_role"
+      vault delete "auth/approle/role/$current_role"
+    ''
+    else ''
+      echo "UNMANAGED approle (exists in Vault, not declared in Nix): $current_role"
+    '';
+
+  # Always reports roles that exist in Vault but are not declared in Nix.
+  # Only deletes them when `prune-approles` is set.
+  audit-approles = ''
+    current_roles=$(vault list -format=json auth/approle/role | jq -r '.[]')
+    known_roles=(${concatMapStringsSep " " escapeShellArg known-approles})
+
+    while read -r current_role; do
+      [ -z "$current_role" ] && continue
+      is_known=false
+
+      for known_role in "''${known_roles[@]}"; do
+        if [ "$known_role" = "$current_role" ]; then
+          is_known=true
+          break
+        fi
+      done
+
+      if [ "$is_known" = "true" ]; then
+        echo "Keeping approle: $current_role"
+      else
+        ${unmanaged-approle-action}
+      fi
+    done <<< "$current_roles"
+  '';
+
   remove-unknown-policies = ''
     current_policies=$(vault policy list -format=json | jq -r '.[]')
     known_policies=(${
@@ -144,6 +199,21 @@ in {
     policies =
       mkOpt (types.attrsOf (types.either types.str types.path)) {}
       "Policies to install when Vault runs.";
+    approles =
+      mkOpt (types.attrsOf (types.submodule {
+        options = {
+          token_policies =
+            mkOpt (types.listOf types.str) []
+            "Policies attached to tokens issued for this role.";
+          settings =
+            mkOpt (types.attrsOf types.anything) {}
+            "Extra AppRole role parameters, passed through verbatim (e.g. token_ttl, token_bound_cidrs, secret_id_ttl).";
+        };
+      })) {}
+      "AppRoles to create/update when Vault runs. Keyed by role name. Does not manage role-id or secret-id.";
+    prune-approles =
+      mkBoolOpt false
+      "Whether AppRoles not declared in `approles` should be DELETED (breaks any host still logging in with them). When false they are only reported in the journal. Ignored when `approles` is empty.";
     policy-agent = {
       user = mkOpt types.str "root" "The user to run the Vault Agent as.";
       group = mkOpt types.str "root" "The group to run the Vault Agent as.";
@@ -200,7 +270,7 @@ in {
       ${unseal-script}/bin/celvis-unseal-vault || true
     '';
 
-    systemd.services.vault-policies = mkIf (cfg.enable && (has-policies || !cfg.mutable-policies)) {
+    systemd.services.vault-policies = mkIf (cfg.enable && (has-policies || has-approles || !cfg.mutable-policies)) {
       wantedBy = ["vault.service"];
       after = ["vault.service"];
 
@@ -214,7 +284,8 @@ in {
       };
 
       restartTriggers =
-        mapAttrsToList (name: value: "${name}=${value}") policies;
+        (mapAttrsToList (name: value: "${name}=${value}") policies)
+        ++ (mapAttrsToList (name: value: "approle-${name}=${value}") approle-files);
 
       path = [package pkgs.curl pkgs.jq];
 
@@ -261,6 +332,16 @@ in {
         ${write-policies}
 
         ${optionalString (!cfg.mutable-policies) remove-unknown-policies}
+
+        ${optionalString has-approles ''
+          echo "Writing approles..."
+
+          ${write-approles}
+
+          echo "Auditing approles..."
+
+          ${audit-approles}
+        ''}
         exit 0
       '';
     };

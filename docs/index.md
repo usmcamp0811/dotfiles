@@ -11,6 +11,7 @@ okf_version: "0.2"
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.
 * [nixpkgs-multiverse: pinning one package version without a new flake input](NIXPKGS-MULTIVERSE.md) - This flake now has nixpkgs-multiverse as an input, and a small library helper, lib.fmf.multiversePackage, that resolves it.
 * [Open Knowledge Format in fmf](OKF.md) - How fmf's docs, modules and systems directories are OKF v0.2 bundles, and how to keep them conformant.
+* [Vault AppRoles - one role per host, least-privilege policies](VAULT-APPROLES.md) - How AppRoles are declared in Nix next to policies, the one-role-per-host naming rule, how to audit live roles against the flake, and the phased plan for splitting the broad campground policy.
 * [Video Lock Screen Configuration (fmf module)](VIDEO-LOCK-SCREEN-FMF.md) - This document describes the video lock screen feature in the fmf flake.
 * [Wazuh in fmf-flake](wazuh.md) - Downstream flakes can pin your historical Wazuh behavior by pinning your flake revision in inputs.
 
