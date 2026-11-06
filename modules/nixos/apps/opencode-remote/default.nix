@@ -4,9 +4,9 @@
   pkgs,
   ...
 }:
-with lib; let
+with lib;
+with lib.fmf; let
   cfg = config.fmf.apps.opencode-remote;
-  defaultPasswordFile = "/var/lib/vault/users/${cfg.user}/opencode_server_password";
 
   wrapper = pkgs.writeShellScriptBin cfg.command ''
     set -eu
@@ -40,129 +40,60 @@ with lib; let
     exec ${cfg.package}/bin/opencode attach "$url" --dir "$dir" "$@"
   '';
 in {
-  options.fmf.apps.opencode-remote = {
+  options.fmf.apps.opencode-remote = with types; {
     enable = mkEnableOption "wrapper that attaches the OpenCode TUI to a remote opencode-server";
 
     package = mkOption {
-      type = types.package;
+      type = package;
       default = pkgs.llm-agents.opencode;
       defaultText = literalExpression "pkgs.llm-agents.opencode";
       description = "OpenCode package. Keep it equal to the server's version.";
     };
 
     user = mkOption {
-      type = types.strMatching "[a-z_][a-zA-Z0-9_-]*";
+      type = strMatching "[a-z_][a-zA-Z0-9_-]*";
       default = config.fmf.user.name;
       defaultText = literalExpression "config.fmf.user.name";
       description = "User whose runtime secret directory holds the password. Must already exist.";
     };
 
-    command = mkOption {
-      type = types.strMatching "[a-zA-Z0-9_-]+";
-      default = "opencode-remote";
-      description = "Name of the installed wrapper command (it does not shadow `opencode`).";
-    };
+    command = mkOpt (strMatching "[a-zA-Z0-9_-]+") "opencode-remote" "Name of the installed wrapper command (it does not shadow `opencode`).";
 
-    url = mkOption {
-      type = types.str;
-      default = "http://10.8.0.26:4096"; # vm-agent
-      example = "http://10.8.0.26:4096";
-      description = "Server URL. The OPENCODE_REMOTE_URL environment variable overrides it per invocation.";
-    };
+    url = mkOpt str "http://10.8.0.26:4096" "Server URL (vm-agent). The OPENCODE_REMOTE_URL environment variable overrides it per invocation.";
 
-    username = mkOption {
-      type = types.str;
-      default = "opencode";
-      description = "HTTP basic auth user name; must match the server.";
-    };
+    username = mkOpt str "opencode" "HTTP basic auth user name; must match the server.";
 
-    rootDir = mkOption {
-      type = types.str;
-      default = "/home/${cfg.user}/code";
-      defaultText = literalExpression ''"/home/''${config.fmf.apps.opencode-remote.user}/code"'';
-      description = "Directory *on the server* to open when the caller gives no --dir.";
-    };
+    rootDir = mkOpt str "/home/${cfg.user}/code" "Directory *on the server* to open when the caller gives no --dir.";
 
-    followCwd = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        If the current directory is inside rootDir, open that directory instead. Only enable on
-        hosts that see the same tree at the same path as the server (a shared mount).
-      '';
-    };
+    followCwd = mkBoolOpt false ''
+      If the current directory is inside rootDir, open that directory instead. Only enable on
+      hosts that see the same tree at the same path as the server (a shared mount).
+    '';
 
-    passwordFile = mkOption {
-      type = types.str;
-      default = defaultPasswordFile;
-      defaultText = literalExpression ''"/var/lib/vault/users/<user>/opencode_server_password"'';
-      description = "Runtime user-readable password file, outside the Nix store. With Vault enabled, keep the default.";
-    };
-
-    vault = {
-      enable = mkOption {
-        type = types.bool;
-        default = true;
-      };
-      path = mkOption {
-        type = types.str;
-        default = "secret/campground/data/opencode-server";
-        description = "Vault API path; include /data/ for KV v2. Must be readable by the host's AppRole (policy opencode-server-read).";
-      };
-      field = mkOption {
-        type = types.str;
-        default = "password";
-      };
-      kvVersion = mkOption {
-        type = types.enum [1 2];
-        default = 2;
-      };
-    };
+    passwordFile =
+      mkOpt str "/var/lib/vault/users/${cfg.user}/opencode_server_password"
+      "Runtime user-readable password file written by fmf.services.user-secrets; keep the default.";
   };
 
-  config = mkIf cfg.enable (mkMerge [
-    {
-      assertions = [
-        {
-          assertion = hasAttr cfg.user config.users.users;
-          message = "fmf.apps.opencode-remote: user must already exist.";
-        }
-        {
-          assertion = hasPrefix "/" cfg.passwordFile && !(hasPrefix "/nix/store/" cfg.passwordFile);
-          message = "fmf.apps.opencode-remote: passwordFile must be an absolute runtime path outside /nix/store.";
-        }
-        {
-          assertion = !cfg.vault.enable || (cfg.vault.path != "" && cfg.passwordFile == defaultPasswordFile);
-          message = "fmf.apps.opencode-remote: Vault mode requires vault.path and the default user-secrets passwordFile.";
-        }
-        {
-          assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable;
-          message = "fmf.apps.opencode-remote: Vault mode requires fmf.services.vault-agent.enable.";
-        }
-        {
-          assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || hasInfix "/data/" cfg.vault.path;
-          message = "fmf.apps.opencode-remote: vault.path must include /data/ for KV v2.";
-        }
-      ];
-      environment.systemPackages = [wrapper];
-    }
+  config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = hasAttr cfg.user config.users.users;
+        message = "fmf.apps.opencode-remote: user ${cfg.user} must already exist.";
+      }
+      {
+        assertion = config.fmf.services.vault-agent.enable;
+        message = "fmf.apps.opencode-remote requires fmf.services.vault-agent.enable (the password comes from user-secrets).";
+      }
+    ];
 
-    (mkIf cfg.vault.enable {
-      # Reuse the existing user-secret renderer and copy service (as llama-cpp-client does);
-      # only this file's template comes from the dedicated shared secret.
-      fmf.services.user-secrets = {
-        enable = true;
-        users.${cfg.user}.files = ["opencode_server_password"];
-      };
-      fmf.services.vault-agent.services."user-secrets-${cfg.user}".secrets.file.files."${cfg.user}-opencode_server_password".text = mkForce ''
-        {{- with secret ${builtins.toJSON cfg.vault.path} -}}
-        {{- index ${
-          if cfg.vault.kvVersion == 2
-          then ".Data.data"
-          else ".Data"
-        } ${builtins.toJSON cfg.vault.field} -}}
-        {{- end -}}
-      '';
-    })
-  ]);
+    environment.systemPackages = [wrapper];
+
+    # The established per-user secret path: the same Vault KV and AppRole policy this host
+    # already uses for its other user secrets (secret/campground/users/<user>, key below).
+    fmf.services.user-secrets = {
+      enable = true;
+      users.${cfg.user}.files = ["opencode_server_password"];
+    };
+  };
 }
