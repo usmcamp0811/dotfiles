@@ -5,7 +5,7 @@
 }:
 pkgs.writeShellApplication {
   name = "vault-access";
-  runtimeInputs = with pkgs; [bash nix jq git findutils diffutils coreutils gnused];
+  runtimeInputs = with pkgs; [bash nix jq git findutils diffutils coreutils gnused gnugrep];
   # The derivation rules live in lib/vault-access (shared with downstream checks). It is read by
   # `nix eval` at run time, so it has to be a store file; interpolating the path copies it there.
   text = builtins.replaceStrings ["@LIB@"] ["${../../../lib/vault-access/default.nix}"] (builtins.readFile ./vault-access.sh);

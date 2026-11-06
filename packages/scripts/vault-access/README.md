@@ -16,6 +16,8 @@ Run it from the root of the flake that defines your `nixosConfigurations`:
 vault-access                  # write svc-*.hcl policies and generated/service-policies.nix
 vault-access --check          # exit non-zero if the committed files are stale (for CI)
 vault-access --show vm-media  # print the policies one host needs, write nothing
+vault-access --audit          # scoreboard: compare LIVE Vault with the repo (read-only)
+vault-access --audit --brief  # same, but only the roles that need attention
 ```
 
 From a downstream flake that has `fmf` as an input:
@@ -48,6 +50,20 @@ Nix with regression tests (`tests.nix`), so this CLI and downstream checks share
 
 This script only evaluates the hosts, one `nix eval` at a time with a few in parallel so memory stays
 small, hands the results to `render`, and writes the files.
+
+## Auditing live Vault
+
+```bash
+export VAULT_ADDR=https://vault.lan.aicampground.com
+vault login                       # a token that can read auth/approle/role/* and sys/policies/acl/*
+vault-access --audit              # from the downstream repo root
+```
+
+Prints a scoreboard (roles, policies, credentials, progress off the broad `campground` policy) and a
+per-role table, problems first. It is read-only and exits 1 on drift (a declared role or policy
+missing from Vault, a role created by hand, changed policies or content, a role pointing at a policy
+that does not exist), so it can run from cron. `--brief` hides the roles that are fine. Colour only on a
+terminal; `NO_COLOR=1` turns it off.
 
 ## Keeping it fresh
 

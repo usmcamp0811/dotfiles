@@ -47,6 +47,22 @@ update semantics and the pruning warning are in the
 
 ## Auditing
 
+### The scoreboard
+
+One command compares live Vault with the repo and prints a report, problems first:
+
+```bash
+export VAULT_ADDR=https://vault.lan.aicampground.com
+vault login                  # needs read on auth/approle/role/* and sys/policies/acl/* (admin has it)
+vault-access --audit         # from the downstream repo root; --brief hides the roles that are fine
+```
+
+It shows the role and policy counts, any declared role or policy missing from Vault, roles created by
+hand, policy lists or policy content that differ from the repo, roles that point at a policy that does
+not exist, roles with no secret-id issued yet, and progress off the broad `campground` policy (with
+how many roles already carry their `svc-*` policies and can drop it). It is read-only and exits 1 when
+it finds drift, so it can run from cron. The commands below are the manual equivalents.
+
 ### What Vault has, and what is undeclared
 
 After a deploy, the service logs every role it did not find in Nix:
