@@ -71,9 +71,8 @@ in {
 
     rootDir = mkOption {
       type = types.str;
-      default = "/home/${cfg.user}";
-      defaultText = literalExpression ''"/home/''${config.fmf.services.opencode-server.user}"'';
-      example = "/home/mcamp/code";
+      default = "/home/${cfg.user}/code";
+      defaultText = literalExpression ''"/home/''${config.fmf.services.opencode-server.user}/code"'';
       description = "Working directory of the server: the directory clients land in unless they ask for another one.";
     };
 
@@ -136,9 +135,8 @@ in {
       };
       path = mkOption {
         type = types.str;
-        default = "";
-        example = "secret/campground/data/opencode-server";
-        description = "Vault API path; include /data/ for KV v2.";
+        default = "secret/campground/opencode-server";
+        description = "Vault API path; include /data/ for KV v2. Must be readable by the host's AppRole (policy opencode-server-read).";
       };
       field = mkOption {
         type = types.str;

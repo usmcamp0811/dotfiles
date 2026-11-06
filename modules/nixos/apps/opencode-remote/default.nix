@@ -5,7 +5,7 @@
   ...
 }:
 with lib; let
-  cfg = config.fmf.services.opencode-server-client;
+  cfg = config.fmf.apps.opencode-remote;
   defaultPasswordFile = "/var/lib/vault/users/${cfg.user}/opencode_server_password";
 
   wrapper = pkgs.writeShellScriptBin cfg.command ''
@@ -40,7 +40,7 @@ with lib; let
     exec ${cfg.package}/bin/opencode attach "$url" --dir "$dir" "$@"
   '';
 in {
-  options.fmf.services.opencode-server-client = {
+  options.fmf.apps.opencode-remote = {
     enable = mkEnableOption "wrapper that attaches the OpenCode TUI to a remote opencode-server";
 
     package = mkOption {
@@ -65,6 +65,7 @@ in {
 
     url = mkOption {
       type = types.str;
+      default = "http://10.8.0.26:4096"; # vm-agent
       example = "http://10.8.0.26:4096";
       description = "Server URL. The OPENCODE_REMOTE_URL environment variable overrides it per invocation.";
     };
@@ -77,8 +78,8 @@ in {
 
     rootDir = mkOption {
       type = types.str;
-      default = "/home/${cfg.user}";
-      defaultText = literalExpression ''"/home/''${config.fmf.services.opencode-server-client.user}"'';
+      default = "/home/${cfg.user}/code";
+      defaultText = literalExpression ''"/home/''${config.fmf.apps.opencode-remote.user}/code"'';
       description = "Directory *on the server* to open when the caller gives no --dir.";
     };
 
@@ -105,9 +106,8 @@ in {
       };
       path = mkOption {
         type = types.str;
-        default = "";
-        example = "secret/campground/data/opencode-server";
-        description = "Vault API path; include /data/ for KV v2.";
+        default = "secret/campground/data/opencode-server";
+        description = "Vault API path; include /data/ for KV v2. Must be readable by the host's AppRole (policy opencode-server-read).";
       };
       field = mkOption {
         type = types.str;
@@ -125,23 +125,23 @@ in {
       assertions = [
         {
           assertion = hasAttr cfg.user config.users.users;
-          message = "opencode-server client user must already exist.";
+          message = "fmf.apps.opencode-remote: user must already exist.";
         }
         {
           assertion = hasPrefix "/" cfg.passwordFile && !(hasPrefix "/nix/store/" cfg.passwordFile);
-          message = "opencode-server client passwordFile must be an absolute runtime path outside /nix/store.";
+          message = "fmf.apps.opencode-remote: passwordFile must be an absolute runtime path outside /nix/store.";
         }
         {
           assertion = !cfg.vault.enable || (cfg.vault.path != "" && cfg.passwordFile == defaultPasswordFile);
-          message = "opencode-server Vault client requires vault.path and the default user-secrets passwordFile.";
+          message = "fmf.apps.opencode-remote: Vault mode requires vault.path and the default user-secrets passwordFile.";
         }
         {
           assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable;
-          message = "opencode-server Vault client requires fmf.services.vault-agent.enable.";
+          message = "fmf.apps.opencode-remote: Vault mode requires fmf.services.vault-agent.enable.";
         }
         {
           assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || hasInfix "/data/" cfg.vault.path;
-          message = "opencode-server client vault.path must include /data/ for KV v2.";
+          message = "fmf.apps.opencode-remote: vault.path must include /data/ for KV v2.";
         }
       ];
       environment.systemPackages = [wrapper];
