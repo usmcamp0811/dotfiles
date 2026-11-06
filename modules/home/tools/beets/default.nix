@@ -3,6 +3,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 with lib;
@@ -149,7 +150,7 @@ in {
     # so it always reflects both the latest declarative settings and the
     # latest key, without the key ever being written to the store itself.
     home.activation.beetsAcoustidApikey = mkIf (cfg.acoustid-apikey-file != null) (
-      lib.hm.dag.entryAfter ["writeBoundary"] ''
+      inputs.home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
         configFile="$HOME/.config/beets/config.yaml"
         keyFile="${cfg.acoustid-apikey-file}"
         if [ -s "$keyFile" ]; then
