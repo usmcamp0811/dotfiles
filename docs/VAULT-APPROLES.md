@@ -1,7 +1,7 @@
 ---
 type: Guide
 title: Vault AppRoles - one role per host, least-privilege policies
-description: How AppRoles are declared in Nix next to policies, the one-role-per-host naming rule, how to audit live roles against the flake, and the phased plan for splitting the broad campground policy.
+description: How AppRoles are declared in Nix next to policies, the one-role-per-host naming rule, how to audit live roles against the flake, and the phased plan for replacing the broad campground policy with generated per-service policies.
 tags: [vault, approle, security]
 status: draft
 ---
@@ -136,20 +136,66 @@ Optionally pin a readable role-id (`vault write auth/approle/role/<host>/role-id
 the file on disk is the host name and phase 1 disappears. This is a Vault feature used here as a
 suggestion; it has not been tried on this Vault.
 
-### Phase 3: break the broad policy into purpose policies
+### Phase 3: break the broad policy into per-service policies
 
-Almost every role carries `campground`, which grants wide read/write across `secret/data/campground/*`,
-the PKI mounts and more, so any host can read every host's secrets. Replace it with policies named for
-what they allow:
+Almost every role carries `campground`, which grants wide read/write across the KV mount, the PKI
+mounts and more, so any host can read every host's secrets. Replace it with **one policy per service
+that needs a secret**, and give each role the policies of the services its host runs:
 
-1. Inventory what each host actually reads: its `fmf.services.vault-agent` templates and secrets, and
-   the modules that use them. This is derived from the flake, so it is reviewable.
-2. Group identical needs into one policy per capability (one KV path, one PKI issue endpoint), and add
-   the `.hcl` files. Policies are additive, so a new policy cannot break anything.
-3. Attach the new policies **alongside** `campground` for one host, redeploy, and confirm the host
-   still renders everything.
-4. Remove `campground` from that host's role. Repeat per host.
-5. Delete `campground.hcl` when no role references it.
+```text
+service (gitea secrets, pia-vpn, mealie, ...) --1:1-->  policy svc-<service>
+host runs services A, B, C                    ------->  role <host> carries svc-A, svc-B, svc-C
+```
+
+1. **Derive, do not hand-write.** What a service reads from Vault is already in its evaluated config:
+   every `fmf.services.vault-agent.services.<name>` template contains `{{ with secret "<path>" }}` or
+   `{{ with pkiCert "<path>" }}`. A module that enables such a service therefore already states the
+   access it needs. Campground's `vault-access` tool (`packages/vault-access`) evaluates every host
+   (one `nix eval` at a time), extracts those calls, and writes:
+
+   - `vault/policies/svc-<service>.hcl`, one policy per vault-agent service, granting exactly the
+     secrets its templates read;
+   - `vault/generated/service-policies.nix`, the map `host -> [ svc-... ]` that `approles.nix` uses to
+     attach them to the role named like the host.
+
+   ```bash
+   nix run .#vault-access                   # (re)generate both
+   nix run .#vault-access -- --show vm-media # print the policies one host needs, write nothing
+   nix run .#vault-access -- --check        # exit non-zero if the committed files are stale (CI)
+   ```
+
+   Both are committed, not computed at deploy time. A module change that widens a service's access, or
+   moves a service onto another host, shows up as a diff to review instead of taking effect silently
+   on the next Vault deploy. Enabling a service on a host means: rebuild, rerun `vault-access`,
+   commit, deploy Vault.
+2. **Naming.** `svc-` plus the vault-agent service name, **lowercased**: Vault lowercases policy names,
+   and the module's `remove-unknown-policies` compares names literally, so a mixed-case file name
+   would be deleted on the next run. When the same service name reads different secrets on different
+   hosts (`k3s` on the control-plane node also reads `argocd`; `rkvm` vs `rkvm_gray`), each distinct
+   set is its own policy, named after its secrets (`svc-k3s--argocd-repo-k3s`), so no host is granted
+   another host's extras.
+3. **Rules the generator applies:**
+   - KV v2 template paths (`secret/campground/<x>`) become `secret/campground/data/<x>` with `read`;
+     a template that already spells `.../data/<x>` is kept as is (never `data/data`).
+   - PKI `.../issue/<role>` gets `update`; other PKI paths (`.../cert/ca`) get `read`.
+   - Each KV path also gets `read` on `sys/internal/ui/mounts/<path>` (mount-version discovery for
+     the agent; returns no secret data). Whether the agent needs it has not been confirmed.
+   - A path outside the KV mount and not PKI is written as an `UNRESOLVED` comment and grants
+     nothing, so it is visible instead of silently wrong.
+   - `auth/approle/login` is not granted: login is unauthenticated.
+   - A service whose templates are conditional (the gitea module only declares its secrets when it
+     uses a non-sqlite database or a mailer) yields a policy only on hosts where they are declared.
+4. **What it cannot see.** Only vault-agent templates. Access from a CLI or script, the policy agent
+   (`vm-vault`), Kubernetes auth management (`vm-k8s-control-0`) and service accounts such as
+   `gitlab-runner` still need a hand-written policy attached next to the generated ones.
+
+Policies are additive, so generating them and attaching them **alongside** `campground` cannot break a
+login. Then, per host:
+
+1. Deploy Vault with the generated policies attached; confirm the host still renders everything.
+2. Remove `campground` from that host's role and restart the host's vault-agent services (a token's
+   policies are fixed when it is issued). Repeat per host.
+3. Delete `campground.hcl` when no role references it.
 
 Keep `admin` out of ordinary hosts. It is needed only by the role the policy agent logs in with.
 
