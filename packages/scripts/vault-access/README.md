@@ -1,0 +1,57 @@
+# vault-access
+
+Derives one least-privilege Vault policy **per service** from what the `fmf.services.vault-agent`
+templates in your hosts actually read, and writes a map of which host needs which policies.
+
+Enabling a module that uses vault-agent already states the secrets it needs (every template contains
+`{{ with secret "<path>" }}` or `{{ with pkiCert "<path>" }}`). This tool reads that from the
+*evaluated* config instead of anyone writing the policy by hand, so policies cannot drift from the
+modules that use them.
+
+## Use
+
+Run it from the root of the flake that defines your `nixosConfigurations`:
+
+```bash
+vault-access                  # write svc-*.hcl policies and generated/service-policies.nix
+vault-access --check          # exit non-zero if the committed files are stale (for CI)
+vault-access --show vm-media  # print the policies one host needs, write nothing
+```
+
+From a downstream flake that has `fmf` as an input:
+
+```bash
+nix run --inputs-from . fmf#vault-access -- --check
+```
+
+Defaults match Campground's layout; override with `--mount`, `--hosts-dir`, `--vault-dir`, `--flake`
+(see `vault-access --help`).
+
+## What it produces
+
+- `<vault-dir>/policies/svc-<service>.hcl`: one policy per vault-agent service, granting exactly the
+  secrets its templates read. Names are lowercase (Vault lowercases policy names).
+- `<vault-dir>/generated/service-policies.nix`: `host -> [ "svc-..." ]`, for attaching the policies to
+  the AppRole named like the host.
+
+Both are meant to be committed, so a module change that widens access shows up as a reviewable diff.
+
+## How it works
+
+`extract.nix` evaluates one host's `config.fmf.services.vault-agent`, collects every template (inline
+`text` or `source` file) and pulls out the `secret` / `pkiCert` calls. `vault-access.sh` runs that for
+each host (one `nix eval` at a time, a few in parallel, so memory stays small), then groups by service
+name and writes the policies.
+
+## Limits
+
+- It only sees vault-agent **templates**. CLI or script access, the Vault policy agent, Kubernetes
+  auth management and service accounts still need hand-written policies.
+- A path that is neither under the KV mount nor PKI becomes an `UNRESOLVED` comment and grants nothing.
+- The whole fleet is evaluated every run, because policy names depend on every host.
+
+## More
+
+The model, naming rules and the migration plan are in
+[docs/VAULT-APPROLES.md](../../../docs/VAULT-APPROLES.md). The `approles` option that consumes the
+output is in the [vault module](../../../modules/nixos/services/vault/README.md).

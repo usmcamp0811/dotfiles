@@ -150,7 +150,7 @@ host runs services A, B, C                    ------->  role <host> carries svc-
 1. **Derive, do not hand-write.** What a service reads from Vault is already in its evaluated config:
    every `fmf.services.vault-agent.services.<name>` template contains `{{ with secret "<path>" }}` or
    `{{ with pkiCert "<path>" }}`. A module that enables such a service therefore already states the
-   access it needs. Campground's `vault-access` tool (`packages/vault-access`) evaluates every host
+   access it needs. fmf's `vault-access` package ([`packages/scripts/vault-access`](../packages/scripts/vault-access/README.md)) evaluates every host
    (one `nix eval` at a time), extracts those calls, and writes:
 
    - `vault/policies/svc-<service>.hcl`, one policy per vault-agent service, granting exactly the
@@ -159,9 +159,10 @@ host runs services A, B, C                    ------->  role <host> carries svc-
      attach them to the role named like the host.
 
    ```bash
-   nix run .#vault-access                   # (re)generate both
-   nix run .#vault-access -- --show vm-media # print the policies one host needs, write nothing
-   nix run .#vault-access -- --check        # exit non-zero if the committed files are stale (CI)
+   vault-access                    # (re)generate both, run from the downstream flake root
+   vault-access --show vm-media    # print the policies one host needs, write nothing
+   vault-access --check            # exit non-zero if the committed files are stale (CI)
+   # without installing it:  nix run --inputs-from . fmf#vault-access -- --check
    ```
 
    Both are committed, not computed at deploy time. A module change that widens a service's access, or
