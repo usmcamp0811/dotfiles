@@ -8,10 +8,11 @@ status: draft
 
 # Host model: one record per machine
 
-**Status: draft specification. Nothing in this document is implemented.** It records what was agreed in
-discussion and what the repositories look like today, so the build can be reviewed against it. Open
-questions are collected in [Open questions](#open-questions); phases and their verification gates are in
-[Phasing](#phasing-and-verification).
+**Status: phase 0 implemented in fmf; no consumers yet.** The `fmf.host` and `fmf.network.zones` options
+(`modules/nixos/system/host`) and the fleet function (`lib/fleet`, with tests) exist. Nothing reads them
+yet: no lease, DNS record, forward, role or VM is generated from them, and no Campground host declares a
+record. Results are in [Phase 0 results](#phase-0-results); decisions are in [Decisions](#decisions);
+phases and their gates are in [Phasing](#phasing-and-verification).
 
 ## Problem
 
@@ -139,9 +140,13 @@ Declared **on the VM**, with the hypervisor deriving its side:
 fmf.host.placement = {
   runsOn = "lucas";            # the hypervisor's host name
   autostart = true;
-  restartIfChanged = true;
+  restartIfChanged = null;     # null (default) = not set; see below
 };
 ```
+
+`restartIfChanged` defaults to **not set** (`null`), so the model never turns it on for a VM that has it
+off. That matters for the Vault VM: restarting it seals Vault and blocks everything that reads secrets,
+which is why it is off today. A VM that should restart on deploy says `restartIfChanged = true`.
 
 For each VM whose `runsOn` is a hypervisor, the fleet function produces for that hypervisor:
 
@@ -181,12 +186,17 @@ today and can drift:
 fmf.host.storage.<name> = {
   mountPoint = "/var/lib/mealie";                   # in the guest
   hostPath   = null;      # default: /persist/vm-data/<vm>/<name>
+  tag        = null;      # virtiofs tag; default: the entry name
   mode       = "0755";    # host directory mode (ssh keys use 0700)
   readOnly   = false;
+  order      = 100;       # position among this VM's shares (lower first, ties by name)
 };
 ```
 
 - The virtiofs tag defaults to the name; the host directory is created by `tmpfiles` with the given mode.
+- **Order is explicit.** Shares are part of the VM's runner, so a different order restarts the VM on deploy.
+  Entries sort by `order`, then name. When migrating a VM, set `order` (or `tag`) so the derived list equals
+  the existing one exactly; the phase 3 gate checks this.
 - A shared host path (the PostgreSQL backups share, `/persist/postgresqlBackups/<app>`) is a storage entry
   with `hostPath` set, so it is still declared in one place.
 - **Assertion:** two VMs must not claim the same `hostPath` unless both mark it shared.
@@ -198,33 +208,36 @@ Vault, then everything that needs Vault).
 
 ```nix
 fmf.host.boot = {
-  after = [ "vm-vault" ];        # host names this one must start after
-  hostUnits = [ ];               # extra units on the hypervisor (e.g. tang.socket)
-  waitFor = [ ];                 # { host; port; timeout } for dependencies on another machine
+  after = [ "vm-vault" ];        # MicroVMs on the SAME hypervisor that must start first
+  hostUnits = [ ];               # units on the hypervisor this VM must start after (e.g. tang.socket)
 };
 ```
 
-- **Derived defaults.** A VM that runs `fmf.services.vault-agent` and is **co-located** with the Vault VM
-  gets `after = [ vaultHost ]` automatically. The Vault VM gets `hostUnits = [ "tang.socket" ... ]`, which
-  is what blue-ridge writes by hand now. Today blue-ridge lists four VMs after `vm-vault`; those four lines
-  become unnecessary.
-- **Ordering across machines is not expressible in systemd.** `After=` only orders units on one machine.
-  The VMs on lucas that need Vault (which runs on blue-ridge) cannot be ordered after it; today they rely
-  on vault-agent retrying (not verified here). The model therefore treats a `boot.after` that points at a
-  host on a different hypervisor as a **build error**, and offers `waitFor`: a bounded, host-side wait
-  (`ExecStartPre`) for a TCP port. A bounded wait is the safe form, since an unbounded one would hang a
-  boot on a dependency that is down.
-- **Assertions:** a cycle in `after` is an error; an `after` that names a retired host is an error.
-- `standby` hosts do not appear in anyone's order.
+- **Ordering is only between VMs on one hypervisor**, which is where it matters (blue-ridge: tang, then the
+  Vault VM, then the VMs that read secrets). Each entry becomes `After=` and `Wants=` on
+  `microvm@<vm>.service`. Today blue-ridge writes this by hand for four VMs.
+- **Explicit, not inferred.** The model does not add ordering on its own (for example "every vault-agent VM
+  after the Vault VM"); a VM lists what it needs.
+- **Across machines it is an error.** systemd `After=` cannot order units on different machines, so a
+  `boot.after` naming a VM on another hypervisor fails the build instead of silently doing nothing. There is
+  no cross-machine wait.
+- **Assertions:** a cycle, a dependency on itself, on a retired or unknown host, or on a physical host (use
+  `hostUnits`) is an error.
 
 ### DNS
 
 ```nix
 fmf.host.dns = {
   names = [ "mattermost.lan.aicampground.com" ];   # extra names for this host
-  addAliases = true;                                # short name and <name>.<zone domain>
+  addAliases = true;                                # host name and lease name, short and FQDN
 };
 ```
+
+FQDNs use the zone's **`hostDomain`** (Campground: `lan-hosts.aicampground.com`, the domain AdGuard already
+uses for host records). It is kept apart from the domain that *service* names live in, because the same
+word is often both: the host `vault` is `10.8.0.3`, while the service name `vault.lan.aicampground.com`
+points at the LAN Traefik. Using one domain for both would make them collide; the fleet function rejects any
+name that would resolve to two addresses.
 
 Every active host gets records for its short name and its FQDN per interface address, which replaces the
 hand-typed `lanHosts` map in `vm-adguard` (today it contains both `vault` and `vm-vault`, and
@@ -294,7 +307,7 @@ question.
 | Output | Used for |
 |---|---|
 | `hosts`, with `active` / `standby` / `retired` partitions | everything below |
-| `leases.<zone>` | the router's `dhcp.staticLeases`, replacing the five lease files |
+| `leases.<zone>` | the router's `dhcp.staticLeases`, **merged** with the remaining hand-kept device leases (an overlap is an error) |
 | `dns.rewrites` | the AdGuard rewrites, replacing `lanHosts` |
 | `forwards` | the router port forwards |
 | `vault.{roles, expectedIps, aliases}` | `approles` and the IP audit |
@@ -326,7 +339,7 @@ Today's contradictions (the authentik MAC clash is the live one) would be report
 
 | Today | After |
 |---|---|
-| `blue-ridge/router/*-leases.nix` | generated from `leases` |
+| `blue-ridge/router/*-leases.nix` | host entries generated from `leases`; non-NixOS device entries stay hand-kept (later: `hints.devices`), merged in |
 | `vm-adguard` `lanHosts` | generated from `dns.rewrites` |
 | `port-forwards.nix` destinations | generated from `forwards` |
 | `approles.nix` explicit host roles, `generated/host-ips.nix`, `expected-ips.nix` | derived from `vault` |
@@ -348,8 +361,10 @@ further.
 **Phase 1: identity, addresses, lifecycle, DNS, Vault.**
 Generate the leases, the DNS rewrites and the Vault role and expected-IP maps. A one-shot import writes
 the first `fmf.host` blocks from the existing lease files and role data; blocks are not hand-written for
-44 hosts. *Gate:* the generated leases, rewrites and role map equal the files they replace (a set
-comparison, since order is not meaningful), checked by a flake check. *Risk:* a wrong lease can take
+44 hosts. *Gate:* the generated host leases plus the remaining device leases equal today's lease set, and
+the rewrites and role map equal what they replace (set comparisons, since order is not meaningful), checked
+by a flake check over committed generated files. Device leases (iot, wifi, guest, appliances) are not
+touched. *Risk:* a wrong lease can take
 machines off the network. Deploy blue-ridge only after the comparison is exact, and keep the previous
 generation.
 
@@ -370,7 +385,7 @@ The per-hypervisor zone-to-bridge map. This is the least uniform part and the ea
 phase 3 delivers most of the value. Do it only with a recovery path to each hypervisor that does not rely
 on the network being changed.
 
-## Evaluation cost
+## Evaluation cost (decided by measurement, see Phase 0 results)
 
 The router reading the whole fleet makes its build evaluate every host. For scale, the Vault-agent
 extraction over all 44 hosts in one process took about 69 seconds and 3.7 GB; the host record is a small
@@ -378,23 +393,54 @@ slice and should be much cheaper, but **that has not been measured**. If it is t
 fallback is committed generated files plus a drift check, as the Vault policies already work. Phase 0
 decides this by measurement.
 
-## Open questions
+## Decisions
 
-1. **Namespace.** `fmf.host` (generic, shared) versus `campground.host`. Recommendation: `fmf.host`, with
-   Campground-only consumers wired downstream.
-2. **Lifecycle names.** `active`, `standby`, `retired` are proposed; the earlier suggestions were
-   archive, inventory and obe. Is `standby` the right third state?
-3. **Static or DHCP for VMs.** Static removes the dependency on a router deploy, which is what bit
-   `vm-pub-traefik`, but moves network configuration into every guest.
-4. **Cross-machine ordering.** Is a bounded `waitFor` acceptable, or should cross-host dependencies stay
-   a convention?
-5. **Where the zone catalogue lives.** Read from blue-ridge's router configuration, or moved to a shared
-   fleet definition?
-6. **Non-NixOS devices.** One shared declaration with Circuit Breaker's `hints.devices`, or separate?
-7. **Retiring a host.** Is leaving it in `systems/` as a record right, or should retirement remove the
-   directory once nothing references it?
-8. **`restartIfChanged` for `vm-vault`.** It is commented out today on purpose. The placement default
-   must preserve that choice per VM, not flip it.
+Settled in review on 2026-11-07:
+
+1. **Namespace:** `fmf.host`, with the zone catalogue at `fmf.network.zones`. Campground-only consumers
+   (router, AdGuard, port forwards) are wired downstream.
+2. **Lifecycle:** `active`, `standby`, `retired`. Retired hosts stay in the repository as records.
+3. **VM addresses are static.** An interface's `static` defaults to `true` for a MicroVM, so the guest
+   configures its own address from the record and does not depend on a router deploy. A lease is still
+   generated so the address stays reserved.
+4. **Boot order:** only between VMs on the same hypervisor, explicit, no cross-machine wait.
+5. **Zones** live in the network configuration (`fmf.network.zones`); interfaces refer to them by id.
+6. **Topology and devices** share Circuit Breaker's hints: `topology` feeds `hints` (as defaults), and
+   non-NixOS devices use `hints.devices`.
+7. **Non-NixOS machines keep working.** The iot, wifi and guest devices and appliances have no host
+   record and are not managed by it. Until devices are modelled, their leases stay where they are and
+   the generated host leases are **added** to them, never replacing them; the router consumer must merge,
+   and an address or MAC claimed by both is an error.
+8. **`restartIfChanged`** is left unset unless a VM sets it, so the Vault VM keeps not restarting.
+9. **Network attachment should become uniform** where possible (phase 4), with the per-hypervisor
+   zone-to-bridge map; it stays hand-written until then.
+
+## Phase 0 results
+
+Measured on 2026-11-07 against Campground (44 hosts), with seven pilot records declared in a scratch
+worktree only (blue-ridge, chesty, lucas, the retired edson, `vm-lan-traefik`, `vm-mattermost`,
+`vm-pub-traefik`) and the real lease, share, tmpfiles, port-forward, DNS and Vault data as the reference.
+
+- **Cost:** reading one host's record through the module system takes about 11 s and 0.56 GB; all 44, three
+  at a time, took 209 s. Reading the whole fleet in **one** process did not finish on an 8 GB machine.
+  So a consumer that evaluates every host at build time (the router reading all leases) is not viable on
+  small machines; **consumers use committed generated files plus a drift check**, as the Vault policies do.
+- **Fleet function:** 0 errors over all 44 hosts; 6 active, 1 retired, 37 unmanaged (no record yet, so
+  ignored). One correct warning: the router's own interface has no MAC, so no lease.
+- **Equality gates** (derived versus what exists today):
+
+  | Gate | Result |
+  |---|---|
+  | Leases (pilot MACs) | all 6 existing leases reproduced exactly (MAC, address, name); one addition: a lease for `vm-mattermost`, which had none; nothing for retired edson |
+  | `vm-mattermost` shares | identical, including order (7 shares) |
+  | lucas `tmpfiles` for `vm-mattermost` | identical (6 directories) |
+  | Port forwards to `vm-mattermost` | identical (2) |
+  | DNS for the pilots | 10 records identical; 4 corrected (`pub-traefik` / `vm-pub-traefik` still pointed at the stale `10.8.0.5`); edson's records dropped; additions for hosts that had none |
+  | Vault expected addresses | 5 roles identical (including the `lan-traefik` alias); 2 additions for hosts that had none; edson's role listed for removal |
+
+- **Found while doing it:** using the service domain for host names collides (`vault` the host versus
+  `vault.lan.aicampground.com` the service), hence the separate `hostDomain`; and storage order only matched
+  by luck (alphabetical), hence the explicit `order`.
 
 ## Risks, stated plainly
 
