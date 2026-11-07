@@ -176,6 +176,7 @@ with lib.campground;
 | `mutable-policies` | When `false` (default), policies not declared in `policies` are deleted. |
 | `approles` | Declare AppRoles by name: `{ <role> = { token_policies = [...]; settings = {...}; }; }`. See [AppRoles](#approles). |
 | `prune-approles` | When `true`, AppRoles not declared in `approles` are **deleted**. Default `false` (report only). |
+| `trusted-proxies` | CIDRs of reverse proxies in front of Vault whose `X-Forwarded-For` the listener trusts, so the audit log and `token_bound_cidrs` see the real client address and not the proxy's. Default `[]` (trust none). Changing it restarts Vault, which seals it until auto-unseal runs. See [Client addresses behind a proxy](../../../../docs/VAULT-APPROLES.md#client-addresses-behind-a-proxy). |
 
 ### Storage Configuration
 

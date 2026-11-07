@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  options,
   pkgs,
   ...
 }:
@@ -214,6 +215,9 @@ in {
     prune-approles =
       mkBoolOpt false
       "Whether AppRoles not declared in `approles` should be DELETED (breaks any host still logging in with them). When false they are only reported in the journal. Ignored when `approles` is empty.";
+    trusted-proxies =
+      mkOpt (types.listOf types.str) []
+      "CIDRs of reverse proxies in front of Vault whose X-Forwarded-For header the listener should trust, so the audit log and token_bound_cidrs / secret_id_bound_cidrs see the real client address instead of the proxy's. Empty (default) trusts none. Changing it restarts Vault, which seals it until auto-unseal runs.";
     policy-agent = {
       user = mkOpt types.str "root" "The user to run the Vault Agent as.";
       group = mkOpt types.str "root" "The group to run the Vault Agent as.";
@@ -248,6 +252,17 @@ in {
       storageBackend = cfg.storage.backend;
       storagePath = cfg.storage.path;
       storageConfig = cfg.storage.config;
+      # Setting listenerExtraConfig replaces the nixpkgs default (tls_min_version), so build on that default
+      # instead of repeating it. Both reject flags are explicit so a request is never refused over the
+      # header: a header from any address that is not a trusted proxy is ignored and the real peer used.
+      listenerExtraConfig = mkIf (cfg.trusted-proxies != []) (
+        options.services.vault.listenerExtraConfig.default
+        + ''
+          x_forwarded_for_authorized_addrs = "${concatStringsSep "," cfg.trusted-proxies}"
+          x_forwarded_for_reject_not_present = "false"
+          x_forwarded_for_reject_not_authorized = "false"
+        ''
+      );
       extraConfig = ''
         disable_mlock = ${
           if cfg.disable-mlock

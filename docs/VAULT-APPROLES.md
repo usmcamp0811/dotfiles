@@ -174,24 +174,23 @@ tail -n 300000 "$L" | jq -R -r 'fromjson? | select(.type=="response" and (.auth.
 address is the proxy's is going through it. (In Campground this showed fifteen roles arriving as the
 `lan-traefik` address, and a few arriving directly.)
 
-**Fix it.** Trust the proxy's `X-Forwarded-For`, from that address only, on the Vault listener. With
-the nixpkgs `services.vault` module that is `listenerExtraConfig`, which **replaces** the module's
-default (`tls_min_version = "tls12"`), so repeat that line:
+**Fix it.** Tell the Vault module which proxies to trust. It makes the listener honour their
+`X-Forwarded-For`, from those addresses only:
 
 ```nix
-services.vault.listenerExtraConfig = ''
-  tls_min_version = "tls12"
-  x_forwarded_for_authorized_addrs = "<proxy ip>/32"
-  x_forwarded_for_reject_not_present = "false"
-  x_forwarded_for_reject_not_authorized = "false"
-'';
+fmf.services.vault.trusted-proxies = ["<proxy ip>/32"];   # a list; empty (the default) trusts none
 ```
 
-Tested against a throwaway Vault running this listener block: a forwarded client address is what the
-audit log records and what bound CIDRs are checked against, and a forged header from an address that is
-not the proxy is ignored (the real peer address is used). The two `reject` flags are set explicitly so a
-request is never refused over the header; Vault 2.0.3 refused none of those cases even at its defaults,
-so they guard against a version whose defaults differ.
+The module builds the listener text on top of the nixpkgs default (`tls_min_version`), because setting
+`services.vault.listenerExtraConfig` replaces that default, and sets both `x_forwarded_for_reject_*`
+flags to `false`. Downstream only supplies the address, ideally from the same source of truth as the
+proxy's own address (Campground reads it from the proxy's static DHCP lease, so they cannot drift).
+
+Tested against a throwaway Vault running this listener block, with one trusted proxy and with two: a
+forwarded client address is what the audit log records and what bound CIDRs are checked against, and a
+forged header from an address that is not a trusted proxy is ignored (the real peer address is used).
+The `reject` flags are explicit so a request is never refused over the header; Vault 2.0.3 refused none
+of those cases even at its defaults, so they guard against a version whose defaults differ.
 
 Changing the listener restarts `vault.service`, which seals Vault until auto-unseal runs. Afterwards re-run
 the query above: only the roles whose own agent runs on the proxy should still show the proxy's address.
