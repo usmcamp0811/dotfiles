@@ -63,6 +63,46 @@ not exist, roles with no secret-id issued yet, and progress off the broad `campg
 how many roles already carry their `svc-*` policies and can drop it). It is read-only and exits 1 when
 it finds drift, so it can run from cron. The commands below are the manual equivalents.
 
+### When the audit shows drift: converging
+
+The `vault-policies` service on the Vault host writes the policies and roles on every start, so after
+a deploy the audit should be clean. If it is not, the usual reason is that **the Vault host is not
+running the new configuration**, not that the config is wrong. Check, in this order:
+
+1. **Is the new system actually active?** On the Vault host compare `readlink /run/current-system`
+   with `nix path-info .#nixosConfigurations.<vault-host>.config.system.build.toplevel` from the repo.
+   Two common ways it is not:
+   - The Vault host is a **MicroVM** and its `microvm.vms.<name>.restartIfChanged` is off. Deploying
+     the hypervisor builds the new VM but does not restart it, so it keeps running the old system
+     until `systemctl restart microvm@<name>` on the hypervisor. Restarting Vault seals it; expect a
+     short outage while auto-unseal runs, and agents on other hosts retry.
+   - It was deployed with `deploy --boot`, which installs the generation but only activates it at the
+     next boot. Activate in place instead (`deploy` without `--boot`, or `nixos-rebuild switch`).
+2. **Did the service run, and did it succeed?**
+
+   ```bash
+   systemctl status vault-policies
+   journalctl -u vault-policies -b --no-pager | grep -E 'Writing polic|Writing approle|UNMANAGED|not found|rror'
+   ```
+
+   It exits quietly (status 0) if the policy agent's `role-id` / `secret-id` files are missing, and
+   retries every 30 seconds if a write fails.
+3. **Is the audit looking at the same revision?** `--audit` reads `approles.nix` and the policies from
+   your working tree; if the Vault host was built from an older commit, that is the difference.
+
+To converge now without waiting for the service, run the same writes by hand:
+
+```bash
+vault-access --fix            # dry run: lists every policy and role it would write
+vault-access --fix --apply    # policies first, then roles; then re-runs the audit
+```
+
+`--fix` only creates and updates. It never deletes: a deleted role locks its host out. Roles or
+policies that exist in Vault but not in the repo are listed with the exact `vault delete` commands, to
+run once you have checked nothing uses them (or set `prune-approles` once the audit is otherwise
+clean). If `--fix --apply` succeeds but the service keeps failing, the problem is the service, and
+step 2 is where to look.
+
 ### What Vault has, and what is undeclared
 
 After a deploy, the service logs every role it did not find in Nix:
@@ -113,6 +153,48 @@ rg -o --no-filename 'role-id\s*=\s*"/var/lib/vault/([^/"$]+)/role-id"' -r '$1' s
 
 A host that builds its path from a variable (for example `vm-airflow-worker-*` via `nodeName`) will not
 appear in this list; check those by hand.
+
+## Client addresses behind a proxy
+
+Vault records, and checks `token_bound_cidrs` / `secret_id_bound_cidrs` against, the address of whatever
+connected to it. If agents reach Vault through a reverse proxy, that address is the **proxy's**, for every
+client behind it: the audit log cannot say which host a login came from, and an IP binding on a role
+checks the proxy and so protects nothing. Settle this before relying on either.
+
+**Measure it.** The file audit device records `request.remote_address` and, as plain text,
+`auth.metadata.role_name` on every authenticated event, so no lookups are needed:
+
+```bash
+L=/path/to/vault_audit.log
+tail -n 300000 "$L" | jq -R -r 'fromjson? | select(.type=="response" and (.auth.metadata.role_name // null) != null)
+  | [.auth.metadata.role_name, .request.remote_address] | @tsv' | sort | uniq -c | sort -rn
+```
+
+`fromjson?` skips the torn first and last lines of a tail, which plain `jq` aborts on. Any role whose
+address is the proxy's is going through it. (In Campground this showed fifteen roles arriving as the
+`lan-traefik` address, and a few arriving directly.)
+
+**Fix it.** Trust the proxy's `X-Forwarded-For`, from that address only, on the Vault listener. With
+the nixpkgs `services.vault` module that is `listenerExtraConfig`, which **replaces** the module's
+default (`tls_min_version = "tls12"`), so repeat that line:
+
+```nix
+services.vault.listenerExtraConfig = ''
+  tls_min_version = "tls12"
+  x_forwarded_for_authorized_addrs = "<proxy ip>/32"
+  x_forwarded_for_reject_not_present = "false"
+  x_forwarded_for_reject_not_authorized = "false"
+'';
+```
+
+Tested against a throwaway Vault running this listener block: a forwarded client address is what the
+audit log records and what bound CIDRs are checked against, and a forged header from an address that is
+not the proxy is ignored (the real peer address is used). The two `reject` flags are set explicitly so a
+request is never refused over the header; Vault 2.0.3 refused none of those cases even at its defaults,
+so they guard against a version whose defaults differ.
+
+Changing the listener restarts `vault.service`, which seals Vault until auto-unseal runs. Afterwards re-run
+the query above: only the roles whose own agent runs on the proxy should still show the proxy's address.
 
 ## Migration plan
 
@@ -232,7 +314,8 @@ Keep `admin` out of ordinary hosts. It is needed only by the role the policy age
 
 ### Phase 4: tighten the role itself
 
-Once policies are narrow, add per-role limits in `settings`: `token_bound_cidrs` to the host's
+Do [Client addresses behind a proxy](#client-addresses-behind-a-proxy) first, or the CIDRs below are checked
+against the proxy. Once policies are narrow, add per-role limits in `settings`: `token_bound_cidrs` to the host's
 address, a finite `token_ttl`, `secret_id_ttl`/`secret_id_num_uses` where a host can re-fetch. Do this
 per host and watch vault-agent, since a wrong CIDR locks the host out.
 

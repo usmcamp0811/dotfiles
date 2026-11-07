@@ -18,6 +18,8 @@ vault-access --check          # exit non-zero if the committed files are stale (
 vault-access --show vm-media  # print the policies one host needs, write nothing
 vault-access --audit          # scoreboard: compare LIVE Vault with the repo (read-only)
 vault-access --audit --brief  # same, but only the roles that need attention
+vault-access --fix            # dry run: what it would write to bring live Vault in line with the repo
+vault-access --fix --apply    # do it (policies, then roles); never deletes
 ```
 
 From a downstream flake that has `fmf` as an input:

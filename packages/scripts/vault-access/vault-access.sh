@@ -9,6 +9,7 @@
 #   vault-access --check           derive again; exit non-zero if the committed files differ (CI)
 #   vault-access --show vm-media   print the policies one host needs (writes nothing)
 #   vault-access --audit           compare live Vault (roles, policies, content) with the repo
+#   vault-access --fix [--apply]   bring live Vault in line with the repo (dry run unless --apply)
 #
 # The rules (what a service reads, naming, capabilities) live in lib/vault-access/default.nix and
 # are shared with the Nix-side check. This script only evaluates each host (one `nix eval` at a
@@ -17,7 +18,7 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-usage: vault-access [--check | --show HOST | --audit] [options]
+usage: vault-access [--check | --show HOST | --audit | --fix [--apply]] [options]
   --mount PATH       KV v2 mount that vault-agent templates resolve under   (secret/campground)
   --flake REF        flake to evaluate                                      (git+file://<git root>)
   --hosts-dir DIR    directory with one sub-directory per host, relative to the git root
@@ -27,6 +28,7 @@ usage: vault-access [--check | --show HOST | --audit] [options]
   --jobs N           hosts evaluated in parallel                            (3)
   --audit            compare LIVE Vault with the repo (read-only; needs vault CLI, VAULT_ADDR, a token)
   --brief            with --audit: hide the roles that are fine, show only what needs attention
+  --fix              converge live Vault to the repo (policies, then roles). Dry run unless --apply; never deletes
 USAGE
 }
 
@@ -36,6 +38,7 @@ mode="write"
 flake=""
 show_host=""
 brief=0
+apply=0
 hosts_dir="systems/x86_64-linux"
 vault_rel="systems/x86_64-linux/vm-vault/vault"
 
@@ -50,11 +53,14 @@ while [ $# -gt 0 ]; do
     --show) mode="show"; show_host="${2:?--show needs a host}"; shift 2 ;;
     --audit) mode="audit"; shift ;;
     --brief) brief=1; shift ;;
+    --fix) mode="fix"; shift ;;
+    --apply) apply=1; shift ;;
     -h | --help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
 
+[ "$apply" -eq 0 ] || [ "$mode" = "fix" ] || { echo "--apply only works with --fix" >&2; exit 2; }
 root="$(git rev-parse --show-toplevel)"
 flake="${flake:-git+file://$root}"
 vault_dir="$root/$vault_rel"
@@ -70,13 +76,15 @@ trap 'rm -rf "$work"' EXIT
 # sys/policies/acl/* (the admin policy does). Prints a scoreboard and a per-role table; exits 1 when
 # it finds drift (missing/unmanaged/drifted roles or policies, dangling references), so it can run
 # from cron. Colour only on a terminal (and never with NO_COLOR set).
-audit() {
-  command -v vault >/dev/null 2>&1 || { echo "audit needs the vault CLI on PATH" >&2; exit 2; }
+a="$work/audit"
+mkdir -p "$a"
+
+# Read live Vault + the declaration into $a/*. Shared by --audit and --fix.
+gather_live() {
+  command -v vault >/dev/null 2>&1 || { echo "this needs the vault CLI on PATH" >&2; exit 2; }
   [ -n "${VAULT_ADDR:-}" ] || { echo "set VAULT_ADDR (e.g. https://vault.lan.aicampground.com)" >&2; exit 2; }
   vault token lookup >/dev/null 2>&1 || { echo "no valid Vault token: vault login, or set VAULT_TOKEN" >&2; exit 2; }
-  local a="$work/audit" r p pol n
-  mkdir -p "$a"
-
+  local r p pol n
   # ---- gather ----
   # declared: roles from approles.nix (evaluated, so the generated attachments are included)
   nix-instantiate --eval --strict --json "$vault_dir/approles.nix" >"$a/declared.json"
@@ -102,10 +110,13 @@ audit() {
     cp "$policy_dir/$p.hcl" "$a/fmt.hcl"; vault policy fmt "$a/fmt.hcl" >/dev/null 2>&1 || true
     [ "$(vault policy read "$p" 2>/dev/null)" = "$(cat "$a/fmt.hcl")" ] || echo "$p" >>"$a/pol-drift.txt"
   done < <(comm -12 "$a/decl-policies.txt" "$a/live-policies.txt")
+}
 
+# one row per role (declared or live): state, policies, notes
+build_rows() {
   # ---- one row per role (declared or live), then the numbers ----
   jq -n --slurpfile d "$a/declared.json" --slurpfile l "$a/live.json" --rawfile pols "$a/live-policies.txt" '
-    def lst: if length == 0 then "-" else join(",") end;
+    def lst: if length == 0 then "-" elif length > 3 then (.[0:3] | join(",")) + " +\(length - 3) more" else join(",") end;
     ($d[0] | with_entries(.value |= (.token_policies // []))) as $dec
     | $l[0] as $live
     | ($pols | split("\n") | map(select(. != ""))) as $exist
@@ -131,12 +142,18 @@ audit() {
          elif .state == "unmanaged" then "in Vault, not declared (created by hand?)"
          elif .state == "drift" then .detail
          elif .state == "dangling" then "points at a policy that does not exist: \(.detail)"
-         elif .state == "inert" then "no secret-id issued yet: nothing can log in with it"
+         elif .state == "inert" then "role exists; no secret-id issued yet, so nothing logs in with it"
          elif .admin then "admin: the policy agent / legacy"
          elif .campground and .svc > 0 then "has its svc policies: can drop campground"
          elif .campground then "legacy name: no host mapping, still broad"
          else "" end) })
     | sort_by([({"missing":0,"unmanaged":1,"drift":2,"dangling":3,"inert":4,"ok":5}[.state]), .role])' >"$a/rows.json"
+}
+
+audit() {
+  gather_live
+  build_rows
+
 
   # ---- render ----
   local red="" yel="" grn="" dim="" bold="" rst=""
@@ -169,7 +186,7 @@ audit() {
   printf '  %s  %-16s %s in repo · %s missing in Vault · %s extra in Vault · %s content drift\n' \
     "$(mark $((p_miss + p_extra + p_drift)))" "Policies" "$p_decl" "$p_miss" "$p_extra" "$p_drift"
   if [ "$n_inert" -eq 0 ]; then printf '  %s✔%s  %-16s every role has a secret-id issued\n' "$grn" "$rst" "Credentials"
-  else printf '  %s●%s  %-16s %s role(s) have no secret-id yet (inert until you issue one)\n' "$yel" "$rst" "Credentials" "$n_inert"; fi
+  else printf '  %s●%s  %-16s %s role(s) exist but have no secret-id yet (nothing logs in with them)\n' "$yel" "$rst" "Credentials" "$n_inert"; fi
   lp_col=$yel; [ "$lp_num" -eq "$lp_den" ] && lp_col=$grn
   printf '  %s◐%s  %-16s %s%s%s  %s of %s roles are off campground\n' "$lp_col" "$rst" "Least privilege" "$grn" "$lp_bar" "$rst" "$lp_num" "$lp_den"
   [ "$lp_ready" -gt 0 ] && printf '     %s%s role(s) already carry their svc-* policies and can drop campground%s\n' "$dim" "$lp_ready" "$rst"
@@ -198,12 +215,67 @@ audit() {
     sed "s/^/  ${red}content differs${rst}    /" "$a/pol-drift.txt"
   fi
 
+  [ "$findings" -gt 0 ] && printf '\n %sTo fix: vault-access --fix (dry run), then --fix --apply. If it keeps drifting, the Vault host is not running the latest config (docs/VAULT-APPROLES.md, Converging).%s\n' "$dim" "$rst"
   echo; printf ' %s%s finding(s)%s' "$bold" "$findings" "$rst"
   if [ "$findings" -eq 0 ]; then printf '  %sVault matches the repo%s\n\n' "$grn" "$rst"; else printf '  %s(exit 1)%s\n\n' "$dim" "$rst"; fi
   [ "$findings" -eq 0 ]
 }
 
+
+# ---- --fix: converge live Vault to the declaration ----------------------------------------------
+# Does by hand what the vault-policies service on the Vault host does on every deploy: write the
+# policies (fmt-ed, like the module), then the roles. Dry run unless --apply. It only creates and
+# updates; it never deletes (a deleted role locks its host out), it prints the commands instead.
+fix() {
+  gather_live
+  build_rows
+  local p r todo_pol todo_role payload="$a/payload.json"
+  cat "$a/pol-missing.txt" "$a/pol-drift.txt" | sort -u >"$a/pol-todo.txt"
+  jq -r '.[] | select(.state == "missing" or .state == "drift") | .role' "$a/rows.json" >"$a/role-todo.txt"
+  todo_pol=$(wc -l <"$a/pol-todo.txt"); todo_role=$(wc -l <"$a/role-todo.txt")
+
+  echo
+  if [ "$apply" -eq 1 ]; then echo " Converging live Vault to the repo (--apply)"; else echo " Dry run: nothing is changed. Add --apply to write."; fi
+  echo " ────────────────────────────────────────────────────────────────────────────────────────"
+
+  # policies first: roles point at them
+  while read -r p; do
+    [ -n "$p" ] || continue
+    if grep -qx "$p" "$a/pol-missing.txt"; then printf '  policy  %-44s create\n' "$p"; else printf '  policy  %-44s update (content differs)\n' "$p"; fi
+    if [ "$apply" -eq 1 ]; then
+      cp "$policy_dir/$p.hcl" "$a/fmt.hcl"; vault policy fmt "$a/fmt.hcl" >/dev/null 2>&1 || true
+      vault policy write "$p" "$a/fmt.hcl" >/dev/null
+    fi
+  done <"$a/pol-todo.txt"
+
+  while read -r r; do
+    [ -n "$r" ] || continue
+    jq -c --arg r "$r" '.[$r] | (.settings // {}) + {token_policies: (.token_policies // [])}' "$a/declared.json" >"$payload"
+    printf '  role    %-44s %s\n' "$r" "$(jq -r --arg r "$r" '.[] | select(.role == $r) | if .state == "missing" then "create" else "update policies (\(.note))" end' "$a/rows.json")"
+    [ "$apply" -eq 1 ] && vault write "auth/approle/role/$r" "@$payload" >/dev/null
+  done <"$a/role-todo.txt"
+
+  if [ $((todo_pol + todo_role)) -eq 0 ]; then echo "  nothing to do: live Vault already matches the repo"; fi
+
+  # things we deliberately do not touch
+  if [ -s "$a/pol-extra.txt" ] || jq -e '[.[] | select(.state == "unmanaged")] | length > 0' "$a/rows.json" >/dev/null; then
+    echo; echo " Not touched (delete only if you are sure nothing still uses them):"
+    jq -r '.[] | select(.state == "unmanaged") | "  vault delete auth/approle/role/\(.role)"' "$a/rows.json"
+    sed 's|^|  vault policy delete |' "$a/pol-extra.txt"
+  fi
+
+  if [ "$apply" -eq 1 ]; then
+    echo; echo " Re-checking live Vault..."
+    audit
+  else
+    echo
+    [ $((todo_pol + todo_role)) -gt 0 ] && echo " $todo_pol policy write(s) and $todo_role role write(s) pending. Re-run with --fix --apply."
+    true
+  fi
+}
+
 if [ "$mode" = "audit" ]; then audit; exit $?; fi
+if [ "$mode" = "fix" ]; then fix; exit $?; fi
 
 mapfile -t hosts < <(find "$root/$hosts_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
 
