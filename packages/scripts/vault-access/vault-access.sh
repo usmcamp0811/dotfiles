@@ -34,6 +34,9 @@ usage: vault-access [--check | --show HOST | --audit | --fix [--apply]] [options
   --since TIME       with --audit-log: only events after TIME (ISO 8601 UTC, e.g. 2026-11-07T04:00:00Z)
   --proxy IPS        with --audit-log: comma list of reverse-proxy addresses (default: the expected
                      address of vm-lan-traefik / lan-traefik)
+  --generated-leases FILE
+                     leases generated from host records by `fleet` (zone -> list), merged with the
+                     lease files above when the file exists          (network/generated/leases.nix)
   --leases GLOB      static DHCP lease files, relative to the git root, used to derive expected
                      addresses; `none` skips them          (systems/x86_64-linux/blue-ridge/router/*-leases.nix)
   --fix              converge live Vault to the repo (policies, then roles). Dry run unless --apply; never deletes
@@ -51,6 +54,7 @@ audit_log=""
 since=""
 proxy_arg=""
 leases_glob="systems/x86_64-linux/blue-ridge/router/*-leases.nix"
+generated_leases="network/generated/leases.nix"
 hosts_dir="systems/x86_64-linux"
 vault_rel="systems/x86_64-linux/vm-vault/vault"
 
@@ -69,6 +73,7 @@ while [ $# -gt 0 ]; do
     --since) since="${2:?--since needs a time}"; shift 2 ;;
     --proxy) proxy_arg="${2:?--proxy needs an address list}"; shift 2 ;;
     --leases) leases_glob="${2:?--leases needs a glob}"; shift 2 ;;
+    --generated-leases) generated_leases="${2:?--generated-leases needs a file}"; shift 2 ;;
     --fix) mode="fix"; shift ;;
     --apply) apply=1; shift ;;
     -h | --help) usage; exit 0 ;;
@@ -445,11 +450,12 @@ if [ "$leases_glob" != "none" ]; then
     exit 1
   fi
 fi
-if [ ${#lease_files[@]} -eq 0 ]; then
-  echo '[]' >"$work/leases.json"
-else
-  nix eval --impure --json --expr "builtins.concatLists (map import [ ${lease_files[*]} ])" >"$work/leases.json"
+# Leases generated from host records (`fleet`) are { zone = [ lease ]; }; flatten them in with the hand-kept ones.
+gen_expr="[]"
+if [ -f "$root/$generated_leases" ]; then
+  gen_expr="builtins.concatLists (builtins.attrValues (import $root/$generated_leases))"
 fi
+nix eval --impure --json --expr "(builtins.concatLists (map import [ ${lease_files[*]} ])) ++ ($gen_expr)" >"$work/leases.json"
 echo '{}' >"$work/extra.json"
 if [ -f "$expected_extra" ]; then nix-instantiate --eval --strict --json "$expected_extra" >"$work/extra.json"; fi
 

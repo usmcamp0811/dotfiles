@@ -96,6 +96,17 @@
   ]);
 
   r = f.mk {inherit hosts zones;};
+
+  # devices: leases of things that are not hosts. Note the mixed-case name, as in real lease files.
+  devices = [
+    {zone = "lan"; mac = "AA:11:00:00:00:01"; ip = "192.168.50.200"; hostname = "Campnet-AP";}
+    {zone = "wifi"; mac = "aa:11:00:00:00:02"; ip = "192.168.51.50"; hostname = "printer";}
+  ];
+  rd = f.mk {inherit hosts zones; deviceLeases = devices;};
+  files = f.render rd;
+  withDev = extra: (f.mk {hosts = hosts; inherit zones; deviceLeases = devices ++ extra;});
+  devErrs = extra: msgs (withDev extra).errors;
+  devWarns = extra: msgs (withDev extra).warnings;
   msgs = x: map (e: e.message) x;
   has = sub: xs: lib.any (m: lib.hasInfix sub m) xs;
   errsOf = hs: msgs (f.mk {hosts = hs; inherit zones;}).errors;
@@ -162,7 +173,7 @@
     # ---- assertions: each must fire on a deliberately broken fleet ----
     ["dup ip" (has "address 192.168.50.16 is used by" (errsOf (add [(host "dup" {interfaces.lan = iface {mac = "aa:00:00:00:00:77"; ip = "192.168.50.16";};})])))]
     ["dup mac" (has "MAC aa:00:00:00:00:01" (errsOf (add [(host "dup" {interfaces.lan = iface {mac = "AA:00:00:00:00:01"; ip = "192.168.50.77";};})])))]
-    ["outside subnet" (has "outside zone `lan`" (errsOf (add [(host "far" {interfaces.lan = iface {mac = "aa:00:00:00:00:78"; ip = "10.9.0.5";};})])))]
+    ["outside subnet" (has "outside zone `lan`" (errsOf (add [(host "far" {interfaces.lan = iface {mac = "aa:00:00:00:00:78"; ip = "192.168.99.5";};})])))]
     ["unknown zone" (has "unknown zone `nope`" (errsOf (add [(host "z" {interfaces.x = iface {zone = "nope";};})])))]
     ["bad ip" (has "not an IPv4 address" (errsOf (add [(host "b" {interfaces.x = iface {ip = "192.168.50";};})])))]
     ["active vm without runsOn" (has "needs placement.runsOn" (errsOf (add [(host "vm-x" {kind = "microvm";})])))]
@@ -200,6 +211,32 @@
       m.errors == [] && m.dns.mattis == "192.168.50.237" && m.dns."mattis.lan-hosts.example.com" == "192.168.50.237"
       && m.dns."mattis-wifi" == "192.168.50.237" && !(lib.any (n: lib.hasPrefix "mattis" n && m.dns.${n} == "192.168.50.245" && n == "mattis") (lib.attrNames m.dns)))]
     ["standby expose warns" (has "expose is ignored while the host is standby" (msgs r.warnings))]
+
+    # ---- devices: DNS, clashes ----
+    ["device dns is lower-case" (rd.dns."campnet-ap" == "192.168.50.200" && rd.dns."printer" == "192.168.51.50")]
+    ["device fqdn uses the zone's hostDomain, none without one" (rd.dns."campnet-ap.lan-hosts.example.com" == "192.168.50.200" && !(rd.dns ? "printer.null"))]
+    ["devices add no leases (they keep their files)" (!(lib.any (l: l.hostname == "Campnet-AP") (lib.concatLists (lib.attrValues rd.leases))))]
+    ["devices do not disturb a clean fleet" (rd.errors == [])]
+    ["device clashing with a host address" (has "address 192.168.50.16 is used by" (devErrs [{zone = "lan"; mac = "AA:11:00:00:00:09"; ip = "192.168.50.16"; hostname = "rogue";}]))]
+    ["device clashing with a host MAC (any case)" (has "MAC 02:00:00:00:00:b0 is used by" (devErrs [{zone = "lan"; mac = "02:00:00:00:00:B0"; ip = "192.168.50.77"; hostname = "rogue";}]))]
+    ["two devices clashing" (has "address 192.168.50.200 is used by" (devErrs [{zone = "lan"; mac = "AA:11:00:00:00:09"; ip = "192.168.50.200"; hostname = "twin";}]))]
+    ["device name clashing with a host name" (has "resolves to different addresses" (devErrs [{zone = "lan"; mac = "AA:11:00:00:00:09"; ip = "192.168.50.77"; hostname = "VM-VAULT";}]))]
+    ["device in an unknown zone" (has "unknown zone `nope`" (devErrs [{zone = "nope"; mac = "AA:11:00:00:00:09"; ip = "192.168.50.77"; hostname = "lost";}]))]
+    ["device outside its zone is a warning" (has "outside zone `lan`" (devWarns [{zone = "lan"; mac = "AA:11:00:00:00:09"; ip = "192.168.99.5"; hostname = "far";}]))]
+
+    # ---- DNS names are lower-case ----
+    ["host dns is lower-case" (let m = f.mk {hosts = add [(host "UPPER" {interfaces.lan = iface {mac = "aa:00:00:00:00:7c"; ip = "192.168.50.99";}; dns.names = ["Svc.Example.COM"];})]; inherit zones;};
+      in m.dns ? "upper" && m.dns ? "svc.example.com" && !(m.dns ? "UPPER") && !(m.dns ? "Svc.Example.COM"))]
+
+    # ---- committed files ----
+    ["leases file: sorted, quoted, one per line" (lib.hasInfix "  \"lan\" = [\n    {mac = \"aa:00:00:00:00:01\"; ip = \"192.168.50.1\"; hostname = \"blue-ridge\";}\n    {mac = \"02:00:00:00:00:10\"; ip = \"192.168.50.3\"; hostname = \"vault\";}\n" files.leases)]
+    ["leases file has no devices" (!(lib.hasInfix "Campnet" files.leases))]
+    ["dns file: sorted, lower-case" (lib.hasInfix "  \"campnet-ap\" = \"192.168.50.200\";\n" files.dns && lib.hasInfix "  \"vault\" = \"192.168.50.3\";\n" files.dns)]
+    ["forwards are ordered by port, then protocol (tcp before udp)" (lib.hasInfix "protocol = \"tcp\"; description = \"Calls\";}\n  {port = 8443; destination = \"192.168.50.16\"; protocol = \"udp\";" files.forwards)]
+    ["forwards file: destinationPort only when set" (lib.hasInfix "{port = 8443; destination = \"192.168.50.16\"; protocol = \"tcp\";" files.forwards
+      && lib.hasInfix "protocol = \"udp\";" files.forwards && !(lib.hasInfix "destinationPort" files.forwards))]
+    ["forwards destinationPort is rendered" (lib.hasInfix "destinationPort = 80;" (f.render (f.mk {hosts = add [(vm "vm-w" "lucas" {interfaces.lan = iface {mac = "02:00:00:00:00:7d"; ip = "192.168.50.98";}; expose = [(exposeE {port = 8080; destPort = 80;})];})]; inherit zones;})).forwards)]
+    ["rendering is deterministic" (files == f.render (f.mk {inherit hosts zones; deviceLeases = devices;}))]
     ["retired is exempt from clashes" (!(has "192.168.50.20" (msgs r.errors)))]
     ["unmanaged hosts are ignored entirely" (!(has "some-unmanaged" (msgs (r.errors ++ r.warnings))))]
   ];

@@ -171,7 +171,14 @@ with lib.fmf; let
     wants = ["circuit-breaker-ready.service" "network-online.target"];
     path = extraPath;
     environment = {HOME = stateDir;} // extraEnv;
-    unitConfig.ConditionPathExists = fs.tokenFile;
+    unitConfig = {
+      ConditionPathExists = fs.tokenFile;
+      # These units throttle themselves (the application backs a failing revision off, and a failure
+      # restarts after RestartSec), so systemd's default start limit (5 starts in 10 s) adds nothing.
+      # It only turned a few quick manual or scripted starts into `start-limit-hit`, which made the
+      # end-to-end test pass or fail depending on how fast the machine was.
+      StartLimitIntervalSec = 0;
+    };
     serviceConfig =
       hardening
       // {
