@@ -8,11 +8,15 @@ status: draft
 
 # Host model: one record per machine
 
-**Status: phase 0 implemented in fmf; no consumers yet.** The `fmf.host` and `fmf.network.zones` options
-(`modules/nixos/system/host`) and the fleet function (`lib/fleet`, with tests) exist. Nothing reads them
-yet: no lease, DNS record, forward, role or VM is generated from them, and no Campground host declares a
-record. Results are in [Phase 0 results](#phase-0-results); decisions are in [Decisions](#decisions);
-phases and their gates are in [Phasing](#phasing-and-verification).
+> Addresses in this document are fmf's example network (`192.168.50.0/24` for the LAN, `192.168.51-54.0/24`
+> for the VLANs), not Campground's real ones; the structure, counts and findings are real.
+
+**Status: phase 0 done; phase 1 import done; no consumers yet.** The `fmf.host` and `fmf.network.zones`
+options (`modules/nixos/system/host`) and the fleet function (`lib/fleet`, with tests) exist, and Campground
+has a record for all 44 hosts (`systems/<host>/host.nix`, loaded only once its fmf lock has the module).
+Nothing reads the derived data yet: leases, DNS, forwards and Vault roles still come from their existing
+files. Results are in [Phase 0 results](#phase-0-results) and [Phase 1 import](#phase-1-import);
+decisions are in [Decisions](#decisions); phases and their gates are in [Phasing](#phasing-and-verification).
 
 ## Problem
 
@@ -34,9 +38,9 @@ below was read from the Campground and fmf repositories while this was written.
 
 Drift that already happened:
 
-- **Duplicate addresses.** `edson` and `vm-pub-traefik` both had `10.8.0.20`. `authentik` and
+- **Duplicate addresses.** `edson` and `vm-pub-traefik` both had `192.168.50.20`. `authentik` and
   `vm-k8s-control-0` both have MAC `02:00:00:00:00:50`.
-- **A stale lease.** `vm-pub-traefik` runs statically on `10.8.0.20` while its lease said `10.8.0.5`.
+- **A stale lease.** `vm-pub-traefik` runs statically on `192.168.50.20` while its lease said `192.168.50.5`.
 - **A dead host still provisioned.** `edson` is permanently offline but kept a lease, a Vault role with
   live secret-ids, and a place in the flake.
 - **A silent lock-out risk.** An IP binding derived from the stale lease would have locked a working
@@ -113,7 +117,7 @@ Option names are provisional; the structure is what matters.
 ```nix
 fmf.host.network.interfaces.<name> = {
   mac  = "02:00:00:00:00:b0";
-  ip   = "10.8.0.16";     # null = dynamic; no lease is generated and nothing is expected
+  ip   = "192.168.50.16";     # null = dynamic; no lease is generated and nothing is expected
   zone = "lan";           # selects subnet, VLAN, gateway and DHCP pool
   static = false;         # true: the host configures the address itself (the vm-pub-traefik case)
   attach = "tap";         # microvm only: tap | macvtap
@@ -235,9 +239,13 @@ fmf.host.dns = {
 
 FQDNs use the zone's **`hostDomain`** (Campground: `lan-hosts.aicampground.com`, the domain AdGuard already
 uses for host records). It is kept apart from the domain that *service* names live in, because the same
-word is often both: the host `vault` is `10.8.0.3`, while the service name `vault.lan.aicampground.com`
+word is often both: the host `vault` is `192.168.50.3`, while the service name `vault.lan.aicampground.com`
 points at the LAN Traefik. Using one domain for both would make them collide; the fleet function rejects any
 name that would resolve to two addresses.
+
+The **bare host name belongs to the primary interface.** A host with several leases named like itself (a second
+VLAN, a stale extra NIC) gets the short name only for its primary address; its other interfaces get their
+lease names and, in a different zone domain, an FQDN. Without this, `mattis` would resolve to three addresses.
 
 Every active host gets records for its short name and its FQDN per interface address, which replaces the
 hand-typed `lanHosts` map in `vm-adguard` (today it contains both `vault` and `vm-vault`, and
@@ -325,15 +333,18 @@ contradictions can be fixed one at a time.
 
 - Duplicate IP within a zone, duplicate MAC anywhere.
 - An interface address outside its zone's subnet; an unknown zone.
-- A MicroVM with no `runsOn`, or whose `runsOn` is not a physical host or is retired.
+- An **active** MicroVM with no `runsOn` (a standby one may be unplaced), or one whose `runsOn` is not a
+  physical host or is retired.
 - A `boot.after` cycle, or one that crosses hypervisors.
 - A reference to a retired host from anywhere.
 - Two hosts claiming the same Vault role or alias.
 - Two VMs claiming the same non-shared storage `hostPath`.
-- A MicroVM MAC that is not locally administered (`02:...`).
-- Warning: a static address inside the DHCP pool without a lease.
+- A name that would resolve to two addresses.
+- Warnings: a MicroVM MAC that is not locally administered (`02:...`); a static address inside the zone's
+  DHCP pool (`dhcpRange`) that no lease reserves (lucas's situation); a DHCP interface with no MAC; a host
+  with no interface.
 
-Today's contradictions (the authentik MAC clash is the live one) would be reported by the first run.
+The first run over the real fleet found three live contradictions; see [Phase 1 import](#phase-1-import).
 
 ## What replaces what
 
@@ -435,12 +446,64 @@ worktree only (blue-ridge, chesty, lucas, the retired edson, `vm-lan-traefik`, `
   | `vm-mattermost` shares | identical, including order (7 shares) |
   | lucas `tmpfiles` for `vm-mattermost` | identical (6 directories) |
   | Port forwards to `vm-mattermost` | identical (2) |
-  | DNS for the pilots | 10 records identical; 4 corrected (`pub-traefik` / `vm-pub-traefik` still pointed at the stale `10.8.0.5`); edson's records dropped; additions for hosts that had none |
+  | DNS for the pilots | 10 records identical; 4 corrected (`pub-traefik` / `vm-pub-traefik` still pointed at the stale `192.168.50.5`); edson's records dropped; additions for hosts that had none |
   | Vault expected addresses | 5 roles identical (including the `lan-traefik` alias); 2 additions for hosts that had none; edson's role listed for removal |
 
 - **Found while doing it:** using the service domain for host names collides (`vault` the host versus
   `vault.lan.aicampground.com` the service), hence the separate `hostDomain`; and storage order only matched
   by luck (alphabetical), hence the explicit `order`.
+
+## Phase 1 import
+
+Done on 2026-11-07. A one-shot generator built every record from what exists, not from anyone's memory:
+each host's **evaluated** configuration (MicroVM interfaces and their MACs, the addresses a host sets
+itself, which VMs each hypervisor runs with their autostart and restart flags), the router's five lease
+files, its zone definitions and the port forwards. It reported every disagreement instead of resolving it
+silently. The records were then evaluated through the real module on all 44 hosts.
+
+**Layout in Campground.** One `systems/<host>/host.nix` per host (no edits to the hosts' `default.nix`),
+and the zone catalogue in `network/zones.nix`. The flake loads both only when the locked fmf has the
+module, so they are inert until the lock is bumped; with the old lock, sample hosts evaluate exactly as
+before (same modules, same MicroVM shares, no record or zones loaded).
+
+**Rules the import followed.**
+
+- A VM's interface is matched to its lease by MAC; a physical host's by lease hostname (`<host>`,
+  `<host>-<suffix>`), so extra NICs and second VLANs become extra interfaces.
+- An address the host configures itself wins over its lease and sets `static = true`. It attaches to the
+  lease that already has that address; failing that, to the lease named after the host (which is then
+  reported as stale).
+- Lease names that differ from what the fleet function would derive are kept explicitly (`leaseName`), so
+  the generated leases are byte-for-byte the old ones.
+- A VM no hypervisor runs is `standby` (it keeps its lease and role, and needs no `runsOn`).
+
+**Problems it found, and what was done.**
+
+| Found | Done |
+|---|---|
+| `vm-netobs`'s k8s tap used `vm-k8s-worker-butler`'s MAC: both running, both answering for `192.168.54.60` | netobs tap moved to `…:65`, which its own lease already said |
+| `authentik` and `vm-k8s-control-0` shared a MAC | `vm-k8s-control-0` (not running) moved to `…:52` |
+| `vm-topology` (standby) and `vm-agent` both claimed `192.168.50.26` | `vm-topology` moved to `192.168.50.28` |
+| lucas is static on `192.168.50.89`, but its leases and DNS said `.189`/`.188`, and `.89` sat unreserved in the DHCP pool | lease reserves `.89`; stale second lease, DNS and docs fixed |
+| mattis is `192.168.50.237` (its bridge carries the `mattis-wifi` MAC); DNS said `.235` | recorded as-is; the derived DNS corrects it |
+| Seven VMs use static addresses with no lease | the derived leases add reservations |
+
+**Gates** (records evaluated through the real module, compared with the current files):
+
+| Gate | Result |
+|---|---|
+| Leases | all 43 host leases identical (zone, MAC, address, name); 25 device leases untouched; 7 reservations added; nothing lost |
+| Placement | identical for all 20 placed VMs (hypervisor, autostart, restart flag; the Vault VM keeps not restarting) |
+| Port forwards | all 6 forwards to hosts identical; 5 to Kubernetes LoadBalancer addresses stay hand-kept |
+| DNS | 62 names identical; 6 corrected (mattis, pub-traefik); edson dropped (retired); device, service and wildcard names stay hand-kept |
+| Vault expected addresses | 24 identical; the rest are corrections (lucas, the shared MACs) or additions (VLAN bridge addresses) |
+
+The fleet function reports 0 errors and 5 warnings, all real: `glenn` has no known address, and four
+hypervisors have a static k8s-bridge address inside the k8s DHCP pool that nothing reserves.
+
+**Non-host data stays hand-kept, and must be merged in by the consumers:** the 25 device leases (iot,
+wifi, cameras, AP, switch, pikvm, ATA-NUC), AdGuard's service and wildcard names, the Kubernetes
+LoadBalancer port forwards, and legacy Vault role names until each is confirmed and declared as an alias.
 
 ## Risks, stated plainly
 

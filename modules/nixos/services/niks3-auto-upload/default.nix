@@ -47,7 +47,7 @@ in {
 
     serverUrl =
       mkOpt (nullOr str) null
-      ''URL of the niks3 server to upload to (e.g. "http://10.8.0.176:5751"). Required.'';
+      ''URL of the niks3 server to upload to (e.g. "http://192.168.50.176:5751"). Required.'';
 
     authTokenFile =
       mkOpt (nullOr path) null

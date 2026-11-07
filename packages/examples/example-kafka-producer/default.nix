@@ -22,7 +22,7 @@ writeShellApplication {
   name = "example-kafka-producer";
   meta = { mainProgram = "example-kafka-producer"; };
   text = ''
-    HOST="10.8.0.72" # Default host
+    HOST="192.168.50.72" # Default host
     PORT=9092      # Default port
     TOPIC="example-topic"
     MESSAGE=""

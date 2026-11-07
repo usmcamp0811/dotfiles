@@ -32,7 +32,7 @@ def test_initial_sync_creates_everything_with_ownership_tags(cb, run, inv):
     assert len(cb.data["services"]) == 3  # orphan's ssh is skipped
     router = tagged(cb, "hardware", "host/router")[0]
     assert "nix:managed" in router["tags"] and "nix:role:router" in router["tags"]
-    assert router["ip_address"] == "10.8.0.1" and router["software_platform"] == "NixOS"
+    assert router["ip_address"] == "192.168.50.1" and router["software_platform"] == "NixOS"
     vault_vm = tagged(cb, "compute-units", "vm/vm-vault")[0]
     assert vault_vm["hardware_id"] == router["id"] and vault_vm["kind"] == "vm" and vault_vm["cpu_cores"] == 2
     vault = tagged(cb, "services", "svc/vm-vault/vault")[0]
@@ -106,8 +106,8 @@ def test_new_host_and_vm_only_create_the_new_things(cb, run, inv):
     from inv_fixtures import res
 
     inv2["resources"] += [
-        res("host/ermy", "host", primaryAddress="10.8.0.161", addressSource="static", hostName="ermy"),
-        res("vm/vm-new", "vm", parent="host/ermy", primaryAddress="10.8.0.99", addressSource="static", vcpu=1, memoryMb=512, hostName="vm-new", placement="placed"),
+        res("host/ermy", "host", primaryAddress="192.168.50.161", addressSource="static", hostName="ermy"),
+        res("vm/vm-new", "vm", parent="host/ermy", primaryAddress="192.168.50.99", addressSource="static", vcpu=1, memoryMb=512, hostName="vm-new", placement="placed"),
     ]
     report = run(inv2)
     created = {(o.kind, o.key) for o in actions(report, "create")}
@@ -121,18 +121,18 @@ def test_ip_change_patches_only_the_ip_and_keeps_id(cb, run, inv):
     inv2 = clone(inv)
     for r in inv2["resources"]:
         if r["id"] == "host/webb":
-            r["attributes"]["primaryAddress"] = "10.8.0.195"
+            r["attributes"]["primaryAddress"] = "192.168.50.195"
     for rel in inv2["relationships"]:
         if rel["from"] == "host/webb":
-            rel["attributes"]["address"] = "10.8.0.195"
-            rel["id"] = rel["id"].replace("10.8.0.194", "10.8.0.195")
+            rel["attributes"]["address"] = "192.168.50.195"
+            rel["id"] = rel["id"].replace("192.168.50.194", "192.168.50.195")
     report = run(inv2)
     ups = actions(report, "update")
     assert [(o.kind, o.key, o.detail["fields"]) for o in ups] == [("hardware", "host/webb", ["ip_address"])]
     e = tagged(cb, "hardware", "host/webb")[0]
-    assert e["id"] == webb_id and e["ip_address"] == "10.8.0.195"
+    assert e["id"] == webb_id and e["ip_address"] == "192.168.50.195"
     lan = tagged(cb, "networks", "net/lan")[0]
-    assert {m["ip_address"] for m in cb.hw_members[lan["id"]] if m["hardware_id"] == webb_id} == {"10.8.0.195"}
+    assert {m["ip_address"] for m in cb.hw_members[lan["id"]] if m["hardware_id"] == webb_id} == {"192.168.50.195"}
     assert len(cb.data["hardware"]) == 3
 
 
@@ -200,7 +200,7 @@ def test_retire_ignore_policy_leaves_everything_alone(cb, run, inv):
 
 # ----------------------------------------------- adoption / manual preservation
 def test_existing_unmanaged_entity_with_same_name_is_adopted_not_duplicated(cb, run, inv):
-    manual = cb.add("hardware", name="WEBB", ip_address="10.8.0.194", notes="my own notes", tags=["homelab", "rack-2"], location="garage")
+    manual = cb.add("hardware", name="WEBB", ip_address="192.168.50.194", notes="my own notes", tags=["homelab", "rack-2"], location="garage")
     report = run(inv)
     assert len([e for e in cb.data["hardware"] if e["name"].lower() == "webb"]) == 1
     assert ("hardware", "host/webb") in {(o.kind, o.key) for o in actions(report, "adopt")}
@@ -210,7 +210,7 @@ def test_existing_unmanaged_entity_with_same_name_is_adopted_not_duplicated(cb, 
 
 
 def test_discovered_device_matched_by_ip_is_adopted(cb, run, inv):
-    d = cb.add("hardware", name="host-10-8-0-1", ip_address="10.8.0.1", source="discovery", tags=["discovered"])
+    d = cb.add("hardware", name="host-10-8-0-1", ip_address="192.168.50.1", source="discovery", tags=["discovered"])
     run(inv)
     assert tagged(cb, "hardware", "host/router")[0]["id"] == d["id"]
     assert "discovered" in d["tags"]
@@ -219,7 +219,7 @@ def test_discovered_device_matched_by_ip_is_adopted(cb, run, inv):
 
 def test_ambiguous_match_is_skipped_with_warning_and_no_duplicate(cb, run, inv):
     cb.add("hardware", name="router", tags=[])
-    cb.add("hardware", name="x", ip_address="10.8.0.1", tags=[])
+    cb.add("hardware", name="x", ip_address="192.168.50.1", tags=[])
     report = run(inv)
     assert any("several unmanaged entities match" in w for w in report.warnings)
     assert not tagged(cb, "hardware", "host/router")
@@ -254,11 +254,11 @@ def test_drift_in_managed_fields_is_repaired_narrowly(cb, run, inv):
     report = run(inv)
     assert len(cb.writes) == before + 1
     assert [o.detail["fields"] for o in actions(report, "update")] == [["ip_address"]]
-    assert e["notes"] == "keep me" and e["ip_address"] == "10.8.0.1"
+    assert e["notes"] == "keep me" and e["ip_address"] == "192.168.50.1"
 
 
 def test_unmanaged_entities_are_never_touched_or_retired(cb, run, inv):
-    manual = cb.add("hardware", name="nas", ip_address="10.8.0.50", tags=["storage"])
+    manual = cb.add("hardware", name="nas", ip_address="192.168.50.50", tags=["storage"])
     manual_net = cb.add("networks", name="guest wifi", cidr="10.99.0.0/24", tags=[])
     run(inv)
     run(remove_resource(inv, "host/webb"))
@@ -435,10 +435,10 @@ def test_no_discovery_profile_exists_unless_explicitly_configured(cb, run, inv):
 
 
 def test_discovery_profile_created_and_disabled_when_removed(cb, run, inv):
-    prof = {"name": "lan", "cidr": "10.8.0.0/24", "scan_types": ["nmap"]}
+    prof = {"name": "lan", "cidr": "192.168.50.0/24", "scan_types": ["nmap"]}
     run(inv, policy={"discovery": [prof]})
     p = cb.data["profiles"][0]
-    assert p["name"] == "nix: lan" and p["cidr"] == "10.8.0.0/24" and p["schedule_cron"] is None and p["enabled"]
+    assert p["name"] == "nix: lan" and p["cidr"] == "192.168.50.0/24" and p["schedule_cron"] is None and p["enabled"]
     assert run(inv, policy={"discovery": [prof]}).changes == []
     run(inv)  # profile removed from the policy
     assert p["enabled"] is False and len(cb.data["profiles"]) == 1
@@ -457,7 +457,7 @@ def test_discovery_requires_explicit_cidr_and_valid_cron():
     with pytest.raises(policy_mod.PolicyError):
         policy_mod.from_dict({"discovery": [{"name": "x"}]})
     with pytest.raises(policy_mod.PolicyError):
-        policy_mod.from_dict({"discovery": [{"name": "x", "cidr": "10.8.0.0/24", "schedule_cron": "daily"}]})
+        policy_mod.from_dict({"discovery": [{"name": "x", "cidr": "192.168.50.0/24", "schedule_cron": "daily"}]})
 
 
 # ----------------------------------------------------- relationships / pruning
@@ -483,7 +483,7 @@ def test_hardware_connection_is_created_once_via_state(cb, run, inv):
 def test_duplicate_ip_in_flake_is_created_without_ip_reported_and_stable(cb, run, inv):
     from inv_fixtures import res
 
-    inv["resources"].append(res("host/clash", "host", primaryAddress="10.8.0.1", addressSource="static", hostName="clash"))
+    inv["resources"].append(res("host/clash", "host", primaryAddress="192.168.50.1", addressSource="static", hostName="clash"))
     report = run(inv)
     assert not report.errors
     assert any("already used by router" in w or "already used by clash" in w for w in report.warnings)
@@ -498,20 +498,20 @@ def test_duplicate_ip_in_flake_is_created_without_ip_reported_and_stable(cb, run
 def test_ip_conflict_is_retried_once_the_declared_address_changes(cb, run, inv):
     from inv_fixtures import res
 
-    inv["resources"].append(res("host/clash", "host", primaryAddress="10.8.0.1", addressSource="static", hostName="clash"))
+    inv["resources"].append(res("host/clash", "host", primaryAddress="192.168.50.1", addressSource="static", hostName="clash"))
     run(inv)
     for r in inv["resources"]:
         if r["id"] == "host/clash":
-            r["attributes"]["primaryAddress"] = "10.8.0.77"
+            r["attributes"]["primaryAddress"] = "192.168.50.77"
     report = run(inv)
-    assert tagged(cb, "hardware", "host/clash")[0]["ip_address"] == "10.8.0.77"
+    assert tagged(cb, "hardware", "host/clash")[0]["ip_address"] == "192.168.50.77"
     assert not report.errors
 
 
 def test_container_sharing_the_host_address_does_not_claim_it(cb, run, inv):
     from inv_fixtures import res
 
-    inv["resources"].append(res("container/router/tika", "container", parent="host/router", runtime="oci", address="10.8.0.1", ports=[{"port": 9998, "protocol": "tcp"}]))
+    inv["resources"].append(res("container/router/tika", "container", parent="host/router", runtime="oci", address="192.168.50.1", ports=[{"port": 9998, "protocol": "tcp"}]))
     report = run(inv)
     assert not report.errors
     assert tagged(cb, "compute-units", "container/router/tika")[0]["ip_address"] is None
@@ -530,7 +530,7 @@ def test_lost_state_with_known_conflict_does_not_issue_empty_patches(cb, run, in
     from inv_fixtures import res
     from cb_sync.state import State
 
-    inv["resources"].append(res("host/clash", "host", primaryAddress="10.8.0.1", addressSource="static", hostName="clash"))
+    inv["resources"].append(res("host/clash", "host", primaryAddress="192.168.50.1", addressSource="static", hostName="clash"))
     import copy
 
     run(inv)

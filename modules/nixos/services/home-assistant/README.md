@@ -93,10 +93,10 @@ Vault**. Protect and back up that directory as secret data.
 ```nix
 {
   fmf.services.home-assistant = {
-    trustedProxies = [ "10.8.0.4" ];
+    trustedProxies = [ "192.168.50.4" ];
     config.homeassistant = {
       external_url = "https://home-assistant.example.com";
-      internal_url = "http://10.8.0.25:8123";
+      internal_url = "http://192.168.50.25:8123";
     };
   };
 }

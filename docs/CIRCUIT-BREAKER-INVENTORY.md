@@ -48,7 +48,7 @@ topology is not a change.
   "tags": ["role:kubernetes"],
   "state": "declared",
   "origin": { "kind": "nixosConfiguration", "ref": "vm-websites", "path": "…" },
-  "attributes": { "primaryAddress": "10.8.0.11", "addressSource": "dhcp-reservation", "vcpu": 2, "memoryMb": 2047, "…": "…" }
+  "attributes": { "primaryAddress": "192.168.50.11", "addressSource": "dhcp-reservation", "vcpu": 2, "memoryMb": 2047, "…": "…" }
 }
 ```
 

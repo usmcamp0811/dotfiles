@@ -13,7 +13,7 @@
   isV4 = s: builtins.isString s && match "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+" s != null;
   isV6 = s: builtins.isString s && lib.hasInfix ":" s;
 
-  # "10.8.0.20" -> 168165396, or null when not a valid dotted quad.
+  # "192.168.50.20" -> 168165396, or null when not a valid dotted quad.
   v4ToInt = s: let
     m = match "([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)" s;
     octets = map lib.toInt m;
@@ -29,8 +29,8 @@
 
   v4Mask = prefix: 4294967296 - pow2 (32 - prefix);
 
-  # "10.8.0.20/24" or "10.8.0.0/24" -> { family, address, prefixLength, cidr, network }
-  # cidr is the *canonical network* ("10.8.0.0/24"); address is the host part as written.
+  # "192.168.50.20/24" or "192.168.50.0/24" -> { family, address, prefixLength, cidr, network }
+  # cidr is the *canonical network* ("192.168.50.0/24"); address is the host part as written.
   parseCidr = s: let
     m = match "([^/]+)/([0-9]+)" s;
     addr =

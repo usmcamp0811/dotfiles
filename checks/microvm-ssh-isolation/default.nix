@@ -56,7 +56,7 @@
         enable = true;
         dockerBridgeInterfaces = ["br-test"];
         sshPorts = [22 2222];
-        exceptions = [{vm = "vm-vault"; destination = "10.8.0.1"; reason = "Vault recovery";}];
+        exceptions = [{vm = "vm-vault"; destination = "192.168.50.1"; reason = "Vault recovery";}];
       };
       # Exercise composition with the effective NixOS nft firewall as well as
       # a separately managed inet table (the router uses that arrangement).
@@ -94,7 +94,7 @@
     ${lib.optionalString (!useNftables) ''host.succeed("nft 'add table inet existing_router; add chain inet existing_router input { type filter hook input priority 0; policy accept; }'")''}
     host.succeed("nft list table inet existing_router")
     host.succeed("ip link add br-test type bridge; ip link set br-test up")
-    host.succeed("ip addr add 10.8.0.1/24 dev br-test; ip addr add 10.8.0.2/24 dev br-test; ip -6 addr add fd08::1/64 dev br-test")
+    host.succeed("ip addr add 192.168.50.1/24 dev br-test; ip addr add 192.168.50.2/24 dev br-test; ip -6 addr add fd08::1/64 dev br-test")
     # The uplink is deliberately not declared as a VM TAP: it represents the
     # remote bridge/Vault peer reached over a physical host's LAN uplink.
     for name, number in [("vault", 3), ("other", 4), ("third", 5), ("peer", 6)]:
@@ -102,19 +102,19 @@
         host.succeed(f"ip netns add {name}; ip link add {interface} type veth peer name eth0 netns {name}")
         host.succeed(f"ip link set {interface} master br-test; ip link set {interface} up")
         host.succeed(f"ip -n {name} link set lo up; ip -n {name} link set eth0 up")
-        host.succeed(f"ip -n {name} addr add 10.8.0.{number}/24 dev eth0; ip -n {name} -6 addr add fd08::{number}/64 dev eth0 nodad")
+        host.succeed(f"ip -n {name} addr add 192.168.50.{number}/24 dev eth0; ip -n {name} -6 addr add fd08::{number}/64 dev eth0 nodad")
     # This guest deliberately has no default route: replies to Docker's
     # 172.17/16 source require the host's masquerade rule to remain installed.
     assert not host.succeed("ip -n other route show default").strip()
     host.succeed("ip netns exec other dnsmasq --interface=eth0 --bind-interfaces --no-resolv --no-hosts --local=/gitlab.test/ --address=/gitlab.test/192.0.2.10 --user=root --pid-file=/run/test-dnsmasq.pid --log-facility=/run/test-dnsmasq.log")
     host.wait_for_unit("docker.service")
     host.succeed("docker load < ${dnsImage}")
-    host.succeed("docker run -d --restart=always --name dns-client --network bridge --dns 10.8.0.4 microvm-dns-test:local")
+    host.succeed("docker run -d --restart=always --name dns-client --network bridge --dns 192.168.50.4 microvm-dns-test:local")
     for port in [22, 8200]:
         host.succeed(f"ip netns exec peer socat TCP4-LISTEN:{port},reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
         host.succeed(f"ip netns exec peer socat TCP6-LISTEN:{port},ipv6only=1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.wait_until_succeeds("ip netns exec peer ss -lnt | grep ':8200 '")
-    host.succeed("socat TCP4-LISTEN:22,bind=10.8.0.1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
+    host.succeed("socat TCP4-LISTEN:22,bind=192.168.50.1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.succeed("socat TCP6-LISTEN:22,ipv6only=1,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.succeed("socat TCP4-LISTEN:2222,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
     host.succeed("socat TCP4-LISTEN:8080,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
@@ -161,7 +161,7 @@
             assert host.succeed(f"sysctl -n net.bridge.bridge-nf-call-{key}").strip() == "1"
 
     def peer_connectivity():
-        for address in ["10.8.0.6", "fd08::6"]:
+        for address in ["192.168.50.6", "fd08::6"]:
             connect(None, address, 8200, True)
             connect("third", address, 8200, True)
             connect("third", address, 22, False)
@@ -170,8 +170,8 @@
     with subtest("Docker FORWARD DROP reproduces guest-to-remote-Vault failure"):
         bridge_rules()
         host.succeed("iptables -D DOCKER-USER -j FMF-MICROVM-BRIDGES")
-        connect(None, "10.8.0.6", 8200, True)
-        connect("third", "10.8.0.6", 8200, False)
+        connect(None, "192.168.50.6", 8200, True)
+        connect("third", "192.168.50.6", 8200, False)
         # Seed duplicate owned jumps, stale owned bridge rules, and foreign
         # rules. Docker postStart must repair only its own state on restart.
         for family in ["iptables", "ip6tables"]:
@@ -189,31 +189,31 @@
 
     with subtest("guest origins denied on every fleet SSH port; other services pass"):
         for ns in ["other", "third"]:
-            connect(ns, "10.8.0.1", 22, False)
-            connect(ns, "10.8.0.1", 2222, False)
+            connect(ns, "192.168.50.1", 22, False)
+            connect(ns, "192.168.50.1", 2222, False)
             connect(ns, "fd08::1", 22, False)
-            connect(ns, "10.8.0.1", 8080, True)
+            connect(ns, "192.168.50.1", 8080, True)
             connect(ns, "fd08::1", 8080, True)
-        connect("third", "10.8.0.4", 22, False)
+        connect("third", "192.168.50.4", 22, False)
 
     with subtest("Vault exception belongs to its interface, not its IP"):
-        connect("vault", "10.8.0.1", 22, True)
+        connect("vault", "192.168.50.1", 22, True)
         connect("vault", "fd08::1", 22, False)
-        connect("vault", "10.8.0.1", 2222, False)
-        connect("vault", "10.8.0.4", 22, False)
+        connect("vault", "192.168.50.1", 2222, False)
+        connect("vault", "192.168.50.4", 22, False)
         # Move Vault's address to the hostile guest for a complete spoofed
         # handshake attempt (avoids conflicting ARP and tests actual transport).
-        host.succeed("ip -n vault addr del 10.8.0.3/24 dev eth0; ip -n other addr add 10.8.0.3/24 dev eth0")
+        host.succeed("ip -n vault addr del 192.168.50.3/24 dev eth0; ip -n other addr add 192.168.50.3/24 dev eth0")
         host.succeed("ip -6 -n other addr add fd08::3/64 dev eth0 nodad; ip neigh flush dev br-test")
-        connect("other", "10.8.0.1", 22, False, "10.8.0.3")
+        connect("other", "192.168.50.1", 22, False, "192.168.50.3")
         connect("other", "fd08::1", 22, False, "fd08::3")
 
     with subtest("host-initiated SSH and replies to source port 22 work"):
-        connect(None, "10.8.0.4", 22, True)
+        connect(None, "192.168.50.4", 22, True)
         connect(None, "fd08::4", 22, True)
         # Guest reply dport is 22 here: an unconditional dport drop breaks it.
         host.succeed("ip netns exec other socat TCP4-LISTEN:8080,reuseaddr,fork EXEC:cat >/dev/null 2>&1 &")
-        host.succeed("python -c \"import socket; s=socket.socket(); s.settimeout(3); s.bind(('10.8.0.2',22)); s.connect(('10.8.0.4',8080)); s.sendall(b'reply'); assert s.recv(5)==b'reply'\"")
+        host.succeed("python -c \"import socket; s=socket.socket(); s.settimeout(3); s.bind(('192.168.50.2',22)); s.connect(('192.168.50.4',8080)); s.sendall(b'reply'); assert s.recv(5)==b'reply'\"")
 
     def drops():
         rules = json.loads(host.succeed("nft -j list chain bridge fmf_microvm_ssh_isolation guest_ingress"))
@@ -225,9 +225,9 @@
         # must be reassembled and counted at the SSH drop rule.
         mac = host.succeed("cat /sys/class/net/br-test/address").strip()
         packets = [
-            (0, "[Dot1Q(vlan=10)/IP(src='10.8.0.3',dst='10.8.0.1')/TCP(dport=22,flags='S')]"),
-            (0, "[Dot1AD(vlan=10)/Dot1Q(vlan=20)/IP(src='10.8.0.3',dst='10.8.0.1')/TCP(dport=22,flags='S')]"),
-            (1, "fragment(IP(src='10.8.0.3',dst='10.8.0.1',id=1234)/TCP(sport=33001,dport=22,flags='S')/Raw(b'x'*64),fragsize=24)"),
+            (0, "[Dot1Q(vlan=10)/IP(src='192.168.50.3',dst='192.168.50.1')/TCP(dport=22,flags='S')]"),
+            (0, "[Dot1AD(vlan=10)/Dot1Q(vlan=20)/IP(src='192.168.50.3',dst='192.168.50.1')/TCP(dport=22,flags='S')]"),
+            (1, "fragment(IP(src='192.168.50.3',dst='192.168.50.1',id=1234)/TCP(sport=33001,dport=22,flags='S')/Raw(b'x'*64),fragsize=24)"),
             (1, "fragment6(IPv6(src='fd08::3',dst='fd08::1')/IPv6ExtHdrFragment(id=4321)/TCP(sport=33002,dport=22,flags='S')/Raw(b'x'*64),72)"),
             (1, "[IPv6(src='fd08::3',dst='fd08::1')/IPv6ExtHdrDestOpt()/TCP(sport=33003,dport=22,flags='S')]")
         ]
@@ -261,17 +261,17 @@
         bridge_rules(foreign=True)
         peer_connectivity()
         # Check a fresh container as well as the one alive during reload.
-        answer = host.succeed("docker run --rm --network bridge --dns 10.8.0.4 microvm-dns-test:local /bin/nslookup gitlab.test")
+        answer = host.succeed("docker run --rm --network bridge --dns 192.168.50.4 microvm-dns-test:local /bin/nslookup gitlab.test")
         assert "192.0.2.10" in answer, answer
-        connect("other", "10.8.0.1", 22, False)
-        connect("third", "10.8.0.1", 2222, False)
+        connect("other", "192.168.50.1", 22, False)
+        connect("third", "192.168.50.1", 2222, False)
         connect("other", "fd08::1", 22, False)
-        connect("third", "10.8.0.4", 22, False)
-        connect("other", "10.8.0.1", 22, False, "10.8.0.3")
-        host.succeed("ip -n other addr del 10.8.0.3/24 dev eth0; ip -n vault addr add 10.8.0.3/24 dev eth0; ip neigh flush dev br-test")
-        connect("vault", "10.8.0.1", 22, True)
-        connect("other", "10.8.0.1", 8080, True)
-        connect(None, "10.8.0.4", 22, True)
+        connect("third", "192.168.50.4", 22, False)
+        connect("other", "192.168.50.1", 22, False, "192.168.50.3")
+        host.succeed("ip -n other addr del 192.168.50.3/24 dev eth0; ip -n vault addr add 192.168.50.3/24 dev eth0; ip neigh flush dev br-test")
+        connect("vault", "192.168.50.1", 22, True)
+        connect("other", "192.168.50.1", 8080, True)
+        connect(None, "192.168.50.4", 22, True)
 
     with subtest("firewall restart and repeated Docker restart preserve bridge exceptions"):
         host.succeed("systemctl restart ${if useNftables then "nftables" else "firewall"}.service")
@@ -290,7 +290,7 @@
     with subtest("independent guard stop is fail-closed and restart is idempotent"):
         host.succeed(f"systemctl stop {guard}")
         host.succeed("nft list table bridge fmf_microvm_ssh_isolation")
-        connect("other", "10.8.0.1", 22, False)
+        connect("other", "192.168.50.1", 22, False)
         docker_dns()
         host.succeed(f"systemctl start {guard}")
     ''}

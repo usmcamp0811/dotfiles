@@ -15,8 +15,8 @@ in {
       enable = mkBoolOpt false "Whether to create a bridge for virtual machines";
       name = mkOpt str "br-vm" "Name of the bridge interface";
       interface = mkOpt (nullOr str) null "Primary network interface to bridge (e.g., eno1)";
-      address = mkOpt (nullOr str) null "Static IP address for the bridge (e.g., 10.8.0.194/24)";
-      gateway = mkOpt (nullOr str) null "Default gateway (e.g., 10.8.0.1)";
+      address = mkOpt (nullOr str) null "Static IP address for the bridge (e.g., 192.168.50.194/24)";
+      gateway = mkOpt (nullOr str) null "Default gateway (e.g., 192.168.50.1)";
       dns = mkOpt (listOf str) ["1.1.1.1" "8.8.8.8"] "DNS servers";
     };
   };

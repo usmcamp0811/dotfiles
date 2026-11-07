@@ -117,7 +117,7 @@ spec:
 
 ### Vault Integration
 
-- **Vault Instance**: External to k3s cluster (typically `vm-vault` at `10.8.0.3:8200`)
+- **Vault Instance**: External to k3s cluster (typically `vm-vault` at `192.168.50.3:8200`)
 - **Authentication Methods**:
   - AppRole: Used by k3s control plane hosts via Vault Agent
   - Kubernetes Auth: Used by pods via ServiceAccount (External Secrets Operator)
@@ -188,6 +188,24 @@ instead of grepping. Conventions are in `docs/OKF.md`.
 - Check with `nix build .#checks.x86_64-linux.okf` (or `nix run .#okf -- check docs modules systems`).
 - To read them rendered, `nix run .#campground` opens a static, offline website of all three bundles in a
   browser (`-- --search 'words'` opens the search page; `-- --theme navy-mk2-light` chooses the light look; `-- --print` prints the URL instead).
+
+## Example network (no real addresses in fmf)
+
+fmf is public and generic, so its tests, docs, examples, templates and option descriptions use an
+**example network**, never a real one:
+
+| Zone | Example subnet |
+|---|---|
+| LAN (native) | `192.168.50.0/24` |
+| wifi (VLAN 10) | `192.168.51.0/24` |
+| iot (VLAN 20) | `192.168.52.0/24` |
+| guest (VLAN 30) | `192.168.53.0/24` |
+| k8s (VLAN 40) | `192.168.54.0/24` |
+
+Real addresses belong in the downstream flake (Campground). A test that passes on the example network
+also shows the code does not depend on any particular range. Exceptions still being moved out (step 2 of
+the renumbering): module defaults that downstream hosts rely on, fmf's own `systems/` (deployed by CI), the
+Kubernetes GitOps manifests (synced by ArgoCD) and a few live home-manager settings. Do not add new ones.
 
 ## Important Reminders for Claude
 

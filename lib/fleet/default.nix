@@ -63,6 +63,13 @@
       prefix = prefix.value;
     };
 
+  # inside a zone's DHCP pool (false when the zone has none)
+  inPool = ip: z: let
+    r = z.dhcpRange or null;
+    i = parseIp ip;
+  in
+    r != null && i != null && parseIp r.start != null && parseIp r.end != null && i >= parseIp r.start && i <= parseIp r.end;
+
   inSubnet = ip: cidr: let
     i = parseIp ip;
     c = parseCidr cidr;
@@ -156,11 +163,20 @@
         prim = filter (i: i.isPrimary) ifs;
         primIp = if prim == [] then null else (head prim).ip;
         domainOf = z: zones.${z}.hostDomain or null;
+        primDom = if prim == [] then null else domainOf (head prim).zone;
+        # The bare host name belongs to the primary address. A non-primary interface whose lease is
+        # also named like the host (a host on a second VLAN, or a stale extra NIC) only gets an FQDN,
+        # and only in a different domain than the primary's, so `mattis` cannot resolve two ways.
         forIface = i: let
           zdom = domainOf i.zone;
-          short = optionals h.dns.addAliases ([i.leaseName] ++ optional i.isPrimary h.name);
+          names = optionals h.dns.addAliases ([i.leaseName] ++ optional i.isPrimary h.name);
+          shortOk = n: i.isPrimary || n != h.name;
+          fqdnOk = n: i.isPrimary || n != h.name || zdom != primDom;
         in
-          optionals (i.ip != null) (concatMap (n: [(nameValuePair n i.ip)] ++ optional (zdom != null) (nameValuePair "${n}.${zdom}" i.ip)) short);
+          optionals (i.ip != null) (concatMap (n:
+            optional (shortOk n) (nameValuePair n i.ip)
+            ++ optional (zdom != null && fqdnOk n) (nameValuePair "${n}.${zdom}" i.ip))
+          (unique names));
         extra = optionals (primIp != null) (map (n: nameValuePair n primIp) h.dns.names);
       in
         concatMap forIface ifs ++ extra
@@ -258,7 +274,9 @@
         ++ optional (i.ip != null && parseIp i.ip == null) (err i.host "interface ${i.n}: `${i.ip}` is not an IPv4 address")
         ++ optional (i.ip != null && z != null && parseIp i.ip != null && parseCidr z.subnet != null && !(inSubnet i.ip z.subnet))
         (err i.host "interface ${i.n}: ${i.ip} is outside zone `${i.zone}` (${z.subnet})")
-        ++ optional (i.mac == null && i.ip != null) (warn i.host "interface ${i.n}: has an address but no MAC, so no lease can be generated")
+        ++ optional (i.mac == null && i.ip != null && !i.static) (warn i.host "interface ${i.n}: uses DHCP but has no MAC, so no lease can be generated for ${i.ip}")
+        ++ optional (i.mac == null && i.ip != null && i.static && z != null && inPool i.ip z)
+        (warn i.host "interface ${i.n}: static ${i.ip} is inside the DHCP pool of `${i.zone}` and no lease reserves it (give the interface its MAC)")
         ++ optional (i.mac != null && live.${i.host}.kind == "microvm" && !(locallyAdministered i.mac))
         (warn i.host "interface ${i.n}: ${i.mac} is not a locally administered MAC (its second hex digit should be 2, 6, a or e)"))
     liveIfaces;
@@ -282,7 +300,7 @@
         hv = h.placement.runsOn;
         target = managed.${hv} or null;
       in
-        optional (h.kind == "microvm" && hv == null) (err h.name "a MicroVM needs placement.runsOn")
+        optional (h.kind == "microvm" && hv == null && h.lifecycle == "active") (err h.name "an active MicroVM needs placement.runsOn (a standby one may be unplaced)")
         ++ optional (h.kind == "physical" && hv != null) (warn h.name "placement.runsOn is ignored on a physical host")
         ++ optionals (hv != null && h.kind == "microvm") (
           optional (target == null) (err h.name "runsOn `${hv}` is not a host managed by the model")
@@ -363,5 +381,5 @@
     warnings = filter (p: p.level == "warn") all-problems;
   };
 in {
-  fleet = {inherit extract mk parseIp parseCidr inSubnet;};
+  fleet = {inherit extract mk parseIp parseCidr inSubnet inPool;};
 }

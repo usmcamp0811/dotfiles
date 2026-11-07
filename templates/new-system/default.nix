@@ -22,7 +22,7 @@ in
         enable = true;
         hostId = "13ec383b"; # run -> head -c 8 /dev/machine-id
         keyfile-url =
-          "http://10.8.0.1:1234/zfs-keyfile"; # optional for autounlocking
+          "http://192.168.50.1:1234/zfs-keyfile"; # optional for autounlocking
       };
       passwds = enabled;
     };

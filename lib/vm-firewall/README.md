@@ -54,7 +54,7 @@ getVmIp {
   inherit nixosConfigurations;
   vmName = "vm-vaultwarden";
 }
-# => "10.8.0.13"
+# => "192.168.50.13"
 ```
 
 ### `getAllVms`
@@ -107,8 +107,8 @@ generateVmFirewallRules {
   riskLevel = "public";
 }
 # => [
-#   { from = "vm"; to = ["lan"]; destinationIPs = ["10.8.0.2"]; ports = [53]; ... }
-#   { from = "lan"; to = ["vm"]; destinationIPs = ["10.8.0.13"]; ports = [8989]; ... }
+#   { from = "vm"; to = ["lan"]; destinationIPs = ["192.168.50.2"]; ports = [53]; ... }
+#   { from = "lan"; to = ["vm"]; destinationIPs = ["192.168.50.13"]; ports = [8989]; ... }
 #   ...
 # ]
 ```
@@ -210,16 +210,16 @@ vmFirewall.generateVmFirewallRules {
   riskLevel = "lan";
   allowedLanServices = {
     dns = {
-      ip = "10.8.0.2";
+      ip = "192.168.50.2";
       ports = { udp = [53]; tcp = [53]; };
     };
     vault = {
-      ip = "10.8.0.3";
+      ip = "192.168.50.3";
       ports = { tcp = [8200 443]; };
     };
     # Add custom service
     nfs = {
-      ip = "10.8.0.194";  # webb
+      ip = "192.168.50.194";  # webb
       ports = { tcp = [2049]; };
     };
   };
@@ -273,13 +273,13 @@ in
 Two approaches for VM network isolation:
 
 **Option 1: IP-based filtering in current LAN**
-- Keep VMs in 10.8.0.0/24
+- Keep VMs in 192.168.50.0/24
 - Use source IP-based nftables rules
 - Simpler, no network reconfiguration
 - Uses this library to generate rules
 
 **Option 2: Dedicated VM VLAN**
-- Create VLAN 40 (10.8.40.0/24) for VMs
+- Create VLAN 40 (192.168.54.0/24) for VMs
 - Requires bridge reconfiguration on VM hosts
 - Cleaner layer-2 separation
 - Still uses this library for layer-3/4 rules
@@ -307,8 +307,8 @@ in
       # VM zone (optional - for VLAN approach)
       zones.vm = {
         vlanId = 40;
-        subnet = "10.8.40.0/24";
-        gateway = "10.8.40.1";
+        subnet = "192.168.54.0/24";
+        gateway = "192.168.54.1";
         dhcp.enable = true;
         allowInternet = true;
         isolation = "full";  # Block all by default

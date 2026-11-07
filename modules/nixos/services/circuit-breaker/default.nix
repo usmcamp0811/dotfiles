@@ -118,7 +118,7 @@ with lib.fmf; let
     options = {
       cidr = mkOption {
         type = types.str;
-        example = "10.8.0.0/24";
+        example = "192.168.50.0/24";
         description = "Range to scan. Must be private and no wider than a /16 (/48 for IPv6).";
       };
       scanTypes = mkOpt (types.listOf types.str) ["nmap"] "Circuit Breaker scan types.";

@@ -123,7 +123,7 @@ in {
             type = types.listOf types.str;
             default = [];
             description = "IPs, CIDRs, or MACs in this pool.";
-            example = literalExpression ''["10.8.20.0/24" "AA:BB:CC:DD:EE:FF"]'';
+            example = literalExpression ''["192.168.52.0/24" "AA:BB:CC:DD:EE:FF"]'';
           };
           recipients = mkOption {
             type = types.listOf types.str;

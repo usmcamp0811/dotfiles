@@ -25,7 +25,7 @@ fmf.services.k3s = {
   enable = true;
   role = "server";
   clusterInit = true;  # Only on first control plane node
-  serverAddr = "10.8.40.49";  # VIP or server IP
+  serverAddr = "192.168.54.49";  # VIP or server IP
 };
 ```
 
@@ -71,7 +71,7 @@ This module integrates with Vault for secrets management through the External Se
 ```mermaid
 flowchart TD
   subgraph external["External (not in K8s cluster)"]
-    vault["Vault<br/>(vm-vault, 10.8.0.3:8200)"]
+    vault["Vault<br/>(vm-vault, 192.168.50.3:8200)"]
     appRole["AppRole"]
     k8sAuth["K8s Auth"]
     vault --> appRole
@@ -116,13 +116,13 @@ The easiest approach is to use the pre-built `vault-k8s-init` script from the fm
 **1. SSH to a control plane node (e.g., vm-k8s-control-0)**
 
 ```bash
-ssh admin@10.8.40.50
+ssh admin@192.168.54.50
 ```
 
 **2. Set environment variables**
 
 ```bash
-export VAULT_ADDR=http://10.8.0.3:8200
+export VAULT_ADDR=http://192.168.50.3:8200
 export VAULT_KV_PATH=secret/campground
 export VAULT_KV_VERSION=v2
 export VAULT_POLICY=campground
@@ -158,13 +158,13 @@ kubectl get externalsecrets -A
 **1. SSH to a control plane node**
 
 ```bash
-ssh admin@10.8.40.50
+ssh admin@192.168.54.50
 ```
 
 **2. Set environment variables**
 
 ```bash
-export VAULT_ADDR=http://10.8.0.3:8200
+export VAULT_ADDR=http://192.168.50.3:8200
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 ```
 
@@ -203,7 +203,7 @@ vault auth enable kubernetes 2>/dev/null || echo "Kubernetes auth already enable
 # Configure Vault to talk to the Kubernetes API
 vault write auth/kubernetes/config \
   token_reviewer_jwt=@/tmp/token.jwt \
-  kubernetes_host="https://10.8.40.49:6443" \
+  kubernetes_host="https://192.168.54.49:6443" \
   kubernetes_ca_cert=@/tmp/ca.crt \
   disable_iss_validation=true
 ```
@@ -259,7 +259,7 @@ kubectl -n external-secrets create token vault-auth --duration=24h > /tmp/token.
 # Update Vault config (keep other settings the same)
 vault write auth/kubernetes/config \
   token_reviewer_jwt=@/tmp/token.jwt \
-  kubernetes_host="https://10.8.40.49:6443" \
+  kubernetes_host="https://192.168.54.49:6443" \
   kubernetes_ca_cert=@/tmp/ca.crt \
   disable_iss_validation=true
 
@@ -303,7 +303,7 @@ fmf.services.k3s = {
   enable = true;
   role = "server";
   clusterInit = true;
-  serverAddr = "10.8.40.49";  # VIP
+  serverAddr = "192.168.54.49";  # VIP
   gitops.enable = true;
   vault-path = "secret/campground/k3s";
 };
@@ -315,7 +315,7 @@ fmf.services.k3s = {
   enable = true;
   role = "server";
   clusterInit = false;
-  serverAddr = "10.8.40.49";  # VIP
+  serverAddr = "192.168.54.49";  # VIP
   vault-path = "secret/campground/k3s";
 };
 ```

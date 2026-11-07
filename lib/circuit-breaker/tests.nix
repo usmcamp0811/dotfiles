@@ -18,25 +18,25 @@
   zones = {
     lan = {
       vlanId = null;
-      subnet = "10.8.0.0/24";
-      gateway = "10.8.0.1";
+      subnet = "192.168.50.0/24";
+      gateway = "192.168.50.1";
       dhcp.staticLeases = [
         {
           mac = "02:00:00:00:00:10";
-          ip = "10.8.0.3";
+          ip = "192.168.50.3";
           hostname = "vault";
         }
         {
           mac = "02:00:00:00:00:99";
-          ip = "10.8.0.99";
+          ip = "192.168.50.99";
           hostname = "printer";
         }
       ];
     };
     k8s = {
       vlanId = 40;
-      subnet = "10.8.40.0/24";
-      gateway = "10.8.40.1";
+      subnet = "192.168.54.0/24";
+      gateway = "192.168.54.1";
       dhcp.staticLeases = [];
     };
   };
@@ -63,8 +63,8 @@
     systemd.network.netdevs."20-vlan40".vlanConfig.Id = 40;
     systemd.network.networks."10-br0" = {
       matchConfig.Name = "br0";
-      networkConfig.Address = "10.8.0.20/24";
-      networkConfig.Gateway = "10.8.0.1";
+      networkConfig.Address = "192.168.50.20/24";
+      networkConfig.Gateway = "192.168.50.1";
       vlan = ["br0.40"];
     };
     systemd.network.networks."30-taps" = {
@@ -84,7 +84,7 @@
           rule = "Host(`vault.lan.example`)";
           service = "vault";
         };
-        services.vault.loadBalancer.servers = [{url = "http://10.8.0.3:8200";}];
+        services.vault.loadBalancer.servers = [{url = "http://192.168.50.3:8200";}];
         routers.topology = {
           rule = "Host(`topology.lan.example`)";
           service = "topology";
@@ -108,7 +108,7 @@
       devices.core-switch = {
         displayName = "Core switch";
         role = "switch";
-        address = "10.8.0.2";
+        address = "192.168.50.2";
         location = "rack-1";
       };
     };
@@ -166,7 +166,7 @@
     };
     systemd.network.networks."20-lan0" = {
       matchConfig.Name = "lan0";
-      address = ["10.8.0.11/24"];
+      address = ["192.168.50.11/24"];
     };
     fmf.services.searx = {
       enable = true;
@@ -174,7 +174,7 @@
     };
     fmf.services.vault-agent = {
       enable = true;
-      settings.vault.address = "http://10.8.0.3:8200";
+      settings.vault.address = "http://192.168.50.3:8200";
     };
     services.postgresql.enable = true;
   };
@@ -255,7 +255,7 @@
       // {
         systemd.network.networks."20-lan0" = {
           matchConfig.Name = "lan0";
-          address = ["10.8.0.55/24"];
+          address = ["192.168.50.55/24"];
         };
       });
   };
@@ -305,15 +305,15 @@
     };
     staticAddressAndNetwork = {
       expr = [byId."host/alpha".attributes.primaryAddress byId."host/alpha".attributes.addressSource];
-      expected = ["10.8.0.20" "static"];
+      expected = ["192.168.50.20" "static"];
     };
     dhcpReservationAddress = {
       expr = [byId."vm/vm-vault".attributes.primaryAddress byId."vm/vm-vault".attributes.addressSource];
-      expected = ["10.8.0.3" "dhcp-reservation"];
+      expected = ["192.168.50.3" "dhcp-reservation"];
     };
     staticVmAddressFromNetworkdList = {
       expr = byId."vm/vm-web".attributes.primaryAddress;
-      expected = "10.8.0.11";
+      expected = "192.168.50.11";
     };
     zoneNetworksPresent = {
       expr = [(has "net/lan") (has "net/k8s") byId."net/k8s".attributes.vlanId];
@@ -325,7 +325,7 @@
     };
     membershipIsL3NotCable = {
       expr = [
-        (lib.elem "rel/member_of/host/alpha/net/lan/10.8.0.20" relIds)
+        (lib.elem "rel/member_of/host/alpha/net/lan/192.168.50.20" relIds)
         (lib.any (r: r.type == "connects_to" && r.origin.kind != "hint") inv.relationships)
       ];
       expected = [true false];
@@ -440,7 +440,7 @@
         (has "vm/vm-web")
         ((lib.listToAttrs (map (r: lib.nameValuePair r.id r) ipChange.resources))."vm/vm-web".attributes.primaryAddress)
       ];
-      expected = [true "10.8.0.55"];
+      expected = [true "192.168.50.55"];
     };
     removedFromAllHostsBecomesUnplaced = {
       expr = let

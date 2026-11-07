@@ -99,7 +99,7 @@ def test_digest_ignores_source_and_diagnostics_but_not_topology():
     b["diagnostics"] = [{"level": "info", "code": "x", "subject": "s", "message": "m"}]
     assert inventory.digest_of(a) == inventory.digest_of(b)
     c = clone(a)
-    c["resources"][2]["attributes"]["primaryAddress"] = "10.8.0.99"
+    c["resources"][2]["attributes"]["primaryAddress"] = "192.168.50.99"
     assert inventory.digest_of(a) != inventory.digest_of(c)
 
 

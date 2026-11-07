@@ -24,7 +24,7 @@ in {
     tang-servers = mkOption {
       type = listOf str;
       default = [];
-      example = ["http://10.8.0.140:1234" "http://10.8.0.127:1234"];
+      example = ["http://192.168.50.140:1234" "http://192.168.50.127:1234"];
       description = "List of Tang servers.";
     };
 

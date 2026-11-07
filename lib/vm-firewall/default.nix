@@ -69,8 +69,8 @@ with lib; rec {
     vmName,
     riskLevel ? "lan",
     allowedLanServices ? {
-      dns = { ip = "10.8.0.2"; ports = { udp = [53]; tcp = [53]; }; };
-      vault = { ip = "10.8.0.3"; ports = { tcp = [8200 443]; }; };
+      dns = { ip = "192.168.50.2"; ports = { udp = [53]; tcp = [53]; }; };
+      vault = { ip = "192.168.50.3"; ports = { tcp = [8200 443]; }; };
     }
   }:
     let

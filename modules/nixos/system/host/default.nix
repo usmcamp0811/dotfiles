@@ -67,11 +67,23 @@ with lib.fmf; let
     options = {
       subnet = mkOption {
         type = types.str;
-        example = "10.8.0.0/24";
+        example = "192.168.50.0/24";
         description = "Zone subnet (IPv4 CIDR).";
       };
       gateway = mkOpt (types.nullOr types.str) null "Gateway address.";
       vlanId = mkOpt (types.nullOr types.int) null "VLAN id; null = the native, untagged network.";
+      dhcpRange = mkOpt (types.nullOr (types.submodule {
+        options = {
+          start = mkOption {
+            type = types.str;
+            description = "First address of the DHCP pool.";
+          };
+          end = mkOption {
+            type = types.str;
+            description = "Last address of the DHCP pool.";
+          };
+        };
+      })) null "The DHCP pool. Used to warn about a static address inside the pool that no lease reserves.";
       dns = mkOpt (types.listOf types.str) [] "DNS servers handed to hosts in this zone.";
       hostDomain =
         mkOpt (types.nullOr types.str) null

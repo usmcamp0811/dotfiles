@@ -17,7 +17,7 @@ This is a summary for bootstrapping and managing your k0s HA control plane using
 - A working NixOS flake system with the `campground` Kubernetes suite and services.
 - Vault running and preconfigured for AppRole-based secrets exchange.
 - At least 3 nodes to build the control plane.
-- A shared VIP (e.g. `10.8.0.88`) for HAProxy/Keepalived.
+- A shared VIP (e.g. `192.168.50.88`) for HAProxy/Keepalived.
 
 ---
 
@@ -105,7 +105,7 @@ Other values caused CNI failures (pods wouldn't start).
 
 ## Cluster State Check
 
-- Control Plane Health: http://10.8.0.88:9000
+- Control Plane Health: http://192.168.50.88:9000
 - Controllers joined?
 
 ```sh

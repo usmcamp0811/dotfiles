@@ -327,7 +327,7 @@
         monitoring.discovery = {
           enable = true;
           profiles.lan = {
-            cidr = "10.8.0.0/24";
+            cidr = "192.168.50.0/24";
             schedule = "0 3 * * *";
           };
         };
@@ -337,7 +337,7 @@
       s = mk {
         monitoring.discovery = {
           enable = false;
-          profiles.lan.cidr = "10.8.0.0/24";
+          profiles.lan.cidr = "192.168.50.0/24";
         };
       };
       p = builtins.fromJSON (builtins.readFile (lib.head (lib.filter (lib.hasInfix "policy.json") (lib.splitString " " s.config.systemd.services.circuit-breaker-sync.serviceConfig.ExecStart))));

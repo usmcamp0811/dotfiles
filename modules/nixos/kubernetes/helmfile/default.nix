@@ -143,7 +143,7 @@ in {
       vault = {
         address = mkOption {
           type = types.str;
-          example = "http://10.8.0.3:8200";
+          example = "http://192.168.50.3:8200";
           description = "Vault server address";
         };
 
@@ -162,7 +162,7 @@ in {
         kubernetesApiHost = mkOption {
           type = types.str;
           default = "https://${config.fmf.services.k8s-control-plane.vip}:6443";
-          example = "https://10.8.40.49:6443";
+          example = "https://192.168.54.49:6443";
           description = ''
             Kubernetes API server address that Vault can reach from outside the cluster.
             Defaults to the K8s control plane VIP.
@@ -191,7 +191,7 @@ in {
 
                   addresses = mkOption {
                     type = types.listOf types.str;
-                    example = ["10.8.40.100-10.8.40.255"];
+                    example = ["192.168.54.100-192.168.54.255"];
                     description = "IP address ranges for MetalLB";
                   };
 

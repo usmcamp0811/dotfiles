@@ -22,7 +22,7 @@ This flake now provides:
   # On clients
   fmf.services.wazuh-agent = {
     enable = true;
-    managerAddress = "10.8.0.10";
+    managerAddress = "192.168.50.10";
   };
 }
 ```

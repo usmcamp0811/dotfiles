@@ -266,7 +266,7 @@ in
           server.succeed("rm -f /tmp/setup-token")
 
       with subtest("manual entities exist before the first sync"):
-          manual = api("POST", "/hardware", admin_jwt, {"name": "my-nas", "ip_address": "10.8.0.50", "tags": ["storage", "manual"], "notes": "hand made"})
+          manual = api("POST", "/hardware", admin_jwt, {"name": "my-nas", "ip_address": "192.168.50.50", "tags": ["storage", "manual"], "notes": "hand made"})
           assert manual["id"]
           layout_data = {"nodes": {"hw-" + str(manual["id"]): {"x": 123, "y": 456}}}
           api("POST", "/graph/layout", admin_jwt, {"layout_data": json.dumps(layout_data)})
@@ -315,7 +315,7 @@ in
 
       with subtest("manual entity and canvas layout are untouched"):
           nas = [h for h in api("GET", "/hardware", tok) if h["name"] == "my-nas"][0]
-          assert nas["tags"] == ["manual", "storage"] and nas["notes"] == "hand made" and nas["ip_address"] == "10.8.0.50", nas
+          assert nas["tags"] == ["manual", "storage"] and nas["notes"] == "hand made" and nas["ip_address"] == "192.168.50.50", nas
           assert api("GET", "/graph/layout", admin_jwt)["layout_data"] == layout_data
 
       with subtest("repeating the sync performs no writes"):

@@ -22,16 +22,16 @@ are added phase by phase. A host with `kind = null` (the default) is not managed
 ```nix
 # a zone catalogue, set once in a module every host imports
 fmf.network.zones.lan = {
-  subnet = "10.8.0.0/24";
-  gateway = "10.8.0.1";
-  dns = ["10.8.0.2"];
+  subnet = "192.168.50.0/24";
+  gateway = "192.168.50.1";
+  dns = ["192.168.50.2"];
   hostDomain = "lan-hosts.aicampground.com";  # host names; keep apart from service names
 };
 
 # a MicroVM
 fmf.host = {
   kind = "microvm";
-  network.interfaces.lan = { mac = "02:00:00:00:00:b0"; ip = "10.8.0.16"; zone = "lan"; };
+  network.interfaces.lan = { mac = "02:00:00:00:00:b0"; ip = "192.168.50.16"; zone = "lan"; };
   placement.runsOn = "lucas";
   storage = {
     mattermost = { mountPoint = "/var/lib/mattermost"; tag = "mattermost-data"; };
@@ -44,8 +44,8 @@ fmf.host = {
 fmf.host = {
   kind = "physical";
   network.interfaces = {
-    eth  = { mac = "e0:d5:5e:29:11:a9"; ip = "10.8.0.189"; zone = "lan"; primary = true; };
-    wifi = { mac = "e0:d5:5e:29:11:a8"; ip = "10.8.0.188"; zone = "lan"; };
+    eth  = { mac = "e0:d5:5e:29:11:a9"; ip = "192.168.50.189"; zone = "lan"; primary = true; };
+    wifi = { mac = "e0:d5:5e:29:11:a8"; ip = "192.168.50.188"; zone = "lan"; };
   };
 };
 
@@ -67,12 +67,14 @@ fmf.host = { kind = "physical"; lifecycle = "retired"; retired.reason = "permane
 | `expose` | Router port forwards to the host's primary address. |
 | `vault` | `role` (default: host name), `extraPolicies` (never the derived `svc-*` ones), `aliases` (legacy role names). |
 | `topology` | `role`, `location`, `rack`, `tags`; feeds Circuit Breaker hints. |
-| `fmf.network.zones.<id>` | `subnet`, `gateway`, `vlanId`, `dns`, `hostDomain`, `description`. |
+| `fmf.network.zones.<id>` | `subnet`, `gateway`, `vlanId`, `dhcpRange` (`start`, `end`), `dns`, `hostDomain` (domain for host names, kept apart from service names), `description`. |
 
 ## Checks
 
 `lib.fmf.fleet.mk` returns `errors` and `warnings` for the whole fleet: duplicate address or MAC, an address
-outside its zone, an unknown zone, a MicroVM without `runsOn` or placed on something that is not an active
-physical host, boot ordering across machines or in a cycle, references to retired hosts, two hosts claiming
+outside its zone, an unknown zone, an active MicroVM without `runsOn` or placed on something that is not an
+active physical host, boot ordering across machines or in a cycle, references to retired hosts, two hosts claiming
 one Vault role or alias, two VMs claiming one storage path, and DNS names that would resolve to two addresses.
+Warnings: a static address inside the DHCP pool that no lease reserves, a DHCP interface without a MAC, a host
+with no interface. The bare host name resolves to the primary interface only.
 Tests: `lib/fleet/tests.nix`.
