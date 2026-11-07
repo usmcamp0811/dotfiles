@@ -427,6 +427,11 @@ Settled in review on 2026-11-07:
 8. **`restartIfChanged`** is left unset unless a VM sets it, so the Vault VM keeps not restarting.
 9. **Network attachment should become uniform** where possible (phase 4), with the per-hypervisor
    zone-to-bridge map; it stays hand-written until then.
+10. **No Vault aliases for legacy roles.** A host that still logs in with an old role name gets credentials
+    for its correctly named role instead (the role already exists, declared from its record), and the old
+    role is then deleted. A role used by something outside the model (a device or a service account) stays
+    declared by hand. The `vault.aliases` option and its handling in `lib/fleet` exist and are tested, but
+    nothing uses them; remove them if that stays true.
 
 ## Phase 0 results
 
@@ -540,12 +545,13 @@ referenced the old ones.
 files by MAC, and those files no longer hold the hosts, so it merges `network/generated/leases.nix` in
 (`--generated-leases`). Regenerating gave the 7 new VMs expected addresses and changed nothing else.
 
-**Found while wiring it.** The port forward `51820/udp -> 10.8.0.101` is described as "Netbird WireGuard to
-webb", but `10.8.0.101` is butler's address (webb is `10.8.0.194`). Behaviour is unchanged (the forward
-still goes to `.101`, now declared on butler), and the description is carried over as it was. One of the two
-is out of date; it needs a decision, not a guess.
+**Found while wiring it, and removed.** A forward of UDP 51820 was described as "Netbird WireGuard to
+webb", but its destination was butler's address, not webb's. Butler has no netbird client, nothing in the
+configuration listens on 51820, and the remote-access WireGuard that is actually used (a VPN server on a
+VM that runs on the router, forwarded on its own port) was a different forward. Importing it onto butler's
+record made the mismatch visible; with the owner's confirmation it was deleted.
 
-**Not wired yet:** Vault roles and their aliases (the legacy role names still need confirming per host),
+**Not wired yet:** Vault roles (see decision 10),
 hypervisor hosting and boot order (phase 3), network attachment (phase 4), and building the router's zone
 definitions from `fmf.network.zones` (today the zone catalogue and the router's zones are two copies).
 

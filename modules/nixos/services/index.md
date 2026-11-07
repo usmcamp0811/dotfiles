@@ -14,6 +14,7 @@
 * [llama-cpp](llama-cpp/README.md) - The llama.cpp service module with an on-demand model router, and the client module that gives OpenCode its provider and credential.
 * [niks3](niks3/README.md) - The niks3 binary cache: server module, auto-upload hook, client substituter setup and access model.
 * [nostalgex](nostalgex/README.md) - Serves the Nostalgex web tuner, a retro cable-TV channel guide for a Plex, Jellyfin or Emby library, with Nginx.
+* [opencode-server](opencode-server/README.md) - Runs `opencode serve` as a systemd service behind HTTP basic auth, with the password from Vault, and a watchdog that restarts it when it hangs.
 * [openvpn](openvpn/README.md) - This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.
 * [paperless](paperless/README.md) - The NixOS Paperless module facilitates the deployment and management of the Paperless document management system on your NixOS setup using a flake.
 * [postgresql](postgresql/README.md) - This is a custom NixOS module designed to manage PostgreSQL databases.

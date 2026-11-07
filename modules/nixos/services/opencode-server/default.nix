@@ -8,6 +8,21 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.opencode-server;
 
+  watchdog = import ./watchdog.nix {
+    inherit pkgs lib;
+    inherit (config.systemd) package;
+  };
+  wd = cfg.watchdog;
+  # the server listens on a wildcard address: probe it over loopback
+  probeHost =
+    if elem cfg.address ["0.0.0.0" "::" "[::]" ""]
+    then "127.0.0.1"
+    else if hasInfix ":" cfg.address
+    then "[${cfg.address}]"
+    else cfg.address;
+  probeUrl = "http://${probeHost}:${toString cfg.port}${wd.path}";
+  server = "${cfg.package}/bin/opencode serve --hostname ${escapeShellArg cfg.address} --port ${toString cfg.port} ${escapeShellArgs cfg.extraArgs}";
+
   # The password reaches the process as OPENCODE_SERVER_PASSWORD, from the EnvironmentFile that
   # the Vault Agent sidecar renders (the navidrome pattern). opencode treats an empty password
   # as "no authentication", and systemd parses quotes/backslashes in env files, so the launcher
@@ -40,10 +55,11 @@ with lib.fmf; let
       '')
       cfg.environmentFiles)}
 
-    exec ${cfg.package}/bin/opencode serve \
-      --hostname ${escapeShellArg cfg.address} \
-      --port ${toString cfg.port} \
-      ${escapeShellArgs cfg.extraArgs}
+    exec ${
+      if wd.enable
+      then watchdog.wrap (wd // {url = probeUrl;}) server
+      else server
+    }
   '';
 in {
   options.fmf.services.opencode-server = with types; {
@@ -88,6 +104,17 @@ in {
     };
 
     extraArgs = mkOpt (listOf str) [] "Extra arguments for `opencode serve`.";
+
+    watchdog = {
+      enable =
+        mkBoolOpt true
+        "Restart the server when it is still running but no longer answering (a hang), which Restart=on-failure cannot see. systemd's watchdog, fed by an authenticated health probe.";
+      path = mkOpt str "/global/health" "Path probed. Any 2xx answer, with the server's own credentials, counts as healthy.";
+      interval = mkOpt ints.positive 30 "Seconds between probes.";
+      timeout = mkOpt ints.positive 15 "Seconds a probe may take before it counts as failed. Generous on purpose: a busy machine must not look like a dead server.";
+      failures = mkOpt ints.positive 4 "Probes in a row that may fail before systemd restarts the server. With the defaults a hang is acted on after about three minutes.";
+      startupGrace = mkOpt ints.positive 120 "Seconds the server may take to start answering; the unit is not `active` until it does.";
+    };
 
     role-id =
       mkOpt str config.fmf.services.vault-agent.settings.vault.role-id
@@ -140,14 +167,16 @@ in {
       ];
       # rootDir may be a separate mount (virtiofs share, ...).
       unitConfig.RequiresMountsFor = [cfg.rootDir];
-      serviceConfig = {
-        User = cfg.user;
-        WorkingDirectory = cfg.rootDir;
-        ExecStart = launcher;
-        Restart = "on-failure";
-        RestartSec = 5;
-        NoNewPrivileges = true;
-      };
+      serviceConfig =
+        {
+          User = cfg.user;
+          WorkingDirectory = cfg.rootDir;
+          ExecStart = launcher;
+          Restart = "on-failure";
+          RestartSec = 5;
+          NoNewPrivileges = true;
+        }
+        // optionalAttrs wd.enable (watchdog.serviceConfig wd);
     };
 
     fmf.services.vault-agent.services.opencode-server = {
