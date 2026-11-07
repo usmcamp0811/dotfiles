@@ -14,8 +14,43 @@ deleted. AppRoles were not. They were created by hand (`vault write auth/approle
 only record of which roles exist, and what they can do, was Vault itself.
 
 This guide covers the target state, the audit that tells you how far a real Vault is from it, and the
-order to get there. `status: draft`: the module change below was evaluated in isolation (see
-[What has been tested](#what-has-been-tested)); nothing here has been applied to a live Vault yet.
+order to get there. For the day-to-day steps (add a host, narrow a role, rotate a secret-id, read the
+audit) see the [Vault runbook](VAULT-RUNBOOK.md). `status: draft`: see
+[What has been tested](#what-has-been-tested) for what has and has not been exercised.
+
+## Status
+
+As of 2026-11-07, in the one downstream that uses this (Campground):
+
+| Phase | State |
+|---|---|
+| 0. Declare every live role | Done: roles are declared in `approles.nix` and applied by `vault-policies`. |
+| 1-2. Map hosts to roles, one role per host | Roles are named for hosts and new ones are created from the generated map. A host still on a legacy name shows up in `vault-access --audit` as a role with no host mapping. |
+| 3. Per-service policies | Derivation, generated policies, the drift check and the audit are done and deployed. The broad policy has been **removed from every declared role** except three that have no host in the flake to derive from (see below). Not yet deployed or confirmed live at the time of writing. |
+| 4. Tighten the role | Partly: `trusted-proxies` is deployed and the audit log shows real client addresses, and the IP audit exists. Nothing is bound to an address and TTLs are unchanged. |
+| 5. Enforce (`prune-approles`) | Not started: pruning is off. |
+
+What phase 3 changed in the declaration, in general terms:
+
+- A role named for a host carries only the generated `svc-*` policies of that host's vault-agent
+  services. It is **not listed** in `approles.nix`; the role is created from the generated map.
+- A role that must exist but must not do anything (a legacy name being retired, a host with no
+  vault-agent services) is declared with `token_policies = []`. Deleting its line would not help: with
+  pruning off, Vault keeps the live role and whatever policies it has.
+- A role that needs more than the generator can see keeps a hand-written policy next to the generated
+  ones (the policy agent, Kubernetes auth management, service accounts, a few appliances).
+- Roles with no host in the flake to derive a policy from (appliances, legacy names with no
+  replacement) are the ones left on the broad policy. Finish them by writing a narrow hand-written
+  policy for each, then move them off.
+
+Still to do for phase 3:
+
+1. Deploy the Vault host, then restart the vault-agent services on every host whose role changed (a
+   token's policies are fixed when it is issued). One host at a time, watching the audit and the
+   agent logs; the steps are in the [runbook](VAULT-RUNBOOK.md#narrow-or-remove-a-broad-policy).
+2. Give each remaining role on the broad policy a narrow policy.
+3. Delete the broad policy file when `vault-access --audit` shows no role carrying it, then delete the
+   unattached hand-written per-host policies that the generated ones replaced.
 
 ## Target state
 
@@ -366,6 +401,9 @@ login. Then, per host:
    policies are fixed when it is issued). Repeat per host.
 3. Delete `campground.hcl` when no role references it.
 
+The same steps, with the checks and the rollback, are written as a generic procedure in the
+[Vault runbook](VAULT-RUNBOOK.md#narrow-or-remove-a-broad-policy).
+
 Keep `admin` out of ordinary hosts. It is needed only by the role the policy agent logs in with.
 
 ### Phase 4: tighten the role itself
@@ -396,8 +434,12 @@ role the policy agent uses (`vm-vault`) is not declared.
   2 `other-host`, 1 `unleased`, 4 `no-expected`.
 - `trusted-proxies` was checked against a throwaway Vault, and confirmed in Campground: after the
   deploy a proxied request is recorded with the client's own address, not the proxy's.
-- **Not tested:** `--audit` against a real Vault (the fake follows `vault read` / `list` output as
-  documented), whether the real `vault read` reports bound CIDRs as `a.b.c.d` or `a.b.c.d/32` (both are
-  handled), the policy agent's permissions beyond what its `admin` policy implies, the pinned role-id
-  suggestion, or enforcing bound CIDRs on any role. Treat phase 2 onward as unverified until done on
-  one low-risk host first.
+- Removing the broad policy from the declared roles was checked by evaluating `approles.nix` before and
+  after: the same roles, no role gained a policy, and every change was that one policy being dropped.
+  The Vault host was not built for this (it does not fit in 8 GB), and the change was not applied to a
+  live Vault by whoever made it.
+- **Not tested here:** `--audit` against a real Vault from the machine this was written on (no token;
+  the operator has run it), whether the real `vault read` reports bound CIDRs as `a.b.c.d` or
+  `a.b.c.d/32` (both are handled), the policy agent's permissions beyond what its `admin` policy
+  implies, the pinned role-id suggestion, or enforcing bound CIDRs on any role. Treat phase 4 onward as
+  unverified until done on one low-risk host first.

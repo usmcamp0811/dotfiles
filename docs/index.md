@@ -38,6 +38,7 @@ okf_version: "0.2"
 * [CVE-2026-39860 Fix for fmf-flake](CVE-2026-39860-MITIGATION.md) - Mitigation for CVE-2026-39860 in fmf-flake by upgrading to Nix 2.34.5.
 * [Quick Start: Patching CVE-2026-39860](CVE-2026-39860-QUICKSTART.md) - Your fmf-flake has been updated to use Nix 2.34.5 (patched) instead of the vulnerable Nix 2.31.3.
 * [Reformat & Install NixOS](Install.md) - Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.
+* [Vault runbook - day-to-day operations](VAULT-RUNBOOK.md) - Step-by-step procedures for working with Vault in an fmf flake - the mental model, checking health, adding a host, changing what a host can read, narrowing or removing a policy, replacing and retiring a role, rotating credentials, and recovering when something breaks.
 
 # Test Guide
 
