@@ -18,6 +18,8 @@ vault-access --check          # exit non-zero if the committed files are stale (
 vault-access --show vm-media  # print the policies one host needs, write nothing
 vault-access --audit          # scoreboard: compare LIVE Vault with the repo (read-only)
 vault-access --audit --brief  # same, but only the roles that need attention
+sudo tail -n 300000 /var/log/vault_audit.log | vault-access --audit --audit-log - --brief
+                              # also reconcile the source addresses Vault actually saw (see docs)
 vault-access --fix            # dry run: what it would write to bring live Vault in line with the repo
 vault-access --fix --apply    # do it (policies, then roles); never deletes
 ```
@@ -28,8 +30,8 @@ From a downstream flake that has `fmf` as an input:
 nix run --inputs-from . fmf#vault-access -- --check
 ```
 
-Defaults match Campground's layout; override with `--mount`, `--hosts-dir`, `--vault-dir`, `--flake`
-(see `vault-access --help`).
+Defaults match Campground's layout; override with `--mount`, `--hosts-dir`, `--vault-dir`, `--leases`,
+`--flake` (see `vault-access --help`).
 
 ## What it produces
 
@@ -37,8 +39,12 @@ Defaults match Campground's layout; override with `--mount`, `--hosts-dir`, `--v
   secrets its templates read. Names are lowercase (Vault lowercases policy names).
 - `<vault-dir>/generated/service-policies.nix`: `host -> [ "svc-..." ]`, for attaching the policies to
   the AppRole named like the host.
+- `<vault-dir>/generated/host-ips.nix`: `name -> [ ips ]`, where each host is expected to connect to Vault
+  from. Derived from the static DHCP leases (`--leases`, default `blue-ridge/router/*-leases.nix`):
+  a MicroVM by its MAC, other hosts by lease hostname. A hand-kept `<vault-dir>/expected-ips.nix` is
+  merged on top for what leases cannot say. Used by `--audit` (and, later, to bind roles to addresses).
 
-Both are meant to be committed, so a module change that widens access shows up as a reviewable diff.
+All three are meant to be committed, so a module change that widens access shows up as a reviewable diff.
 
 ## How it works
 
