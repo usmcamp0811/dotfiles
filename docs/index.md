@@ -6,6 +6,10 @@ okf_version: "0.2"
 
 * [Circuit Breaker topology from the flake](CIRCUIT-BREAKER.md) - How the flake's evaluated NixOS configurations become a living, monitored Circuit Breaker topology, which side owns what, and what is and is not verified.
 
+# Design
+
+* [Host model - one record per machine (draft spec)](HOST-MODEL.md) - A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, MicroVM hosting and boot ordering from it.
+
 # Guide
 
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.

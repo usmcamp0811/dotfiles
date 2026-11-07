@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-07
+* **Host model spec (draft)**: added HOST-MODEL.md, a specification for one `fmf.host` record per machine (interfaces and VLAN zones, lifecycle, MicroVM placement and storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, hypervisor hosting and boot ordering from it. Specification only; nothing is implemented.
+
 ## 2026-11-06
 * **Vault AppRoles**: added `fmf.services.vault.approles` and `prune-approles` so AppRoles are declared in Nix like policies (report-only by default), and VAULT-APPROLES.md covering the one-role-per-host rule, auditing live roles, and the migration plan. Phase 3 replaces the broad `campground` policy with one generated `svc-<service>` policy per vault-agent service, derived from the evaluated templates (`vault-access`, an fmf package).
 
