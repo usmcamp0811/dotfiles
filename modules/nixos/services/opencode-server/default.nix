@@ -10,7 +10,7 @@ with lib.fmf; let
 
   watchdog = import ./watchdog.nix {
     inherit pkgs lib;
-    inherit (config.systemd) package;
+    systemd = config.systemd.package;
   };
   wd = cfg.watchdog;
   # the server listens on a wildcard address: probe it over loopback
