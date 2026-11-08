@@ -163,10 +163,22 @@ For each VM whose `runsOn` is a hypervisor, the fleet function produces for that
 4. ordering units (see Boot order);
 5. the network attachment (see below).
 
-**Standard shares**, always present unless opted out: `ro-store` (the host `/nix/store`), `vault-agent`
-(credentials, when the guest runs vault-agent), `ssh-host-keys`, `root-password`, and the writable store
-overlay (`/persist/vm-stores/<vm>/nix-store`) when the VM uses one. These are identical in every VM today
-and are the main source of copy-paste.
+**Standard shares**, derived from the record in this fixed order: `ro-store` (the host `/nix/store`),
+`rw-store` (`/persist/vm-stores/<vm>/nix-store`, when `nixStore = "persistent"`), `vault-agent` (credentials),
+`ssh-host-keys`, `root-password`; then the VM's own `storage` entries. Their paths are the same in 78 of the 81
+standard shares in Campground's 20 placed MicroVMs, and they are the main source of copy-paste. What does vary,
+measured on the real fleet (see [Phase 3 ground truth](#phase-3-ground-truth)), is a record option each:
+
+| Variation seen | Option |
+|---|---|
+| Writable store: a share and overlay (9 VMs), an overlay with no share (5), none (6) | `nixStore = "persistent" \| "volatile" \| "none"` |
+| No `root-password` share (7 VMs) | `standardShares.rootPassword = false` |
+| `vault-agent` share without the agent enabled (1 VM) | `standardShares.vaultAgent = true` (default: follows `fmf.services.vault-agent.enable`) |
+| Host directory owned by a service uid | `storage.<name>.owner` / `.group` |
+| Host directories that already exist and must not be reset | `placement.hostDirectories = "external"` |
+
+`/persist/system/secrets` (the `root-password` share's source) holds the host's own credentials and is shared
+by every guest, so the model never generates it.
 
 **Network attachment is not uniform today, and is the highest-risk part.** Each hypervisor wires taps to
 bridges by hand: blue-ridge matches `vm-*` onto `br-lan` and sends the netobs taps to VLAN bridges; lucas
@@ -200,9 +212,12 @@ fmf.host.storage.<name> = {
 ```
 
 - The virtiofs tag defaults to the name; the host directory is created by `tmpfiles` with the given mode.
-- **Order is explicit.** Shares are part of the VM's runner, so a different order restarts the VM on deploy.
-  Entries sort by `order`, then name. When migrating a VM, set `order` (or `tag`) so the derived list equals
-  the existing one exactly; the phase 3 gate checks this.
+- **Order is fixed, not preserved.** The standard shares come first in the order above; the VM's own entries
+  follow, sorted by `order`, then name. The hand-written lists in Campground used five different orders for the
+  standard shares, and nothing depends on the order (guests find shares by tag), so the model does not try to
+  reproduce them. The cost is real, though: shares are part of the VM's runner, so a VM whose list changes
+  restarts on deploy when `restartIfChanged` is on. Switch one hypervisor at a time, and expect each VM to
+  restart once.
 - A shared host path (the PostgreSQL backups share, `/persist/postgresqlBackups/<app>`) is a storage entry
   with `hostPath` set, so it is still declared in one place.
 - **Assertion:** two VMs must not claim the same `hostPath` unless both mark it shared.
@@ -387,10 +402,14 @@ Breaker inventory is unchanged.
 
 **Phase 3: placement, storage and boot order (the uniform parts).**
 Derive `microvm.vms`, directories, standard and per-VM shares, the credential directory and same-host
-ordering. *Gate:* for every VM, the evaluated `microvm.shares` and the host's `tmpfiles` and ordering
-equal the hand-written ones, including share order. **This is not cosmetic:** with `restartIfChanged`, a
-different share list changes the VM's runner and the VM restarts on deploy, and restarting `vm-vault`
-seals Vault. Do the hypervisors one at a time, non-critical first, and blue-ridge last.
+ordering. *Gate:* for every VM, the evaluated `microvm.shares` (as a set of tag, source and mount point), the
+host's VM-owned `tmpfiles` rules and the ordering equal the hand-written ones; share order is the one
+deliberate difference (see [Storage](#storage)). **This is not cosmetic:** with `restartIfChanged`, a
+changed share list changes the VM's runner and the VM restarts on deploy, and restarting `vm-vault`
+seals Vault. Do the hypervisors one at a time, non-critical first (butler, ermy, lucas), and blue-ridge last.
+*Done so far:* the options and pure derivation, with tests; the measured differences are in
+[Phase 3 ground truth](#phase-3-ground-truth). *Not done:* the records' share data, the guest-side use of it,
+the generated hypervisor file, and any switch-over.
 
 **Phase 4: network attachment.**
 The per-hypervisor zone-to-bridge map. This is the least uniform part and the easiest to get wrong
@@ -564,6 +583,47 @@ definitions from `fmf.network.zones` (today the zone catalogue and the router's 
 - **One more place to be wrong.** A mistaken record now propagates to the router, DNS and Vault together.
   The assertions and the equality gates exist to stop that before deployment.
 - **Evaluation weight.** Unmeasured; see above.
+
+## Phase 3 ground truth
+
+Measured on 2026-11-08 by evaluating Campground's real configuration for the 20 MicroVMs that have a host
+placement and the 7 hypervisors that run them (each host evaluated on its own; the whole fleet in one
+evaluation does not fit in 8 GB). This is what the derivation had to be reconciled with; the spec above was
+written first and was wrong in these places.
+
+**Shares (131 in total, all virtiofs, none read-only).**
+
+- 78 of the 81 standard shares follow one path pattern exactly. Three do not: `vm-k8s-control-2` and
+  `vm-netobs` share their credentials from `/var/lib/vault/<vm>` rather than `/persist/system/var/lib/vault/<vm>`,
+  and `vm-websites` mounts them at `/var/lib/vault` rather than `/var/lib/vault/vm-websites`. These are
+  hand-written exceptions to normalise one VM at a time (copy the credentials, change, deploy, restart,
+  confirm the agent renders, delete the old copy), not something the derivation reproduces.
+- The standard shares appear in five different orders, and VM-specific shares sit between them (`vm-vault`
+  has `vault-log` before `ssh-host-keys`). Order has no effect on the guest, so the model fixes one order.
+- The writable store is `persistent` in 9 VMs, `volatile` (overlay set, no share) in 5, and `none` in 6.
+- 13 VMs have a `root-password` share and 7 do not. One VM has a `vault-agent` share without the agent.
+
+**Hypervisor directories.**
+
+- Most are not declared at all: 38 share sources have no `tmpfiles` rule. On blue-ridge only `vm-netobs` has
+  any; `vm-vault`, `vm-adguard`, `vm-gitea`, `vm-lan-traefik` and `vm-websites` run on directories created by
+  hand. A `d` rule resets the mode and owner of an existing directory, so these VMs start as
+  `placement.hostDirectories = "external"` until their real modes have been checked on the host.
+- Where declared, modes are `0755 root` (78 data directories), `0700 root` (23) and `0700` for a service uid
+  (`10000` twice, `286` once). The credential directory is `0700` everywhere except one host's `0755`.
+
+**Flags and ordering.**
+
+- `restartIfChanged` is true for every VM except `vm-vault`; `autostart` is true except for `vm-photos`.
+- Ordering is per VM, not "everything after the Vault VM": `vm-gitea`, `vm-lan-traefik` and `vm-websites`
+  start after `vm-vault`, `vm-adguard` and `vm-netobs` do not. `vm-vault` also waits on `tang.socket` and the
+  tang mount. The `nftables` and `microvm-ssh-isolation` requirements come from other modules and are not part
+  of the model.
+
+**Gate, as it will actually be run.** Per hypervisor, evaluate it before and after switching to the derived
+output and compare: the `microvm.vms` flags, the VM-owned `tmpfiles` rules as a set, and the `microvm@*`
+`after`/`wants`. Per VM, compare the share list as a set of (tag, source, mount point); the order is
+deliberately the one thing that changes.
 
 ## Evidence this was written from
 

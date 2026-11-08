@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-08
+* **Host model, phase 3 groundwork**: measured the real MicroVM fleet (20 VMs, 7 hypervisors) and changed the derivation to match it: `nixStore` (persistent, volatile, none), `standardShares.rootPassword` and `.vaultAgent`, `storage.<name>.owner` and `.group`, `placement.hostDirectories` (managed, external), the `rw-store` share and `vm-stores` directories, and a fixed share order instead of preserving five hand-written ones. Pure functions `sharesOf`, `overlayOf` and `directoriesOf` are exported for the guest side. HOST-MODEL.md has a Phase 3 ground truth section. Nothing in Campground uses it yet.
+
 ## 2026-11-07
 * **Vault runbook and phase 3 status**: added VAULT-RUNBOOK.md (the model, health checks, adding a host, changing access, narrowing or removing a broad policy, replacing and retiring a role, rotating credentials, converging, rules and troubleshooting) and a status table in VAULT-APPROLES.md. In Campground the broad `campground` policy is now off every declared role except three with no host to derive a policy from; retiring roles are declared inert (`token_policies = []`) because pruning is off. Not yet deployed.
 * **Host model spec (draft)**: added HOST-MODEL.md, a specification for one `fmf.host` record per machine (interfaces and VLAN zones, lifecycle, MicroVM placement and storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, hypervisor hosting and boot ordering from it. Specification only; nothing is implemented.

@@ -43,6 +43,8 @@ with lib.fmf; let
       hostPath = mkOpt (types.nullOr types.str) null "Directory on the hypervisor. Default: /persist/vm-data/<vm>/<name>.";
       tag = mkOpt (types.nullOr types.str) null "virtiofs tag. Default: the entry name.";
       mode = mkOpt types.str "0755" "Mode of the host directory.";
+      owner = mkOpt types.str "root" "Owner of the host directory (a user name or numeric id; the guest sees it through virtiofs).";
+      group = mkOpt types.str "root" "Group of the host directory.";
       readOnly = mkOpt types.bool false "Export the share read-only.";
       shared = mkOpt types.bool false "The host path is deliberately shared with another VM (suppresses the collision check).";
       order =
@@ -120,6 +122,23 @@ in {
       restartIfChanged =
         mkOpt (types.nullOr types.bool) null
         "null = do not set it (the microvm default applies). Leave null for VMs that must never restart on deploy, such as the Vault VM.";
+      hostDirectories =
+        mkOpt (types.enum ["managed" "external"]) "managed"
+        "managed: the hypervisor's directories for this VM are generated (tmpfiles). external: they exist already and are not generated, because a tmpfiles `d` rule resets the mode and owner of a directory that is already there.";
+    };
+
+    nixStore =
+      mkOpt (types.enum ["persistent" "volatile" "none"]) "persistent"
+      ''
+        MicroVM only. How the guest's Nix store is writable.
+        persistent: a writable overlay backed by /persist/vm-stores/<vm>/nix-store (the `rw-store` share).
+        volatile: a writable overlay with no share of its own.
+        none: the store is read-only.
+      '';
+
+    standardShares = {
+      rootPassword = mkOpt types.bool true "Share the hypervisor's /persist/system/secrets as /run/secrets (the root password hash).";
+      vaultAgent = mkOpt (types.nullOr types.bool) null "Share the Vault credentials directory. null = when the guest enables fmf.services.vault-agent.";
     };
 
     storage = mkOpt (types.attrsOf storageType) {} "Data directories shared into a MicroVM: one entry yields the guest share and the host directory.";

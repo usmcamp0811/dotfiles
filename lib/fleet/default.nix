@@ -99,11 +99,57 @@
     else {
       inherit name;
       managed = true;
-      inherit (h) kind lifecycle retired storage boot dns expose vault topology placement;
+      inherit (h) kind lifecycle retired storage boot dns expose vault topology placement nixStore standardShares;
       interfaces = h.network.interfaces;
       vaultAgent = lib.attrByPath ["fmf" "services" "vault-agent" "enable"] false config;
       vaultServer = lib.attrByPath ["fmf" "services" "vault" "enable"] false config;
     };
+
+  # ---- MicroVM guests: shares, store overlay and host directories --------------------------------
+  #
+  # Pure functions of one extracted record, so the hypervisor's view (`mk`) and the guest's own module
+  # compute exactly the same thing. Share order is fixed: ro-store, rw-store, vault-agent,
+  # ssh-host-keys, root-password, then the VM's `storage` entries by `order` and name.
+
+  storageNames = h: sort (a: b: let oa = h.storage.${a}.order or 100; ob = h.storage.${b}.order or 100; in if oa != ob then oa < ob else a < b) (attrNames h.storage);
+  hostPathOf = h: n: let s = h.storage.${n}; in if s.hostPath != null then s.hostPath else "/persist/vm-data/${h.name}/${n}";
+  vaultDirOf = h: "/persist/system/var/lib/vault/${h.name}";
+  hasVaultShare = h: if h.standardShares.vaultAgent != null then h.standardShares.vaultAgent else h.vaultAgent;
+  hasRwStore = h: h.nixStore == "persistent";
+
+  # what microvm.writableStoreOverlay should be (null = unset)
+  overlayOf = h:
+    if h.nixStore == "none"
+    then null
+    else "/nix/.rw-store";
+
+  sharesOf = h:
+    [
+      {tag = "ro-store"; source = "/nix/store"; mountPoint = "/nix/.ro-store"; proto = "virtiofs";}
+    ]
+    ++ optional (hasRwStore h) {tag = "rw-store"; source = "/persist/vm-stores/${h.name}/nix-store"; mountPoint = "/nix/.rw-store"; proto = "virtiofs";}
+    ++ optional (hasVaultShare h) {tag = "vault-agent"; source = vaultDirOf h; mountPoint = "/var/lib/vault/${h.name}"; proto = "virtiofs";}
+    ++ [
+      {tag = "ssh-host-keys"; source = "/persist/vm-data/${h.name}/ssh"; mountPoint = "/persist/ssh"; proto = "virtiofs";}
+    ]
+    ++ optional h.standardShares.rootPassword {tag = "root-password"; source = "/persist/system/secrets"; mountPoint = "/run/secrets"; proto = "virtiofs";}
+    ++ map (n: let s = h.storage.${n}; in
+      {tag = if s.tag != null then s.tag else n; source = hostPathOf h n; mountPoint = s.mountPoint; proto = "virtiofs";}
+      // lib.optionalAttrs s.readOnly {readOnly = true;})
+    (storageNames h);
+
+  # directories the hypervisor creates for one guest (nothing when they are managed elsewhere).
+  # /persist/system/secrets is shared by every guest and holds the host's own credentials: it is never
+  # generated here.
+  directoriesOf = h: let
+    d = path: mode: {inherit path mode; owner = "root"; group = "root";};
+  in
+    optionals (h.placement.hostDirectories == "managed") (
+      optionals (hasRwStore h) [(d "/persist/vm-stores/${h.name}" "0755") (d "/persist/vm-stores/${h.name}/nix-store" "0755")]
+      ++ [(d "/persist/vm-data/${h.name}" "0755") (d "/persist/vm-data/${h.name}/ssh" "0700")]
+      ++ optional (hasVaultShare h) (d (vaultDirOf h) "0700")
+      ++ map (n: let s = h.storage.${n}; in {path = hostPathOf h n; inherit (s) mode owner group;}) (attrNames h.storage)
+    );
 
   # ---- helpers over extracted hosts ------------------------------------------------------------
 
@@ -225,32 +271,6 @@
     # ---- hypervisors ----
     guests = filter (h: h.kind == "microvm" && h.placement.runsOn != null) (attrValues live);
     guestsOf = hv: filter (h: h.placement.runsOn == hv) guests;
-    # storage names in share order: by `order`, then name
-    storageNames = h: sort (a: b: let oa = h.storage.${a}.order or 100; ob = h.storage.${b}.order or 100; in if oa != ob then oa < ob else a < b) (attrNames h.storage);
-    hostPathOf = h: n: let s = h.storage.${n}; in if s.hostPath != null then s.hostPath else "/persist/vm-data/${h.name}/${n}";
-    vaultDirOf = h: "/persist/system/var/lib/vault/${h.name}";
-
-    directoriesOf = h:
-      [
-        {path = "/persist/vm-data/${h.name}"; mode = "0755";}
-        {path = "/persist/vm-data/${h.name}/ssh"; mode = "0700";}
-      ]
-      ++ optional h.vaultAgent {path = vaultDirOf h; mode = "0700";}
-      ++ map (n: {path = hostPathOf h n; mode = h.storage.${n}.mode;}) (attrNames h.storage);
-
-    sharesOf = h:
-      [
-        {tag = "ro-store"; source = "/nix/store"; mountPoint = "/nix/.ro-store"; proto = "virtiofs";}
-      ]
-      ++ optional h.vaultAgent {tag = "vault-agent"; source = vaultDirOf h; mountPoint = "/var/lib/vault/${h.name}"; proto = "virtiofs";}
-      ++ [
-        {tag = "ssh-host-keys"; source = "/persist/vm-data/${h.name}/ssh"; mountPoint = "/persist/ssh"; proto = "virtiofs";}
-        {tag = "root-password"; source = "/persist/system/secrets"; mountPoint = "/run/secrets"; proto = "virtiofs";}
-      ]
-      ++ map (n: let s = h.storage.${n}; in
-        {tag = if s.tag != null then s.tag else n; source = hostPathOf h n; mountPoint = s.mountPoint; proto = "virtiofs";}
-        // lib.optionalAttrs s.readOnly {readOnly = true;})
-      (storageNames h);
 
     unitsOf = h: let
       deps = map (d: "microvm@${d}.service") h.boot.after ++ h.boot.hostUnits;
@@ -267,8 +287,9 @@
         }
         // lib.optionalAttrs (h.placement.restartIfChanged != null) {restartIfChanged = h.placement.restartIfChanged;})) gs);
       directories = uniqDirs;
-      tmpfiles = map (d: "d ${d.path} ${d.mode} root root -") uniqDirs;
+      tmpfiles = map (d: "d ${d.path} ${d.mode} ${d.owner} ${d.group} -") uniqDirs;
       shares = listToAttrs (map (h: nameValuePair h.name (sharesOf h)) gs);
+      overlays = listToAttrs (map (h: nameValuePair h.name (overlayOf h)) gs);
       units = listToAttrs (concatMap unitsOf gs);
     })) (unique (map (h: h.placement.runsOn) guests)));
 
@@ -443,5 +464,5 @@
     forwards = header + "[\n" + concatStringsSep "" (map forwardLine ordered) + "]\n";
   in {inherit leases dns forwards;};
 in {
-  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool;};
+  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf;};
 }

@@ -24,7 +24,9 @@
       lifecycle = "active";
       retired = {since = null; reason = null; replacedBy = null;};
       interfaces = {};
-      placement = {runsOn = null; autostart = true; restartIfChanged = null;};
+      placement = {runsOn = null; autostart = true; restartIfChanged = null; hostDirectories = "managed";};
+      nixStore = "persistent";
+      standardShares = {rootPassword = true; vaultAgent = null;};
       storage = {};
       boot = {after = []; hostUnits = [];};
       dns = {names = []; addAliases = true;};
@@ -36,7 +38,7 @@
     } a;
   vm = name: runsOn: a:
     host name (lib.recursiveUpdate {kind = "microvm"; placement.runsOn = runsOn;} a);
-  store = a: {tag = null; hostPath = null; mode = "0755"; readOnly = false; shared = false; mountPoint = "/x"; order = 100;} // a;
+  store = a: {tag = null; hostPath = null; mode = "0755"; owner = "root"; group = "root"; readOnly = false; shared = false; mountPoint = "/x"; order = 100;} // a;
   exposeE = a: {destPort = null; proto = "tcp"; description = "";} // a;
 
   zones = {
@@ -109,6 +111,17 @@
   devWarns = extra: msgs (withDev extra).warnings;
   msgs = x: map (e: e.message) x;
   has = sub: xs: lib.any (m: lib.hasInfix sub m) xs;
+  # one MicroVM `vm-s` on lucas with the given overrides: its shares, store overlay and the directories lucas creates for it
+  shapeOf = a: let
+    res = (f.mk {hosts = add [(vm "vm-s" "lucas" a)]; inherit zones;}).hypervisors.lucas;
+    mine = lib.filter (l: lib.hasInfix "/vm-s " l || lib.hasInfix "/vm-s/" l) res.tmpfiles;
+  in {
+    shares = res.shares."vm-s";
+    overlay = res.overlays."vm-s";
+    tmpfiles = mine ++ lib.filter (l: lib.hasInfix "/persist/system/secrets" l) res.tmpfiles;
+  };
+  tagsOf = x: map (s: s.tag) x.shares;
+  hv' = (f.mk {hosts = add [(vm "vm-s" "lucas" {vaultAgent = true; storage.data = store {};})]; inherit zones;}).hypervisors;
   errsOf = hs: msgs (f.mk {hosts = hs; inherit zones;}).errors;
   warnsOf = hs: msgs (f.mk {hosts = hs; inherit zones;}).warnings;
   add = extra: hosts // lib.listToAttrs (map (h: lib.nameValuePair h.name h) extra);
@@ -159,9 +172,34 @@
     ["storage default path and mode" (lib.elem "d /persist/vm-data/vm-gitea/data 0755 root root -" hv.blue-ridge.tmpfiles)]
     ["storage explicit path and mode" (lib.elem "d /persist/pg/mm 0700 root root -" hv.lucas.tmpfiles)]
     ["ssh dir is 0700" (lib.elem "d /persist/vm-data/vm-gitea/ssh 0700 root root -" hv.blue-ridge.tmpfiles)]
-    ["share order: standard then storage" (map (s: s.tag) hv.lucas.shares."vm-mattermost" == ["ro-store" "vault-agent" "ssh-host-keys" "root-password" "mattermost" "pg"])]
-    ["explicit storage order beats the name" (map (s: s.tag) (f.mk {hosts = add [(vm "vm-o" "lucas" {storage = {aaa = store {order = 2;}; zzz = store {order = 1;}; mmm = store {order = 2;};};})]; inherit zones;}).hypervisors.lucas.shares."vm-o" == ["ro-store" "ssh-host-keys" "root-password" "zzz" "aaa" "mmm"])]
+    ["share order: standard then storage" (map (s: s.tag) hv.lucas.shares."vm-mattermost" == ["ro-store" "rw-store" "vault-agent" "ssh-host-keys" "root-password" "mattermost" "pg"])]
+    ["explicit storage order beats the name" (map (s: s.tag) (f.mk {hosts = add [(vm "vm-o" "lucas" {storage = {aaa = store {order = 2;}; zzz = store {order = 1;}; mmm = store {order = 2;};};})]; inherit zones;}).hypervisors.lucas.shares."vm-o" == ["ro-store" "rw-store" "ssh-host-keys" "root-password" "zzz" "aaa" "mmm"])]
     ["no vault-agent share without vault-agent" (!(lib.any (s: s.tag == "vault-agent") hv.blue-ridge.shares."vm-lan-traefik"))]
+
+    # ---- the variations found in the real fleet: store mode, root password, vault share, owners ----
+    ["persistent store: rw-store share, overlay and both directories"
+      (let x = shapeOf {}; in tagsOf x == ["ro-store" "rw-store" "ssh-host-keys" "root-password"] && x.overlay == "/nix/.rw-store"
+        && lib.elem "d /persist/vm-stores/vm-s 0755 root root -" x.tmpfiles && lib.elem "d /persist/vm-stores/vm-s/nix-store 0755 root root -" x.tmpfiles)]
+    ["volatile store: overlay set, no rw-store share, no store directory"
+      (let x = shapeOf {nixStore = "volatile";}; in tagsOf x == ["ro-store" "ssh-host-keys" "root-password"] && x.overlay == "/nix/.rw-store"
+        && !(lib.any (lib.hasInfix "vm-stores") x.tmpfiles))]
+    ["no store overlay: neither share, overlay nor directory"
+      (let x = shapeOf {nixStore = "none";}; in tagsOf x == ["ro-store" "ssh-host-keys" "root-password"] && x.overlay == null
+        && !(lib.any (lib.hasInfix "vm-stores") x.tmpfiles))]
+    ["root password share can be left out" (tagsOf (shapeOf {standardShares.rootPassword = false;}) == ["ro-store" "rw-store" "ssh-host-keys"])]
+    ["vault share follows the agent" (lib.elem "vault-agent" (tagsOf (shapeOf {vaultAgent = true;})) && !(lib.elem "vault-agent" (tagsOf (shapeOf {}))))]
+    ["vault share can be forced on without the agent" (lib.elem "vault-agent" (tagsOf (shapeOf {standardShares.vaultAgent = true;})))]
+    ["vault share can be forced off with the agent" (!(lib.elem "vault-agent" (tagsOf (shapeOf {vaultAgent = true; standardShares.vaultAgent = false;}))))]
+    ["vault directory follows the vault share"
+      (lib.elem "d /persist/system/var/lib/vault/vm-s 0700 root root -" (shapeOf {standardShares.vaultAgent = true;}).tmpfiles)]
+    ["standard order: ro, rw, vault, ssh, root, then storage"
+      (tagsOf (shapeOf {vaultAgent = true; storage.data = store {};}) == ["ro-store" "rw-store" "vault-agent" "ssh-host-keys" "root-password" "data"])]
+    ["storage owner and group reach tmpfiles" (lib.elem "d /persist/vm-data/vm-s/data 0700 10000 10000 -" (shapeOf {storage.data = store {mode = "0700"; owner = "10000"; group = "10000";};}).tmpfiles)]
+    ["external directories generate nothing" ((shapeOf {placement.hostDirectories = "external";}).tmpfiles == [])]
+    ["external directories keep the shares" (tagsOf (shapeOf {placement.hostDirectories = "external";}) == ["ro-store" "rw-store" "ssh-host-keys" "root-password"])]
+    ["the shared secrets directory is never generated" (!(lib.any (lib.hasInfix "/persist/system/secrets") (shapeOf {}).tmpfiles))]
+    ["a guest computes its own shares the same way the hypervisor does"
+      (let h = vm "vm-s" "lucas" {vaultAgent = true; storage.data = store {};}; in f.sharesOf h == hv'.lucas.shares."vm-s" && f.overlayOf h == hv'.lucas.overlays."vm-s")]
     ["share source and mount" (lib.any (s: s.tag == "pg" && s.source == "/persist/pg/mm" && s.mountPoint == "/var/lib/postgresql") hv.lucas.shares."vm-mattermost")]
     ["ordering units" (hv.blue-ridge.units."microvm@vm-gitea" == {after = ["microvm@vm-vault.service"]; wants = ["microvm@vm-vault.service"];})]
     ["host unit ordering (tang)" (hv.blue-ridge.units."microvm@vm-vault".after == ["tang.socket"])]
