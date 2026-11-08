@@ -43,6 +43,7 @@ with lib.fmf; let
       hostPath = mkOpt (types.nullOr types.str) null "Directory on the hypervisor. Default: /persist/vm-data/<vm>/<name>.";
       tag = mkOpt (types.nullOr types.str) null "virtiofs tag. Default: the entry name.";
       mode = mkOpt types.str "0755" "Mode of the host directory.";
+      createDirectory = mkOpt types.bool true "Generate a tmpfiles rule for the host directory. Turn it off for a path that already exists and is owned by something else (a user's home, a ZFS dataset): a `d` rule resets the mode and owner of a directory that is already there.";
       owner = mkOpt types.str "root" "Owner of the host directory (a user name or numeric id; the guest sees it through virtiofs).";
       group = mkOpt types.str "root" "Group of the host directory.";
       readOnly = mkOpt types.bool false "Export the share read-only.";

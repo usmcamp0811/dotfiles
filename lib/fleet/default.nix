@@ -148,7 +148,7 @@
       optionals (hasRwStore h) [(d "/persist/vm-stores/${h.name}" "0755") (d "/persist/vm-stores/${h.name}/nix-store" "0755")]
       ++ [(d "/persist/vm-data/${h.name}" "0755") (d "/persist/vm-data/${h.name}/ssh" "0700")]
       ++ optional (hasVaultShare h) (d (vaultDirOf h) "0700")
-      ++ map (n: let s = h.storage.${n}; in {path = hostPathOf h n; inherit (s) mode owner group;}) (attrNames h.storage)
+      ++ map (n: let s = h.storage.${n}; in {path = hostPathOf h n; inherit (s) mode owner group;}) (filter (n: h.storage.${n}.createDirectory or true) (attrNames h.storage))
     );
 
   # ---- helpers over extracted hosts ------------------------------------------------------------

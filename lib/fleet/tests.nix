@@ -38,7 +38,7 @@
     } a;
   vm = name: runsOn: a:
     host name (lib.recursiveUpdate {kind = "microvm"; placement.runsOn = runsOn;} a);
-  store = a: {tag = null; hostPath = null; mode = "0755"; owner = "root"; group = "root"; readOnly = false; shared = false; mountPoint = "/x"; order = 100;} // a;
+  store = a: {tag = null; hostPath = null; mode = "0755"; owner = "root"; group = "root"; createDirectory = true; readOnly = false; shared = false; mountPoint = "/x"; order = 100;} // a;
   exposeE = a: {destPort = null; proto = "tcp"; description = "";} // a;
 
   zones = {
@@ -195,6 +195,7 @@
     ["standard order: ro, rw, vault, ssh, root, then storage"
       (tagsOf (shapeOf {vaultAgent = true; storage.data = store {};}) == ["ro-store" "rw-store" "vault-agent" "ssh-host-keys" "root-password" "data"])]
     ["storage owner and group reach tmpfiles" (lib.elem "d /persist/vm-data/vm-s/data 0700 10000 10000 -" (shapeOf {storage.data = store {mode = "0700"; owner = "10000"; group = "10000";};}).tmpfiles)]
+    ["a storage entry can opt out of its directory" (let x = shapeOf {storage = {keep = store {}; skip = store {createDirectory = false;};};}; in lib.elem "d /persist/vm-data/vm-s/keep 0755 root root -" x.tmpfiles && !(lib.any (lib.hasInfix "/skip") x.tmpfiles) && lib.elem "skip" (tagsOf x))]
     ["external directories generate nothing" ((shapeOf {placement.hostDirectories = "external";}).tmpfiles == [])]
     ["external directories keep the shares" (tagsOf (shapeOf {placement.hostDirectories = "external";}) == ["ro-store" "rw-store" "ssh-host-keys" "root-password"])]
     ["the shared secrets directory is never generated" (!(lib.any (lib.hasInfix "/persist/system/secrets") (shapeOf {}).tmpfiles))]
