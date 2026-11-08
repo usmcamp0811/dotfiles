@@ -2,7 +2,7 @@
 # fleet: derive the network files of a flake from the `fmf.host` records of its hosts, and write
 # (or check) them. Run it from the root of the flake that defines your nixosConfigurations:
 #
-#   fleet                   write <out>/leases.nix, dns.nix and forwards.nix
+#   fleet                   write <out>/leases.nix, dns.nix, forwards.nix and microvms.nix
 #   fleet --check           derive again; exit non-zero if the committed files differ (CI)
 #   fleet --show HOST       print what is derived for one host (writes nothing)
 #
@@ -124,7 +124,7 @@ if [ "$nerr" -ne 0 ]; then
   exit 1
 fi
 
-for n in leases dns forwards; do jq -j --arg n "$n" '.files[$n]' "$work/result.json" >"$work/$n.nix"; done
+for n in leases dns forwards microvms; do jq -j --arg n "$n" '.files[$n]' "$work/result.json" >"$work/$n.nix"; done
 
 case "$mode" in
   show)
@@ -137,7 +137,7 @@ case "$mode" in
     ;;
   check)
     rc=0
-    for n in leases dns forwards; do
+    for n in leases dns forwards microvms; do
       if [ -f "$out_dir/$n.nix" ]; then diff -u "$out_dir/$n.nix" "$work/$n.nix" || rc=1
       else echo "missing: $out_rel/$n.nix"; rc=1; fi
     done
@@ -146,7 +146,7 @@ case "$mode" in
     ;;
   write)
     mkdir -p "$out_dir"
-    for n in leases dns forwards; do cp "$work/$n.nix" "$out_dir/$n.nix"; done
-    echo "wrote $out_rel/: $(jq '[.leases[][]] | length' "$work/result.json") host leases, $(jq '.dns | length' "$work/result.json") DNS names, $(jq '.forwards | length' "$work/result.json") port forwards ($(jq '.hosts.active | length' "$work/result.json") active hosts, $(jq '.hosts.standby | length' "$work/result.json") standby, $(jq '.hosts.retired | length' "$work/result.json") retired)"
+    for n in leases dns forwards microvms; do cp "$work/$n.nix" "$out_dir/$n.nix"; done
+    echo "wrote $out_rel/: $(jq '[.leases[][]] | length' "$work/result.json") host leases, $(jq '.dns | length' "$work/result.json") DNS names, $(jq '.forwards | length' "$work/result.json") port forwards, $(grep -c '{autostart = ' "$work/microvms.nix" || true) generated MicroVMs ($(jq '.hosts.active | length' "$work/result.json") active hosts, $(jq '.hosts.standby | length' "$work/result.json") standby, $(jq '.hosts.retired | length' "$work/result.json") retired)"
     ;;
 esac

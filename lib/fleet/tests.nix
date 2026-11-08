@@ -25,6 +25,7 @@
       retired = {since = null; reason = null; replacedBy = null;};
       interfaces = {};
       placement = {runsOn = null; autostart = true; restartIfChanged = null; hostDirectories = "managed";};
+      derive = true;
       nixStore = "persistent";
       standardShares = {rootPassword = true; vaultAgent = null;};
       storage = {};
@@ -195,6 +196,8 @@
     ["standard order: ro, rw, vault, ssh, root, then storage"
       (tagsOf (shapeOf {vaultAgent = true; storage.data = store {};}) == ["ro-store" "rw-store" "vault-agent" "ssh-host-keys" "root-password" "data"])]
     ["storage owner and group reach tmpfiles" (lib.elem "d /persist/vm-data/vm-s/data 0700 10000 10000 -" (shapeOf {storage.data = store {mode = "0700"; owner = "10000"; group = "10000";};}).tmpfiles)]
+    ["a VM that has not opted in is not generated for" (!(lib.elem "vm-s" (lib.attrNames (f.mk {hosts = add [(vm "vm-s" "lucas" {derive = false;})]; inherit zones;}).hypervisors.lucas.vms)))]
+    ["a VM that has not opted in still takes part in the storage collision check" (has "not marked shared" (errsOf (add [(vm "vm-q" "lucas" {derive = false; storage.m = store {hostPath = "/persist/pg/mm";};})])))]
     ["a storage entry can opt out of its directory" (let x = shapeOf {storage = {keep = store {}; skip = store {createDirectory = false;};};}; in lib.elem "d /persist/vm-data/vm-s/keep 0755 root root -" x.tmpfiles && !(lib.any (lib.hasInfix "/skip") x.tmpfiles) && lib.elem "skip" (tagsOf x))]
     ["external directories generate nothing" ((shapeOf {placement.hostDirectories = "external";}).tmpfiles == [])]
     ["external directories keep the shares" (tagsOf (shapeOf {placement.hostDirectories = "external";}) == ["ro-store" "rw-store" "ssh-host-keys" "root-password"])]
@@ -276,6 +279,15 @@
       && lib.hasInfix "protocol = \"udp\";" files.forwards && !(lib.hasInfix "destinationPort" files.forwards))]
     ["forwards destinationPort is rendered" (lib.hasInfix "destinationPort = 80;" (f.render (f.mk {hosts = add [(vm "vm-w" "lucas" {interfaces.lan = iface {mac = "02:00:00:00:00:7d"; ip = "192.168.50.98";}; expose = [(exposeE {port = 8080; destPort = 80;})];})]; inherit zones;})).forwards)]
     ["rendering is deterministic" (files == f.render (f.mk {inherit hosts zones; deviceLeases = devices;}))]
+    ["microvms file: one block per hypervisor with vms, tmpfiles and units"
+      (lib.hasInfix "  \"lucas\" = {\n    vms = {\n" files.microvms && lib.hasInfix "    tmpfiles = [\n" files.microvms
+        && lib.hasInfix "    units = {\n      \"microvm@vm-gitea\" = {after = [\"microvm@vm-vault.service\"]; wants = [\"microvm@vm-vault.service\"];};\n" files.microvms)]
+    ["microvms file lists every derived tmpfiles rule"
+      (lib.all (t: lib.hasInfix "      \"${t}\"\n" files.microvms) (lib.concatMap (x: x.tmpfiles) (lib.attrValues rd.hypervisors)))]
+    ["microvms file: restartIfChanged only when set"
+      (lib.hasInfix "\"vm-vault\" = {autostart = true;};" files.microvms && lib.hasInfix "\"vm-gitea\" = {autostart = true; restartIfChanged = true;};" files.microvms)]
+    ["microvms file has no hypervisor for a VM that has not opted in"
+      (let m = (f.render (f.mk {hosts = add [(vm "vm-z" "sledge" {derive = false;})]; inherit zones;})).microvms; in !(lib.hasInfix "sledge" m))]
     ["retired is exempt from clashes" (!(has "192.168.50.20" (msgs r.errors)))]
     ["unmanaged hosts are ignored entirely" (!(has "some-unmanaged" (msgs (r.errors ++ r.warnings))))]
   ];

@@ -7,6 +7,7 @@
 {
   lib,
   config,
+  options,
   ...
 }:
 with lib;
@@ -128,6 +129,13 @@ in {
         "managed: the hypervisor's directories for this VM are generated (tmpfiles). external: they exist already and are not generated, because a tmpfiles `d` rule resets the mode and owner of a directory that is already there.";
     };
 
+    derive = mkOpt types.bool false ''
+        MicroVM only. Take this VM's `microvm.shares` and `microvm.writableStoreOverlay` from this record, and
+        have its hypervisor generate the VM's stanza, directories and start ordering (the committed
+        `microvms` file written by `fleet`). Off by default so a VM is converted deliberately, one at a time:
+        turn it on in the same change that deletes the hand-written shares and hypervisor lines.
+      '';
+
     nixStore =
       mkOpt (types.enum ["persistent" "volatile" "none"]) "persistent"
       ''
@@ -169,4 +177,22 @@ in {
       tags = mkOpt (types.listOf types.str) [] "Extra classification tags.";
     };
   };
+
+  # A MicroVM that opts in (`derive`) gets its shares and store overlay from its own record. The same pure
+  # functions give its hypervisor the matching directories, so the two sides cannot disagree. Nothing else
+  # in this module has an effect on the machine.
+  #
+  # The `microvm` options exist only on machines that import the microvm guest module, and the module
+  # system reports a definition of a missing option even under `mkIf false`. So the attributes are only
+  # written where the option is declared; a physical host never sees them.
+  config = let
+    active = cfg.kind == "microvm" && cfg.derive;
+    fl = (import ../../../../lib/fleet/default.nix {inherit lib;}).fleet;
+    self = fl.extract config.networking.hostName config;
+    overlay = fl.overlayOf self;
+  in
+    optionalAttrs (options ? microvm && options.microvm ? shares && options.microvm ? writableStoreOverlay) {
+      microvm.shares = mkIf active (fl.sharesOf self);
+      microvm.writableStoreOverlay = mkIf (active && overlay != null) overlay;
+    };
 }

@@ -406,10 +406,22 @@ ordering. *Gate:* for every VM, the evaluated `microvm.shares` (as a set of tag,
 host's VM-owned `tmpfiles` rules and the ordering equal the hand-written ones; share order is the one
 deliberate difference (see [Storage](#storage)). **This is not cosmetic:** with `restartIfChanged`, a
 changed share list changes the VM's runner and the VM restarts on deploy, and restarting `vm-vault`
-seals Vault. Do the hypervisors one at a time, non-critical first (butler, ermy, lucas), and blue-ridge last.
-*Done so far:* the options and pure derivation, with tests; the measured differences are in
-[Phase 3 ground truth](#phase-3-ground-truth). *Not done:* the records' share data, the guest-side use of it,
-the generated hypervisor file, and any switch-over.
+seals Vault. Convert **one VM at a time**, non-critical first (butler's VM, then lucas's, then ermy's after its
+credentials move), and blue-ridge last.
+
+*How a VM is converted.* `fmf.host.derive = true` on the VM does two things at once. In the VM, the module
+sets `microvm.shares` and `microvm.writableStoreOverlay` from the record (so the hand-written list is deleted
+in the same change). On the hypervisor, `fleet` writes that VM's `microvm.vms` flags, directories and start
+ordering into the committed `network/generated/microvms.nix`, which a small downstream module applies to the
+host it is for; the hand-written stanza and `tmpfiles` lines are deleted in the same change. A VM that has not
+set `derive` is not in the file and nothing about it changes.
+
+*Done so far:* the options, the pure derivation and the guest-side module, with tests; `fleet` writes and checks
+`microvms.nix`; the measured differences are in [Phase 3 ground truth](#phase-3-ground-truth). In Campground,
+all 20 placed VMs have a `storage.nix` (data, inert until the locked fmf has the options) and the first VM, a
+Kubernetes worker on butler, has been converted: its evaluated shares equal the hand-written set, its
+hypervisor's non-VM `tmpfiles` and the `microvm@*` ordering are unchanged, and the one difference is the
+credential directory mode (`0755` to `0700`). *Not done:* deploying it, and every other VM.
 
 **Phase 4: network attachment.**
 The per-hypervisor zone-to-bridge map. This is the least uniform part and the easiest to get wrong

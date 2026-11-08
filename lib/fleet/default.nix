@@ -99,7 +99,7 @@
     else {
       inherit name;
       managed = true;
-      inherit (h) kind lifecycle retired storage boot dns expose vault topology placement nixStore standardShares;
+      inherit (h) kind lifecycle retired storage boot dns expose vault topology placement derive nixStore standardShares;
       interfaces = h.network.interfaces;
       vaultAgent = lib.attrByPath ["fmf" "services" "vault-agent" "enable"] false config;
       vaultServer = lib.attrByPath ["fmf" "services" "vault" "enable"] false config;
@@ -269,7 +269,9 @@
     };
 
     # ---- hypervisors ----
-    guests = filter (h: h.kind == "microvm" && h.placement.runsOn != null) (attrValues live);
+    placed = filter (h: h.kind == "microvm" && h.placement.runsOn != null) (attrValues live);
+    # only VMs that opted in (`derive`) have their hypervisor side generated
+    guests = filter (h: h.derive) placed;
     guestsOf = hv: filter (h: h.placement.runsOn == hv) guests;
 
     unitsOf = h: let
@@ -373,7 +375,7 @@
         map (r: err h.name "refers to retired host `${r}`") (filter (r: (retired.${r} or null) != null) refs)) (attrValues live);
 
     storageChecks = let
-      claims = concatMap (h: map (n: {host = h.name; path = hostPathOf h n; shared = h.storage.${n}.shared;}) (attrNames h.storage)) guests;
+      claims = concatMap (h: map (n: {host = h.name; path = hostPathOf h n; shared = h.storage.${n}.shared;}) (attrNames h.storage)) placed;
     in
       concatMap (g: let
           clash = length g > 1 && !(all (c: c.shared) g);
@@ -462,7 +464,25 @@
       + lib.optionalString (f.destPort != null) " destinationPort = ${toString f.destPort};"
       + "}\n";
     forwards = header + "[\n" + concatStringsSep "" (map forwardLine ordered) + "]\n";
-  in {inherit leases dns forwards;};
+
+    # microvms: { "<hypervisor>" = { vms; tmpfiles; units; }; } for VMs that set fmf.host.derive. The
+    # consumer adds `flake` to each VM. Everything is sorted, so it compares byte for byte.
+    list = xs: "[" + concatStringsSep " " (map q xs) + "]";
+    vmLine = n: v:
+      "      ${q n} = {autostart = ${lib.boolToString v.autostart};"
+      + lib.optionalString (v ? restartIfChanged) " restartIfChanged = ${lib.boolToString v.restartIfChanged};"
+      + "};\n";
+    unitLine = n: u: "      ${q n} = {after = ${list u.after}; wants = ${list u.wants};};\n";
+    hvBlock = hv: x:
+      "  ${q hv} = {\n    vms = {\n"
+      + concatStringsSep "" (mapAttrsToList vmLine x.vms)
+      + "    };\n    tmpfiles = [\n"
+      + concatStringsSep "" (map (t: "      ${q t}\n") x.tmpfiles)
+      + "    ];\n    units = {\n"
+      + concatStringsSep "" (mapAttrsToList unitLine x.units)
+      + "    };\n  };\n";
+    microvms = header + "{\n" + concatStringsSep "" (mapAttrsToList hvBlock r.hypervisors) + "}\n";
+  in {inherit leases dns forwards microvms;};
 in {
   fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf;};
 }

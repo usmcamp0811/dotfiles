@@ -61,9 +61,10 @@ fmf.host = { kind = "physical"; lifecycle = "retired"; retired.reason = "permane
 | `lifecycle` | `active`, `standby` (provisioned, not started, nothing exposed), `retired` (nothing generated). |
 | `network.interfaces.<n>` | `mac`, `ip` (null = dynamic), `zone`, `attach` (`tap`/`macvtap`), `static` (default true for a MicroVM), `primary` (needed when there is more than one), `leaseName`. |
 | `placement` | `runsOn` (the hypervisor), `autostart`, `restartIfChanged` (default unset, so a VM that must not restart, like the Vault VM, keeps not restarting), `hostDirectories` (`managed`, or `external` when the directories already exist and must not be reset). |
+| `derive` | MicroVM only, default false. The VM takes its shares and store overlay from this record, and its hypervisor generates its stanza, directories and ordering (`network/generated/microvms.nix`). Convert one VM at a time. |
 | `nixStore` | `persistent` (default: `rw-store` share and overlay), `volatile` (overlay, no share) or `none`. |
 | `standardShares` | `rootPassword` (default true) and `vaultAgent` (default: follows `fmf.services.vault-agent.enable`). |
-| `storage.<n>` | `mountPoint`, `hostPath`, `tag`, `mode`, `owner`, `group`, `readOnly`, `shared`, `order`. One entry is both the guest share and the host directory. The standard shares come first in a fixed order, then these by `order`. |
+| `storage.<n>` | `mountPoint`, `hostPath`, `tag`, `mode`, `owner`, `group`, `createDirectory` (false for a path that already exists and must not be reset), `readOnly`, `shared`, `order`. One entry is both the guest share and the host directory. The standard shares come first in a fixed order, then these by `order`. |
 | `boot` | `after` (VMs on the same hypervisor), `hostUnits` (units on the hypervisor). |
 | `dns` | `names` (extra names), `addAliases`. |
 | `expose` | Router port forwards to the host's primary address. |

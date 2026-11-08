@@ -18,7 +18,7 @@ options are in the [host record module](../../../modules/nixos/system/host/READM
 Run it from the root of the flake that defines your `nixosConfigurations`:
 
 ```bash
-fleet                   # write network/generated/{leases,dns,forwards}.nix
+fleet                   # write network/generated/{leases,dns,forwards,microvms}.nix
 fleet --check           # exit non-zero if the committed files are stale (for CI)
 fleet --show vm-media   # what is derived for one host, writes nothing
 ```
@@ -34,6 +34,7 @@ Defaults match Campground's layout; override with `--hosts-dir`, `--out`, `--dev
 | `leases.nix` | `{ <zone> = [ { mac; ip; hostname; } ]; }`, one lease per host interface with a MAC and an address | the router's `dhcp.staticLeases`, merged with the device leases |
 | `dns.nix` | `{ "<name>" = "<ip>"; }`: every host by its name and lease name, short and as `<name>.<zone hostDomain>`, plus every device the same way. Lower-case. | the DNS server's rewrites |
 | `forwards.nix` | the router port forwards declared by hosts (`fmf.host.expose`) | the router's `portForwards`, merged with the hand-kept ones |
+| `microvms.nix` | per hypervisor, the `microvm.vms` flags, directories (tmpfiles) and start ordering of every VM that sets `fmf.host.derive` | a hypervisor reads its own entry; the VM adds its `flake` |
 
 Hosts that are `retired` produce nothing; `standby` hosts get leases and names but no forwards.
 
