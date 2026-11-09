@@ -16,7 +16,7 @@ with lib.fmf; let
   oisd-blocklist = pkgs.fetchurl {
     url = "https://usmcamp0811.gitlab.io/dotfiles/domainswild";
     # Hash auto-updated by CI (trigger create-pages job in CI/CD → Pipelines)
-    sha256 = "sha256-Rp9996RVhq4YwrnQUS38Vbid5gVBmf8t0FFIAo/5ps4=";
+    sha256 = "sha256-tuMp6EaGivBA8flyQVBeLsI6ZxKpIsMMkpQHX0iJaJA=";
   };
 
   blocklist_base = builtins.readFile oisd-blocklist;
