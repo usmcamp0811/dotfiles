@@ -11,7 +11,7 @@ status: draft
 
 Describes a machine once, in its own system configuration, so leases, DNS, port forwards, Vault roles,
 MicroVM hosting and boot order can be derived from the whole fleet instead of being written in several
-places. The design, decisions and verification results are in [Host model](../../../../docs/HOST-MODEL.md).
+places. The design, decisions and verification results are in [Host model](../../../../docs/HOST-MODEL.md). **To start using it, read [Getting started](../../../../docs/FLEET-GETTING-STARTED.md)**; the [runbook](../../../../docs/FLEET-RUNBOOK.md), [examples](../../../../docs/FLEET-EXAMPLES.md) and [troubleshooting](../../../../docs/FLEET-TROUBLESHOOTING.md) follow from there; this page is the option reference.
 
 **This module only declares data.** Setting it has no effect on the machine. The fleet function
 `lib.fmf.fleet` (in `lib/fleet`) reads the records of every host and produces the derived data; consumers

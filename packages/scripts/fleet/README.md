@@ -13,6 +13,10 @@ forwarded port is written once, on the host it belongs to, instead of in a lease
 forwards list that must be kept in step. The model is in [Host model](../../../docs/HOST-MODEL.md); the
 options are in the [host record module](../../../modules/nixos/system/host/README.md).
 
+**New to it?** Start with [Getting started](../../../docs/FLEET-GETTING-STARTED.md). The [runbook](../../../docs/FLEET-RUNBOOK.md)
+has the day-to-day procedures and [troubleshooting](../../../docs/FLEET-TROUBLESHOOTING.md) explains each error
+this command can print. `fleet` reads the flake through git, so a file you have not `git add`ed does not exist for it.
+
 ## Use
 
 Run it from the root of the flake that defines your `nixosConfigurations`:
@@ -49,7 +53,7 @@ example Kubernetes load balancers), also stay in their own files.
 The rules live in [`lib/fleet`](../../../lib/fleet/default.nix) (`lib.fmf.fleet`), pure Nix with tests. This
 command evaluates each host once (`fleet.extract`, about ten seconds and half a gigabyte per host; a few
 hosts in parallel, retried because concurrent evaluations occasionally trip over Nix's cache), then renders
-all three files in one pass. It **refuses to write while the fleet has errors** (duplicate address or MAC, a
+all four files in one pass. It **refuses to write while the fleet has errors** (duplicate address or MAC, a
 host placed on a retired one, a name that resolves to two addresses, ...) and prints warnings.
 
 A downstream repository should also run the same derivation as a flake check (Campground:

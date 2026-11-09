@@ -10,6 +10,10 @@ okf_version: "0.2"
 
 * [Host model - one record per machine (draft spec)](HOST-MODEL.md) - A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, MicroVM hosting and boot ordering from it.
 
+# Examples
+
+* [Fleet examples - copy-paste records for VMs and networking](FLEET-EXAMPLES.md) - Ready-to-copy host, storage and attachment records for common cases - networking only, MicroVMs only, both together, two interfaces, VLANs, Vault, standby and retired hosts, macvtap, existing data folders and port forwards.
+
 # Guide
 
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.
@@ -36,6 +40,7 @@ okf_version: "0.2"
 
 * [Circuit Breaker runbook](CIRCUIT-BREAKER-RUNBOOK.md) - Install, first-run setup, daily operation, agents, discovery, backup and restore, secret rotation, upgrade and rollback for the flake-driven Circuit Breaker.
 * [CVE-2026-39860 Fix for fmf-flake](CVE-2026-39860-MITIGATION.md) - Mitigation for CVE-2026-39860 in fmf-flake by upgrading to Nix 2.34.5.
+* [Fleet runbook - day-to-day operations](FLEET-RUNBOOK.md) - Step-by-step procedures for a flake that uses fmf.host records and fleet - the daily loop, adding a host or MicroVM, changing an address, exposing a port, moving, retiring and converting a VM, generated tap rules, a CI drift check, upgrading fmf and rolling back.
 * [Quick Start: Patching CVE-2026-39860](CVE-2026-39860-QUICKSTART.md) - Your fmf-flake has been updated to use Nix 2.34.5 (patched) instead of the vulnerable Nix 2.31.3.
 * [Reformat & Install NixOS](Install.md) - Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.
 * [Vault runbook - day-to-day operations](VAULT-RUNBOOK.md) - Step-by-step procedures for working with Vault in an fmf flake - the mental model, checking health, adding a host, changing what a host can read, narrowing or removing a policy, replacing and retiring a role, rotating credentials, and recovering when something breaks.
@@ -47,4 +52,11 @@ okf_version: "0.2"
 # Troubleshooting
 
 * [Circuit Breaker troubleshooting](CIRCUIT-BREAKER-TROUBLESHOOTING.md) - Exit codes, symptoms and fixes for the Circuit Breaker server, reconciler, git-driven sync, agents and monitors.
+* [Fleet troubleshooting - errors, warnings and symptoms](FLEET-TROUBLESHOOTING.md) - What each fleet error and warning means and how to fix it, plus the common ways a flake, a MicroVM or the generated files go wrong - messages quoted from real runs.
 * [MicroVM boot and configuration pitfalls](MICROVM-TROUBLESHOOTING.md) - Failures we hit bringing up fmf/Campground MicroVMs (stale store overlay, emergency mode, duplicate option definitions, surprise sudo and NetworkManager) with the check and the fix for each.
+
+# Tutorial
+
+* [Getting started with the fleet (fmf.host records and fleet)](FLEET-GETTING-STARTED.md) - A first-time walk-through for a downstream flake - what a host record is, the one-time flake wiring, your first record, running fleet, and which of the two follow-on tutorials (MicroVMs, networking, or both) to read next.
+* [Leases, DNS and port forwards from records](FLEET-TUTORIAL-NETWORK.md) - Describe machines once in host records and let fleet generate the DHCP reservations, DNS names and router port forwards, then wire those files into a plain NixOS gateway, fmf's router module, or AdGuard - written for someone who has not used the host model before.
+* [MicroVMs from records](FLEET-TUTORIAL-VMS.md) - Describe a hypervisor and two MicroVMs with host records, let fleet derive the VM list, shared directories, start order and network rules, and bring the VMs up - written for someone who has not used the host model before.

@@ -21,11 +21,17 @@ generated (the other 11 are standby and generate nothing on a hypervisor until t
 `restartIfChanged` stays unset on purpose. **Phase 4:** guest interface names and each hypervisor's
 zone map are in the records and checked against the machines; webb, sledge, lucas, ermy and butler generate one
 tap rule per guest and have dropped their hand-written `vm-*` globs; the router host is hand-wired by decision;
-the hosts' own bridges and uplinks (4d) and the guest-side address, gateway and DNS (4c) are not derived. Not
+a MicroVM can configure its own address, gateway and DNS from its record (4c, `network.derive`, opt in per VM); the hosts' own bridges and uplinks (4d) are not derived. Not
 done: the router's zones built from `fmf.network.zones`, and putting the network-monitoring VM on the VLANs. Results are in
 [Phase 0 results](#phase-0-results), [Phase 1 import](#phase-1-import) and
 [Phase 1: what now reads the records](#phase-1-what-now-reads-the-records); decisions are in
 [Decisions](#decisions); phases and their gates are in [Phasing](#phasing-and-verification).
+
+**To use it in a downstream flake**, this document is the wrong place to start. Read
+[Getting started](FLEET-GETTING-STARTED.md), then [MicroVMs from records](FLEET-TUTORIAL-VMS.md) and/or
+[Leases, DNS and port forwards from records](FLEET-TUTORIAL-NETWORK.md). Day-to-day jobs are in the
+[runbook](FLEET-RUNBOOK.md), copy-paste records in the [examples](FLEET-EXAMPLES.md), and error messages in
+[troubleshooting](FLEET-TROUBLESHOOTING.md).
 
 ## Problem
 
