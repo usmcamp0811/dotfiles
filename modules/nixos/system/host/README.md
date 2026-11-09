@@ -59,7 +59,8 @@ fmf.host = { kind = "physical"; lifecycle = "retired"; retired.reason = "permane
 |---|---|
 | `kind` | `physical`, `microvm`, or `null` (not managed). |
 | `lifecycle` | `active`, `standby` (provisioned, not started, nothing exposed), `retired` (nothing generated). |
-| `network.interfaces.<n>` | `mac`, `ip` (null = dynamic), `zone`, `attach` (`tap`/`macvtap`), `static` (default true for a MicroVM), `primary` (needed when there is more than one), `leaseName`. |
+| `network.interfaces.<n>` | `mac`, `ip` (null = dynamic), `zone`, `attach` (`tap`/`macvtap`), `static` (default true for a MicroVM), `primary` (needed when there is more than one), `leaseName`, `id` (MicroVM: its name on the hypervisor, at most 15 characters; default the host name for the primary or only interface, `<host>-<interface>` otherwise). |
+| `hypervisor.networks.<zone>` | Physical hosts that run MicroVMs: how a guest interface in that zone is attached, `bridge = "br0"` (taps) or `macvtap = { link; mode; }`. Exactly one of the two. Empty = not described; nothing is checked. |
 | `placement` | `runsOn` (the hypervisor), `autostart`, `restartIfChanged` (default unset, so a VM that must not restart, like the Vault VM, keeps not restarting), `hostDirectories` (`managed`, or `external` when the directories already exist and must not be reset). |
 | `derive` | MicroVM only, default false. The VM takes its shares and store overlay from this record, and its hypervisor generates its stanza, directories and ordering (`network/generated/microvms.nix`). Convert one VM at a time. |
 | `nixStore` | `persistent` (default: `rw-store` share and overlay), `volatile` (overlay, no share) or `none`. |

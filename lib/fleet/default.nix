@@ -103,6 +103,33 @@
       interfaces = h.network.interfaces;
       vaultAgent = lib.attrByPath ["fmf" "services" "vault-agent" "enable"] false config;
       vaultServer = lib.attrByPath ["fmf" "services" "vault" "enable"] false config;
+      hypervisorNetworks = (h.hypervisor or {}).networks or {};
+      # What the machine itself is configured with, so records can be checked against it.
+      # A MicroVM's own interface definitions (empty on a physical host).
+      # macvtap.link is an option without a default: reading it on a tap throws (an undefined option is not a
+      # missing attribute, so `or` cannot catch it), hence only macvtap interfaces are asked for it.
+      vmInterfaces = map (i: {
+        type = i.type or null;
+        id = i.id or null;
+        mac = i.mac or null;
+        macvtap =
+          if (i.type or null) == "macvtap"
+          then {link = i.macvtap.link or null; mode = i.macvtap.mode or null;}
+          else {link = null; mode = null;};
+      }) (lib.attrByPath ["microvm" "interfaces"] [] config);
+      # systemd-networkd .network files: which interfaces they match, the bridge they enslave them to, addresses.
+      networkd = lib.mapAttrsToList (name: n: let
+        nc = n.networkConfig or {};
+        asList = x: if x == null then [] else if builtins.isList x then x else [x];
+      in {
+        inherit name;
+        match = lib.concatMap (lib.splitString " ") (map toString (asList ((n.matchConfig or {}).Name or null)));
+        bridge = nc.Bridge or null;
+        addresses = map toString (asList (nc.Address or null) ++ (n.address or []));
+      }) (lib.attrByPath ["systemd" "network" "networks"] {} config);
+      # Addresses set through networking.interfaces (the scripted alternative to networkd).
+      interfaceAddresses = lib.concatMap (i: map (a: "${a.address}/${toString a.prefixLength}") ((i.ipv4 or {}).addresses or []))
+        (lib.attrValues (lib.attrByPath ["networking" "interfaces"] {} config));
     };
 
   # ---- MicroVM guests: shares, store overlay and host directories --------------------------------
@@ -295,6 +322,46 @@
       units = listToAttrs (concatMap unitsOf gs);
     })) (unique (map (h: h.placement.runsOn) guests)));
 
+    # ---- network attachment (phase 4): which bridge or NIC each guest interface reaches the network through ----
+    # One row per interface of a placed MicroVM. `target` is the hypervisor's attachment for that zone (null when the
+    # hypervisor has not described its networks yet, or not this zone).
+    tapIdOf = h: n: let
+      i = h.interfaces.${n};
+    in
+      if (i.id or null) != null
+      then i.id
+      else if n == primaryOf h
+      then h.name
+      else "${h.name}-${n}";
+    mapOf = hv: (managed.${hv} or {}).hypervisorNetworks or {};
+    attachRows = concatMap (h:
+      map (n: let
+        i = h.interfaces.${n};
+      in {
+        vm = h.name;
+        hv = h.placement.runsOn;
+        ifname = n;
+        id = tapIdOf h n;
+        inherit (i) zone mac;
+        attach = i.attach or "tap";
+        target = (mapOf h.placement.runsOn).${i.zone} or null;
+      }) (attrNames h.interfaces))
+    placed;
+    # networkd's Name= is a list of shell globs; the first .network file (in lexical order) that matches wins.
+    globMatch = glob: s: let
+      escaped = lib.escapeRegex glob;
+      re = builtins.replaceStrings ["\\*" "\\?"] [".*" "."] escaped;
+    in
+      builtins.match re s != null;
+    landingOf = hv: id: let
+      files = sort (a: b: a.name < b.name) ((managed.${hv} or {}).networkd or []);
+      hit = lib.findFirst (f: any (g: globMatch g id) f.match) null files;
+    in
+      if hit == null
+      then null
+      else {inherit (hit) name bridge;};
+    attachments = mapAttrs (_: rows: map (r: r // {landing = landingOf r.hv r.id;}) rows) (groupBy (r: r.hv) attachRows);
+
     # ---- topology hints (live hosts) ----
     topology = mapAttrs (_: h: filterAttrs (_: v: v != null && v != []) {inherit (h.topology) role location rack tags;}) live;
 
@@ -383,6 +450,68 @@
           optional clash (err (head g).host "storage path ${(head g).path} is claimed by ${concatStringsSep ", " (map (c: c.host) g)} and not marked shared"))
       (attrValues (groupBy (c: c.path) claims));
 
+    # network attachment: errors for what cannot work, warnings where the record and the evaluated machine disagree
+    attachChecks =
+      concatMap (r: let
+          described = mapOf r.hv != {};
+          t = r.target;
+        in
+          optional (builtins.stringLength r.id > 15) (err r.vm "interface ${r.ifname}: hypervisor name `${r.id}` is longer than 15 characters (set network.interfaces.${r.ifname}.id)")
+          ++ optional (described && t == null) (err r.vm "interface ${r.ifname}: ${r.hv} has no attachment for zone `${r.zone}` (fmf.host.hypervisor.networks.${r.zone})")
+          ++ optional (t != null && r.attach == "tap" && t.bridge == null) (err r.vm "interface ${r.ifname} is a tap, but ${r.hv} attaches zone `${r.zone}` with macvtap")
+          ++ optional (t != null && r.attach == "macvtap" && t.macvtap == null) (err r.vm "interface ${r.ifname} is a macvtap, but ${r.hv} attaches zone `${r.zone}` to a bridge"))
+      attachRows
+      ++ concatMap (rows: dupes "hypervisor interface name" (x: x.id) (map (x: x // {host = x.vm;}) rows)) (attrValues (groupBy (r: r.hv) attachRows))
+      ++ concatMap (h:
+        concatMap (z: let
+            a = h.hypervisorNetworks.${z};
+          in
+            optional ((a.bridge == null) == (a.macvtap == null)) (err h.name "hypervisor.networks.${z}: set exactly one of bridge and macvtap")
+            ++ optional (zones != {} && !(zoneKnown z)) (err h.name "hypervisor.networks.${z}: unknown zone"))
+        (attrNames (h.hypervisorNetworks or {})))
+      (attrValues live);
+
+    attachDrift = concatMap (r: let
+        actual = (managed.${r.vm} or {}).vmInterfaces or [];
+        mine = lib.findFirst (i: i.mac != null && r.mac != null && toLower i.mac == toLower r.mac) null actual;
+        t = r.target;
+        l = landingOf r.hv r.id;
+        networkd = (managed.${r.hv} or {}).networkd or [];
+      in
+        optionals (actual != []) (
+          optional (mine == null) (warn r.vm "interface ${r.ifname} (${toString r.mac}) is not among the VM's microvm.interfaces")
+          ++ optionals (mine != null) (
+            optional (mine.id != r.id) (warn r.vm "interface ${r.ifname} is named `${toString mine.id}` on the hypervisor; the record implies `${r.id}`")
+            ++ optional (mine.type != r.attach) (warn r.vm "interface ${r.ifname} is a ${toString mine.type}; the record says ${r.attach}")
+            ++ optional (r.attach == "macvtap" && t != null && t.macvtap != null && (mine.macvtap.link != t.macvtap.link || mine.macvtap.mode != t.macvtap.mode))
+            (warn r.vm "interface ${r.ifname}: macvtap on ${toString mine.macvtap.link} (${toString mine.macvtap.mode}); ${r.hv} attaches zone `${r.zone}` on ${t.macvtap.link} (${t.macvtap.mode})")
+          ))
+        ++ optionals (r.attach == "tap" && t != null && t.bridge != null && networkd != []) (
+          optional (l == null) (warn r.vm "interface ${r.ifname}: no .network file on ${r.hv} matches `${r.id}`, so it joins no bridge (zone `${r.zone}` attaches to ${t.bridge})")
+          ++ optional (l != null && l.bridge != t.bridge)
+          (warn r.vm "interface ${r.ifname}: `${r.id}` joins ${toString l.bridge} on ${r.hv} (first match: ${l.name}), but zone `${r.zone}` attaches to ${t.bridge}")
+        ))
+    attachRows
+    # a guest interface that the record does not have
+    ++ concatMap (h:
+      map (i: warn h.name "the VM has an interface (${toString i.id}, ${toString i.mac}) that its record does not")
+      (filter (i: !(any (n: h.interfaces.${n}.mac != null && i.mac != null && toLower h.interfaces.${n}.mac == toLower i.mac) (attrNames h.interfaces))) (h.vmInterfaces or [])))
+    placed;
+
+    # a static address in the record that the machine does not configure (only checked where it configures any)
+    addressDrift = concatMap (h: let
+        configured = map (a: head (splitString "/" a))
+          (concatMap (f: f.addresses) (h.networkd or []) ++ (h.interfaceAddresses or []));
+      in
+        optionals (configured != [])
+        (concatMap (n: let
+            i = h.interfaces.${n};
+          in
+            optional (i.static && i.ip != null && !(elem i.ip configured))
+            (warn h.name "interface ${n}: ${i.ip} is static in the record but the machine configures ${concatStringsSep ", " (unique configured)}"))
+        (attrNames h.interfaces)))
+    (attrValues live);
+
     roleChecks = let
       claims = concatMap (h: map (r: {host = h.name; role = r;}) (rolesOf h)) (attrValues live);
     in
@@ -415,7 +544,8 @@
       ++ dupes "address" (i: i.ip) (withIp ++ deviceItems)
       ++ dupes "MAC" (i: toLower i.mac) (filter (i: i.mac != null) liveIfaces ++ deviceItems)
       ++ primaryChecks ++ placementChecks ++ bootChecks ++ cycleChecks ++ retiredRefs
-      ++ storageChecks ++ roleChecks ++ dnsChecks ++ exposeChecks;
+      ++ storageChecks ++ roleChecks ++ dnsChecks ++ exposeChecks
+      ++ attachChecks ++ attachDrift ++ addressDrift;
   in {
     hosts = {
       active = attrNames active;
@@ -423,7 +553,7 @@
       retired = attrNames retired;
       unmanaged = attrNames (filterAttrs (_: h: !h.managed) hosts);
     };
-    inherit leases dns forwards vault hypervisors topology;
+    inherit leases dns forwards vault hypervisors topology attachments;
     errors = filter (p: p.level == "error") all-problems;
     warnings = filter (p: p.level == "warn") all-problems;
   };

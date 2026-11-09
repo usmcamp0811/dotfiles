@@ -425,9 +425,33 @@ credential directory mode (`0755` to `0700`). *Not done:* deploying it, and ever
 
 **Phase 4: network attachment.**
 The per-hypervisor zone-to-bridge map. This is the least uniform part and the easiest to get wrong
-(bridge netfilter, `rp_filter`, trusted interfaces, VLAN bridges, macvtap). It may be left hand-written if
-phase 3 delivers most of the value. Do it only with a recovery path to each hypervisor that does not rely
-on the network being changed.
+(bridge netfilter, `rp_filter`, trusted interfaces, VLAN bridges, macvtap). Each hypervisor has three layers: its
+own uplink (address, gateway, DNS, the NIC on the bridge, the bridge's MAC), the bridges and VLANs, and the rules
+that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits on). Steps, lowest risk first:
+
+- **4a, model and checks (done).** `network.interfaces.<n>.id` is the interface's name on the hypervisor (default:
+  the host name for the primary or only interface, `<host>-<interface>` otherwise; at most 15 characters), and
+  `hypervisor.networks.<zone>` says how a hypervisor attaches a guest in that zone (`bridge`, or `macvtap = { link;
+  mode; }`). `fleet` errors on what cannot work (a name too long or used twice on one hypervisor, a zone the
+  hypervisor does not attach, a tap in a macvtap zone or the reverse, an attachment with both or neither) and warns
+  where the record and the evaluated machine disagree: a guest's `microvm.interfaces` (name, type, MAC, macvtap
+  NIC), the bridge each tap actually joins under the hypervisor's networkd rules (first matching `.network` file in
+  lexical order, shell globs), and a static address in the record that the machine does not configure.
+- **4b, generate the tap rules.** One exact `.network` rule per guest interface in `microvms.nix`, numbered below
+  the hand-written globs so it wins; then the globs go. Only guest taps change, never the host's uplink, so a
+  mistake loses a VM's network, not the host.
+- **4c, the guest side.** `microvm.interfaces` and the guest's static address, gateway and DNS from the record and
+  the zone catalogue.
+- **4d, the host's bridges, VLANs and uplink.** The same equality gate as phase 3: the host's evaluated
+  `systemd.network` must equal today's before it is deployed, because this is the path the deploy itself runs over
+  (a bridge without its pinned MAC, a parent without its `vlan`, or a second `.network` file with a lower number that
+  silently wins would drop the host's own link). Host oddities stay hand-written (a USB NIC kept unmanaged, spare
+  NICs, wait-online arguments), and so does the router, whose networking belongs to the router module.
+
+*Found by 4a in Campground:* the four VLAN taps of the network-monitoring VM on the router host are matched first by
+the router's broad `vm-*` rule (`30-…`) and so join the LAN bridge, not their VLAN bridges; the exact rules for them
+(`31-…` to `34-…`) never apply. Every other guest interface, every record name and type, and every static address
+agreed with the machines.
 
 ## Evaluation cost (decided by measurement, see Phase 0 results)
 

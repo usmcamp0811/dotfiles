@@ -25,6 +25,9 @@ with lib.fmf; let
         description = "Zone id from `fmf.network.zones`. Selects subnet, VLAN, gateway and DNS domain.";
       };
       attach = mkOpt (types.enum ["tap" "macvtap"]) "tap" "MicroVM only: how the interface reaches the network.";
+      id =
+        mkOpt (types.nullOr (types.strMatching "[A-Za-z0-9_.-]{1,15}")) null
+        "MicroVM only: the interface's name on the hypervisor (microvm's `id`; Linux allows at most 15 characters). null = the host name for its primary (or only) interface, `<host>-<interface>` for the others. Firewall rules and bridge matches on the hypervisor refer to this name.";
       static =
         mkOpt types.bool (cfg.kind == "microvm")
         "Whether the machine configures this address itself. Defaults to true for a MicroVM; a physical host keeps DHCP against a generated lease.";
@@ -52,6 +55,22 @@ with lib.fmf; let
       order =
         mkOpt types.int 100
         "Position among this VM's storage shares (lower first; ties sort by name). Shares are part of the VM's runner, so a different order restarts the VM on deploy: match the existing order when migrating.";
+    };
+  };
+
+  # How a hypervisor connects a MicroVM interface in one zone: a tap joined to a bridge, or a macvtap on a NIC.
+  attachmentType = types.submodule {
+    options = {
+      bridge = mkOpt (types.nullOr types.str) null "Bridge that taps in this zone join, e.g. br0 or br-k8s.";
+      macvtap = mkOpt (types.nullOr (types.submodule {
+        options = {
+          link = mkOption {
+            type = types.str;
+            description = "The NIC the macvtap sits on.";
+          };
+          mode = mkOpt (types.enum ["private" "vepa" "bridge" "passthru" "source"]) "bridge" "macvtap mode.";
+        };
+      })) null "macvtap interfaces in this zone sit on this NIC.";
     };
   };
 
@@ -117,6 +136,12 @@ in {
     };
 
     network.interfaces = mkOpt (types.attrsOf interfaceType) {} "Network interfaces, by name. A host may have several, each in its own zone.";
+
+    hypervisor.networks = mkOpt (types.attrsOf attachmentType) {} ''
+      Physical hosts that run MicroVMs: how a guest interface in each zone is connected, by zone id. Set exactly one
+      of `bridge` (for `attach = "tap"`) or `macvtap` (for `attach = "macvtap"`). Read by lib.fmf.fleet to check, and
+      later generate, which bridge each guest's tap joins. Empty = not described yet: nothing is checked.
+    '';
 
     placement = {
       runsOn = mkOpt (types.nullOr types.str) null "MicroVM only: the name of the physical host that runs it.";

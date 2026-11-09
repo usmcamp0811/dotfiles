@@ -14,6 +14,7 @@
       static = false;
       primary = null;
       leaseName = null;
+      id = null;
     }
     // a;
   host = name: a:
@@ -36,6 +37,10 @@
       topology = {role = null; location = null; rack = null; tags = [];};
       vaultAgent = false;
       vaultServer = false;
+      hypervisorNetworks = {};
+      vmInterfaces = [];
+      networkd = [];
+      interfaceAddresses = [];
     } a;
   vm = name: runsOn: a:
     host name (lib.recursiveUpdate {kind = "microvm"; placement.runsOn = runsOn;} a);
@@ -122,6 +127,42 @@
     tmpfiles = mine ++ lib.filter (l: lib.hasInfix "/persist/system/secrets" l) res.tmpfiles;
   };
   tagsOf = x: map (s: s.tag) x.shares;
+
+  # ---- network attachment fixture: one hypervisor `hv` with a LAN bridge and a wifi bridge ----
+  nf = name: match: bridge: addresses: {inherit name match bridge addresses;};
+  hvHost = a:
+    host "hv" (lib.recursiveUpdate {
+        interfaces.lan = iface {mac = "aa:00:00:00:00:77"; ip = "192.168.50.10"; static = true;};
+        hypervisorNetworks = {
+          lan = {bridge = "br0"; macvtap = null;};
+          wifi = {bridge = "br-wifi"; macvtap = null;};
+        };
+        networkd = [
+          (nf "20-br0" ["br0"] null ["192.168.50.10/24"])
+          (nf "30-vm-taps" ["vm-*"] "br0" [])
+        ];
+      }
+      a);
+  # later entries replace earlier ones of the same name (listToAttrs alone would keep the first)
+  byName = hs: lib.listToAttrs (map (h: lib.nameValuePair h.name h) hs);
+  nwHosts = extra:
+    byName [
+      (hvHost {})
+      (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;};})
+    ]
+    // byName extra;
+  nw = extra: f.mk {hosts = nwHosts extra; inherit zones;};
+  nwErrs = extra: msgs (nw extra).errors;
+  nwWarns = extra: msgs (nw extra).warnings;
+  idsOf = res: vmName: map (x: x.id) (lib.filter (x: x.vm == vmName) res.attachments.hv);
+  multi = a:
+    vm "vm-multi" "hv" (lib.recursiveUpdate {
+        interfaces = {
+          lan = iface {mac = "02:00:00:00:01:02"; ip = "192.168.50.32"; primary = true;};
+          wifi = iface {mac = "02:00:00:00:01:03"; ip = "192.168.51.32"; zone = "wifi";};
+        };
+      }
+      a);
   hv' = (f.mk {hosts = add [(vm "vm-s" "lucas" {vaultAgent = true; storage.data = store {};})]; inherit zones;}).hypervisors;
   errsOf = hs: msgs (f.mk {hosts = hs; inherit zones;}).errors;
   warnsOf = hs: msgs (f.mk {hosts = hs; inherit zones;}).warnings;
@@ -202,6 +243,56 @@
     ["external directories generate nothing" ((shapeOf {placement.hostDirectories = "external";}).tmpfiles == [])]
     ["external directories keep the shares" (tagsOf (shapeOf {placement.hostDirectories = "external";}) == ["ro-store" "rw-store" "ssh-host-keys" "root-password"])]
     ["the shared secrets directory is never generated" (!(lib.any (lib.hasInfix "/persist/system/secrets") (shapeOf {}).tmpfiles))]
+    # ---- network attachment (phase 4) ----
+    ["the fixture itself is clean" ((nw []).errors == [] && (nw []).warnings == [])]
+    ["default name: the host name for its only interface" (idsOf (nw []) "vm-a" == ["vm-a"])]
+    ["default name: host for the primary, host-interface for the others" (lib.sort (a: b: a < b) (idsOf (nw [(multi {})]) "vm-multi") == ["vm-multi" "vm-multi-wifi"])]
+    ["an explicit name wins" (idsOf (nw [(vm "vm-b" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:04"; id = "vm-short";};})]) "vm-b" == ["vm-short"])]
+    ["a name longer than 15 characters is an error" (has "longer than 15 characters" (nwErrs [(vm "vm-k8s-worker-reckless" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:05";};})]))]
+    ["a zone the hypervisor does not attach is an error" (has "has no attachment for zone `wifi`" (nwErrs [(vm "vm-b" "hv" {interfaces.w = iface {mac = "02:00:00:00:01:06"; zone = "wifi";};}) (hvHost {} // {hypervisorNetworks = {lan = {bridge = "br0"; macvtap = null;};};})]))]
+    ["a hypervisor that has not described its networks is not checked"
+      (!(has "has no attachment" (errsOf (add [(vm "vm-b" "lucas" {interfaces.w = iface {mac = "02:00:00:00:01:07"; zone = "wifi";};})]))))]
+    ["a tap in a macvtap zone is an error"
+      (has "is a tap, but hv attaches zone `lan` with macvtap" (nwErrs [(hvHost {hypervisorNetworks.lan = {bridge = null; macvtap = {link = "enp7s0"; mode = "bridge";};};})]))]
+    ["a macvtap in a bridge zone is an error"
+      (has "is a macvtap, but hv attaches zone `lan` to a bridge" (nwErrs [(vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; attach = "macvtap";};})]))]
+    ["an attachment with both bridge and macvtap is an error"
+      (has "set exactly one of bridge and macvtap" (nwErrs [(hvHost {hypervisorNetworks.lan = {bridge = "br0"; macvtap = {link = "enp7s0"; mode = "bridge";};};})]))]
+    ["an attachment with neither is an error" (has "set exactly one of bridge and macvtap" (nwErrs [(hvHost {hypervisorNetworks.lan = {bridge = null; macvtap = null;};})]))]
+    ["two interfaces with one name on a hypervisor is an error"
+      (has "hypervisor interface name vm-a is used by" (nwErrs [(vm "vm-b" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:08"; id = "vm-a";};})]))]
+    # the blue-ridge case: a broad vm-* rule sorts before the exact rule, so the exact rule never applies
+    ["a broad rule that sorts first wins, and that is reported"
+      (has "`vm-multi-wifi` joins br0 on hv (first match: 30-vm-taps), but zone `wifi` attaches to br-wifi"
+        (nwWarns [(multi {}) (hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.10/24"]) (nf "30-vm-taps" ["vm-*"] "br0" []) (nf "31-wifi" ["vm-multi-wifi"] "br-wifi" [])];})]))]
+    ["an exact rule that sorts first is fine"
+      (!(has "joins br0" (nwWarns [(multi {}) (hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.10/24"]) (nf "29-wifi" ["vm-multi-wifi"] "br-wifi" []) (nf "30-vm-taps" ["vm-*"] "br0" [])];})])))]
+    ["a tap no .network file matches is reported"
+      (has "no .network file on hv matches `vm-a`" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.10/24"]) (nf "30-k8s" ["vm-k8s*"] "br-k8s" [])];})]))]
+    ["a Name= list and ? globs match like networkd"
+      (!(has "no .network file" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.10/24"]) (nf "30-x" ["vm-zz" "vm-?"] "br0" [])];})])))]
+    ["the VM's interface named differently from the record is reported"
+      (has "is named `vm-other` on the hypervisor; the record implies `vm-a`"
+        (nwWarns [(vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;}; vmInterfaces = [{type = "tap"; id = "vm-other"; mac = "02:00:00:00:01:01"; macvtap = {link = null; mode = null;};}];})]))]
+    ["the VM's interface of another type is reported"
+      (has "is a macvtap; the record says tap"
+        (nwWarns [(vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;}; vmInterfaces = [{type = "macvtap"; id = "vm-a"; mac = "02:00:00:00:01:01"; macvtap = {link = null; mode = null;};}];})]))]
+    ["a record interface missing from the VM is reported, and an extra one too"
+      (let w = nwWarns [(vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;}; vmInterfaces = [{type = "tap"; id = "vm-x"; mac = "02:00:00:00:01:99"; macvtap = {link = null; mode = null;};}];})];
+       in has "is not among the VM's microvm.interfaces" w && has "has an interface (vm-x, 02:00:00:00:01:99) that its record does not" w)]
+    ["a macvtap on another NIC than the hypervisor's is reported"
+      (has "macvtap on eth9 (bridge); hv attaches zone `lan` on enp7s0 (bridge)"
+        (nwWarns [
+          (hvHost {hypervisorNetworks.lan = {bridge = null; macvtap = {link = "enp7s0"; mode = "bridge";};};})
+          (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true; attach = "macvtap";}; vmInterfaces = [{type = "macvtap"; id = "vm-a"; mac = "02:00:00:00:01:01"; macvtap = {link = "eth9"; mode = "bridge";};}];})
+        ]))]
+    ["matching VM interfaces produce no warnings"
+      ((nw [(vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;}; vmInterfaces = [{type = "tap"; id = "vm-a"; mac = "02:00:00:00:01:01"; macvtap = {link = null; mode = null;};}];})]).warnings == [])]
+    ["a static address the machine does not configure is reported"
+      (has "192.168.50.10 is static in the record but the machine configures 192.168.50.99" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.99/24"]) (nf "30-vm-taps" ["vm-*"] "br0" [])];})]))]
+    ["networking.interfaces addresses count too" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])]; interfaceAddresses = ["192.168.50.10/24"];})])))]
+    ["a machine that configures no address at all is not checked" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])];})])))]
+
     ["a guest computes its own shares the same way the hypervisor does"
       (let h = vm "vm-s" "lucas" {vaultAgent = true; storage.data = store {};}; in f.sharesOf h == hv'.lucas.shares."vm-s" && f.overlayOf h == hv'.lucas.overlays."vm-s")]
     ["share source and mount" (lib.any (s: s.tag == "pg" && s.source == "/persist/pg/mm" && s.mountPoint == "/var/lib/postgresql") hv.lucas.shares."vm-mattermost")]
