@@ -252,10 +252,14 @@ in {
         microvm.interfaces = mkIf netActive guest.interfaces;
       })
       {
-        # Default priority on the generic settings, so a VM that needs something else just says so.
+        # The two booleans are at default priority, so a VM that needs something else just says so. The name
+        # servers are a list, and lists from definitions of the SAME priority are concatenated, so a module that
+        # adds its own default (some add 127.0.0.1) would end up in the result. A plain assignment in a VM, which
+        # is what hand-written configuration was, replaces such defaults. Priority 900 does the same here, while a
+        # plain assignment in the VM (priority 100) still wins over it. Prefer `fmf.host.network.dns` in the record.
         networking.useNetworkd = mkIf netActive (mkDefault true);
         networking.useDHCP = mkIf netActive (mkDefault false);
-        networking.nameservers = mkIf netActive (mkDefault guest.nameservers);
+        networking.nameservers = mkIf netActive (mkOverride 900 guest.nameservers);
         systemd.network.links = mkIf netActive (mapAttrs (_: l: {
             matchConfig.MACAddress = l.mac;
             linkConfig.Name = l.name;

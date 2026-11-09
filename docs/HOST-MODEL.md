@@ -457,8 +457,23 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   so the exact rule wins. Then the globs go. Only guest taps change, never the host's uplink, so a mistake loses a
   VM's network, not the host. Gate per hypervisor: its evaluated `systemd.network` equals today's plus the new
   `28-` files, and every tap lands on the bridge it already uses.
-- **4c, the guest side.** `microvm.interfaces` and the guest's static address, gateway and DNS from the record and
-  the zone catalogue.
+- **4c, the guest side (done).** `network.derive = true` on a MicroVM configures its own networking from its record
+  and the zone catalogue, so the address, MAC, gateway and DNS are written once: for each static interface a link
+  that names it by MAC (`<interface>0`, or `guestName`), a systemd-networkd network with its address, the zone's
+  gateway on the primary interface and no DHCP; `networking.useNetworkd`, `useDHCP = false` and `nameservers` (the
+  zone's DNS, or `network.dns`); and `microvm.interfaces` for the taps (a macvtap VM still writes its own, because
+  the NIC is the hypervisor's to name). Extras, such as a VPN module's DNS routing, merge into the generated
+  network. It is opt-in per VM and covers VMs with a static address: the 8 k8s VMs, the Vault VM, the LAN proxy,
+  the websites VM and the network-monitoring VM get theirs from DHCP, so there was nothing to derive.
+  *Verified* on the 19 VMs that opted in by evaluating each on the hand-written configuration and on the derived
+  one: links, networks, name servers, `useNetworkd`, `useDHCP`, the resolver setting and `microvm.interfaces` are
+  identical. The one deliberate difference: `networking.defaultGateway` is not derived and the VMs no longer write
+  it. It only produces a second `.network` file for the same link (`40-lan0`), which networkd never applies
+  because the first match, `20-lan0`, wins; nothing in either repository reads the option, and four of the VMs
+  never set it. Two things that came out of the check: name servers are generated at priority 900, because a list
+  from definitions of the *same* priority is concatenated, and one VM had silently relied on its plain
+  assignment replacing a module's `127.0.0.1` default; and a VM's own assignment (priority 100) still overrides
+  the generated value.
 - **4d, the host's bridges, VLANs and uplink.** The same equality gate as phase 3: the host's evaluated
   `systemd.network` must equal today's before it is deployed, because this is the path the deploy itself runs over
   (a bridge without its pinned MAC, a parent without its `vlan`, or a second `.network` file with a lower number that
