@@ -128,6 +128,15 @@
         bridge = nc.Bridge or null;
         addresses = map toString (asList (nc.Address or null) ++ (n.address or []));
       }) (lib.attrByPath ["systemd" "network" "networks"] {} config);
+      # The virtual links the machine declares: a tap can only join a `bridge`, not a `vlan` interface (a VLAN
+      # interface such as br-lan.10 carries traffic for a VLAN, it does not forward between ports).
+      netdevs = lib.filter (d: d.name != null) (lib.mapAttrsToList (_: d: let
+        c = d.netdevConfig or {};
+      in {
+        name = c.Name or null;
+        kind = c.Kind or null;
+      }) (lib.attrByPath ["systemd" "network" "netdevs"] {} config));
+      scriptedBridges = lib.attrNames (lib.attrByPath ["networking" "bridges"] {} config);
       # Addresses set through networking.interfaces (the scripted alternative to networkd).
       interfaceAddresses = lib.concatMap (i: map (a: "${a.address}/${toString a.prefixLength}") ((i.ipv4 or {}).addresses or []))
         (lib.attrValues (lib.attrByPath ["networking" "interfaces"] {} config));
@@ -465,6 +474,21 @@
       (attrValues (groupBy (c: c.path) claims));
 
     # network attachment: errors for what cannot work, warnings where the record and the evaluated machine disagree
+    # What a name is on a hypervisor: "bridge", another kind of link ("vlan", ...), or null when it is not declared there.
+    kindOf = hv: name: let
+      h = managed.${hv} or {};
+      declared = lib.findFirst (d: d.name == name) null (h.netdevs or []);
+    in
+      if declared != null
+      then declared.kind
+      else if elem name (h.scriptedBridges or [])
+      then "bridge"
+      else null;
+    # Only judged where the hypervisor declares links at all (an empty list means "not described", as for networks).
+    describesLinks = hv: ((managed.${hv} or {}).netdevs or []) != [] || ((managed.${hv} or {}).scriptedBridges or []) != [];
+    notBridge = hv: b: describesLinks hv && kindOf hv b != "bridge";
+    whyNot = hv: b: let k = kindOf hv b; in if k == null then "not declared on ${hv}" else "a ${k} interface, not a bridge";
+
     attachChecks =
       concatMap (r: let
           described = mapOf r.hv != {};
@@ -481,6 +505,7 @@
             a = h.hypervisorNetworks.${z};
           in
             optional ((a.bridge == null) == (a.macvtap == null)) (err h.name "hypervisor.networks.${z}: set exactly one of bridge and macvtap")
+            ++ optional (a.bridge != null && notBridge h.name a.bridge) (err h.name "hypervisor.networks.${z}: `${a.bridge}` is ${whyNot h.name a.bridge}, and a tap can only join a bridge")
             ++ optional (zones != {} && !(zoneKnown z)) (err h.name "hypervisor.networks.${z}: unknown zone"))
         (attrNames (h.hypervisorNetworks or {})))
       (attrValues live);
@@ -511,6 +536,15 @@
       map (i: warn h.name "the VM has an interface (${toString i.id}, ${toString i.mac}) that its record does not")
       (filter (i: !(any (n: h.interfaces.${n}.mac != null && i.mac != null && toLower h.interfaces.${n}.mac == toLower i.mac) (attrNames h.interfaces))) (h.vmInterfaces or [])))
     placed;
+
+    # a networkd rule that puts links on a bridge which is not one: it can never take effect (networkd reports the
+    # link as failed), whatever order the rules are in
+    bridgeDrift = concatMap (h:
+      concatMap (f:
+        optional (f.bridge != null && notBridge h.name f.bridge)
+        (warn h.name "networkd rule ${f.name} enslaves ${concatStringsSep ", " f.match} to `${f.bridge}`, which is ${whyNot h.name f.bridge}"))
+      (h.networkd or []))
+    (attrValues live);
 
     # a static address in the record that the machine does not configure (only checked where it configures any)
     addressDrift = concatMap (h: let
@@ -559,7 +593,7 @@
       ++ dupes "MAC" (i: toLower i.mac) (filter (i: i.mac != null) liveIfaces ++ deviceItems)
       ++ primaryChecks ++ placementChecks ++ bootChecks ++ cycleChecks ++ retiredRefs
       ++ storageChecks ++ roleChecks ++ dnsChecks ++ exposeChecks
-      ++ attachChecks ++ attachDrift ++ addressDrift;
+      ++ attachChecks ++ attachDrift ++ bridgeDrift ++ addressDrift;
   in {
     hosts = {
       active = attrNames active;

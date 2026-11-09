@@ -436,7 +436,9 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   hypervisor does not attach, a tap in a macvtap zone or the reverse, an attachment with both or neither) and warns
   where the record and the evaluated machine disagree: a guest's `microvm.interfaces` (name, type, MAC, macvtap
   NIC), the bridge each tap actually joins under the hypervisor's networkd rules (first matching `.network` file in
-  lexical order, shell globs), and a static address in the record that the machine does not configure.
+  lexical order, shell globs), and a static address in the record that the machine does not configure. A tap can only
+  join a bridge, so a zone mapped to anything else (a VLAN interface, or a link the hypervisor does not declare) is an
+  error, and a hand-written rule that enslaves to a non-bridge is reported.
 - **4b, generate the tap rules (built; switched per hypervisor).** With `hypervisor.tapRules = true`, `fleet` writes
   one entry per tap of each derived guest into `microvms.nix` (`tapRules = [ { name; bridge; } ]`), and the downstream
   module turns each into a `28-<tap>` `.network` file with the same settings as the hand-written globs (`30-`, `31-`),
@@ -451,9 +453,18 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   silently wins would drop the host's own link). Host oddities stay hand-written (a USB NIC kept unmanaged, spare
   NICs, wait-online arguments), and so does the router, whose networking belongs to the router module.
 
-*Found by 4a in Campground:* the four VLAN taps of the network-monitoring VM on the router host are matched first by
-the router's broad `vm-*` rule (`30-…`) and so join the LAN bridge, not their VLAN bridges; the exact rules for them
-(`31-…` to `34-…`) never apply. Every other guest interface, every record name and type, and every static address
+*Found by 4a in Campground, and a mistake worth recording.* The router host's network-monitoring VM has four extra
+interfaces meant for the wifi, IoT, guest and k8s VLANs, with hand-written rules putting them on `br-lan.10` to
+`.40`. Those rules (`31-…` to `34-…`) sort after the router's broad `vm-*` rule (`30-…`), and networkd applies the
+first match, so they never applied and all five interfaces sat on the LAN bridge. 4a reported that correctly. What it
+did not report, and what I wrongly concluded from it, is that the targets are not bridges: the router module builds
+`br-lan.<id>` as **VLAN interfaces** that carry the router's gateway address for each VLAN, and a tap can only join
+a bridge. Renumbering the rules so they won made networkd try, and fail (`carrier (failed)`), to attach three of the
+five NICs; it was reverted. Two changes came out of it. The checks now compare a hypervisor's declared links:
+`hypervisor.networks.<zone>.bridge` must be a bridge, and a hand-written rule that enslaves to something that is not
+one is reported. And the zone map for those four zones says `br-lan`, which is what happens. Putting a tap on a VLAN
+is a separate design problem (VLAN filtering on the LAN bridge, which affects all LAN traffic, or per-VLAN bridges)
+and is not part of this model. Every other guest interface, every record name and type, and every static address
 agreed with the machines.
 
 ## Evaluation cost (decided by measurement, see Phase 0 results)

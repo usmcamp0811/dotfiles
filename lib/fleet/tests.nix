@@ -39,6 +39,8 @@
       vaultServer = false;
       hypervisorNetworks = {};
       hypervisorTapRules = false;
+      netdevs = [];
+      scriptedBridges = [];
       vmInterfaces = [];
       networkd = [];
       interfaceAddresses = [];
@@ -141,6 +143,11 @@
         networkd = [
           (nf "20-br0" ["br0"] null ["192.168.50.10/24"])
           (nf "30-vm-taps" ["vm-*"] "br0" [])
+        ];
+        netdevs = [
+          {name = "br0"; kind = "bridge";}
+          {name = "br-wifi"; kind = "bridge";}
+          {name = "br0.10"; kind = "vlan";}
         ];
       }
       a);
@@ -292,6 +299,22 @@
     ["a static address the machine does not configure is reported"
       (has "192.168.50.10 is static in the record but the machine configures 192.168.50.99" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.99/24"]) (nf "30-vm-taps" ["vm-*"] "br0" [])];})]))]
     ["networking.interfaces addresses count too" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])]; interfaceAddresses = ["192.168.50.10/24"];})])))]
+    # ---- a tap can only join a bridge: the blue-ridge netobs mistake (br-lan.10 is a VLAN interface, not a bridge) ----
+    ["a zone attached to a VLAN interface is an error"
+      (has "hypervisor.networks.wifi: `br0.10` is a vlan interface, not a bridge, and a tap can only join a bridge"
+        (nwErrs [(hvHost {hypervisorNetworks.wifi = {bridge = "br0.10"; macvtap = null;};})]))]
+    ["a zone attached to a link the hypervisor does not declare is an error"
+      (has "`br-nowhere` is not declared on hv" (nwErrs [(hvHost {hypervisorNetworks.wifi = {bridge = "br-nowhere"; macvtap = null;};})]))]
+    ["a zone attached to a real bridge is fine" (!(has "a tap can only join a bridge" (nwErrs [])))]
+    ["a hand-written rule enslaving to a VLAN interface is reported"
+      (has "networkd rule 31-netobs enslaves vm-netobs-wifi to `br0.10`, which is a vlan interface, not a bridge"
+        (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.10/24"]) (nf "31-netobs" ["vm-netobs-wifi"] "br0.10" []) (nf "30-vm-taps" ["vm-*"] "br0" [])];})]))]
+    ["a hand-written rule enslaving to a real bridge is not reported" (!(has "enslaves" (nwWarns [])))]
+    ["a scripted bridge counts as a bridge"
+      (!(has "enslaves" (nwWarns [(hvHost {netdevs = []; scriptedBridges = ["br0" "br-wifi"];})])))]
+    ["a hypervisor that declares no links is not judged"
+      (!(has "not declared on" (nwErrs [(hvHost {netdevs = []; scriptedBridges = [];})])) && !(has "enslaves" (nwWarns [(hvHost {netdevs = []; scriptedBridges = [];})])))]
+
     # ---- 4b: generated tap rules ----
     ["no tap rules unless the hypervisor opts in" ((nw []).hypervisors.hv.tapRules == [])]
     ["tap rules: one per tap of a derived guest, to its zone's bridge, sorted"
