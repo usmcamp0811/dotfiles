@@ -7,11 +7,14 @@
     # and run `fleet` when it is placed (its storage.nix already derives its shares).
     lifecycle = "standby";
     network = {
+      # The guest configures itself from this record (link name, address, gateway, DNS and tap).
+      derive = true;
+      dns = ["192.169.1.2" "1.1.1.1" "8.8.8.8"]; # AdGuard first (a public resolver last); the zone default is AdGuard only
       interfaces = {
         lan = {
           ip = "192.169.1.50";
           mac = "02:00:00:00:00:50";
-          zone = "lan"; # static: the guest configures this address itself (see ./default.nix)
+          zone = "lan";
         };
       };
     };

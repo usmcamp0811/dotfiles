@@ -12,11 +12,14 @@
       }
     ];
     network = {
+      # The guest configures itself from this record (link name, address, gateway, DNS and tap).
+      derive = true;
+      dns = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"]; # this VM is the DNS server: public resolvers
       interfaces = {
         lan = {
           ip = "192.169.1.2";
           mac = "02:00:00:00:00:30";
-          zone = "lan"; # static: the guest configures this address itself (see ./default.nix)
+          zone = "lan";
         };
       };
     };

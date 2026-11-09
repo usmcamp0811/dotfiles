@@ -20,56 +20,15 @@ with lib.fmf; {
     hypervisor = "qemu";
     # Shares and the writable store overlay come from ./storage.nix (fmf.host), not from here.
 
-    interfaces = [
-      {
-        type = "tap";
-        id = "vm-k8s-worker";
-        mac = "02:00:00:00:00:51";
-      }
-    ];
-
     vcpu = 6;
     mem = 8192;
     socket = "control.socket";
   };
 
   ############################################################
-  # Deterministic NIC name
+  # Networking: the NIC name, address, gateway, DNS and tap come from ./host.nix (fmf.host.network.derive)
   ############################################################
-  systemd.network.links."10-lan0" = {
-    matchConfig.MACAddress = "02:00:00:00:00:51";
-    linkConfig.Name = "lan0";
-  };
-
-  # Explicit network configuration for lan0
-  systemd.network.networks."20-lan0" = {
-    matchConfig.Name = "lan0";
-    address = ["192.169.1.51/24"];
-    gateway = ["192.169.1.1"];
-    networkConfig = {
-      DHCP = "no";
-      IPv6AcceptRA = false;
-    };
-    linkConfig.RequiredForOnline = "routable";
-  };
-
-  ############################################################
-  # Networking - static IP
-  ############################################################
-  networking.useNetworkd = true;
-  networking.useDHCP = false;
   services.resolved.enable = false;
-
-  networking.defaultGateway = {
-    address = "192.169.1.1";
-    interface = "lan0";
-  };
-
-  networking.nameservers = [
-    "192.169.1.2" # AdGuard
-    "1.1.1.1"
-    "8.8.8.8"
-  ];
 
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;

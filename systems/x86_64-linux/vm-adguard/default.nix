@@ -21,14 +21,6 @@ with lib.fmf; {
 
     # Shares and the writable store overlay come from ./storage.nix (fmf.host), not from here.
 
-    interfaces = [
-      {
-        type = "tap";
-        id = "vm-adguard";
-        mac = "02:00:00:00:00:30";
-      }
-    ];
-
     vcpu = 2;
     mem = 2047;
     socket = "control.socket";
@@ -43,46 +35,13 @@ with lib.fmf; {
   };
 
   ############################################################
-  # Deterministic NIC name (critical for AdGuard DHCP)
+  # Networking: the NIC name (lan0, which AdGuard's DHCP interface_name relies on), address, gateway, DNS and
+  # tap come from ./host.nix (fmf.host.network.derive). Static IP: this VM is the DHCP server.
   ############################################################
-  systemd.network.links."10-lan0" = {
-    matchConfig.MACAddress = "02:00:00:00:00:30";
-    linkConfig.Name = "lan0";
-  };
-
-  # Explicit network configuration for lan0
-  systemd.network.networks."20-lan0" = {
-    matchConfig.Name = "lan0";
-    address = ["192.169.1.2/24"];
-    gateway = ["192.169.1.1"];
-    networkConfig = {
-      DHCP = "no";
-      IPv6AcceptRA = false;
-    };
-    linkConfig.RequiredForOnline = "routable";
-  };
-
-  ############################################################
-  # Networking - static IP (this VM is DHCP server)
-  ############################################################
-  networking.useNetworkd = true;
-  networking.useDHCP = false;
   services.resolved.enable = false;
 
   # Avoid DHCP being blocked by guest firewall
   networking.firewall.enable = false;
-
-  networking.defaultGateway = {
-    address = "192.169.1.1";
-    interface = "lan0";
-  };
-
-  networking.nameservers = [
-    "1.1.1.1"
-    "1.0.0.1"
-    "8.8.8.8"
-    "8.8.4.4"
-  ];
 
   nix.optimise.automatic = lib.mkForce false;
   nix.settings.auto-optimise-store = lib.mkForce false;
