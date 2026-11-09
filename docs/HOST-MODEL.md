@@ -11,11 +11,17 @@ status: draft
 > Addresses in this document are fmf's example network (`192.168.50.0/24` for the LAN, `192.168.51-54.0/24`
 > for the VLANs), not Campground's real ones; the structure, counts and findings are real.
 
-**Status: phases 0 and 1 done for leases, DNS and port forwards; Vault roles, placement and boot order not
-yet.** The `fmf.host` and `fmf.network.zones` options (`modules/nixos/system/host`), the fleet function
-(`lib/fleet`, with tests) and the `fleet` command (`packages/scripts/fleet`) exist. Campground has a record for
-all 44 hosts (`systems/<host>/host.nix`, loaded only once its fmf lock has the module), and its router leases,
-DNS names and host port forwards are generated from them (`network/generated`). Results are in
+**Status: phases 0 to 3 done in Campground, phase 4 done except where it was deliberately left out.** The
+`fmf.host` and `fmf.network.zones` options (`modules/nixos/system/host`), the fleet function (`lib/fleet`, with
+tests) and the `fleet` command (`packages/scripts/fleet`) exist. Campground has a record for all 44 hosts
+(`systems/<host>/host.nix`), and its router leases, DNS names and host port forwards are generated from them
+(`network/generated`). **Phase 3:** all 20 MicroVMs that are placed on a hypervisor get their shares, store
+overlay, hypervisor stanza, directories (unless marked external) and start ordering from their record; the
+Vault VM's `restartIfChanged` stays unset on purpose. **Phase 4:** guest interface names and each hypervisor's
+zone map are in the records and checked against the machines; webb, sledge, lucas, ermy and butler generate one
+tap rule per guest and have dropped their hand-written `vm-*` globs; the router host is hand-wired by decision;
+the hosts' own bridges and uplinks (4d) and the guest-side address, gateway and DNS (4c) are not derived. Not
+done: the router's zones built from `fmf.network.zones`, and putting the network-monitoring VM on the VLANs. Results are in
 [Phase 0 results](#phase-0-results), [Phase 1 import](#phase-1-import) and
 [Phase 1: what now reads the records](#phase-1-what-now-reads-the-records); decisions are in
 [Decisions](#decisions); phases and their gates are in [Phasing](#phasing-and-verification).
@@ -418,10 +424,13 @@ set `derive` is not in the file and nothing about it changes.
 
 *Done so far:* the options, the pure derivation and the guest-side module, with tests; `fleet` writes and checks
 `microvms.nix`; the measured differences are in [Phase 3 ground truth](#phase-3-ground-truth). In Campground,
-all 20 placed VMs have a `storage.nix` (data, inert until the locked fmf has the options) and the first VM, a
-Kubernetes worker on butler, has been converted: its evaluated shares equal the hand-written set, its
-hypervisor's non-VM `tmpfiles` and the `microvm@*` ordering are unchanged, and the one difference is the
-credential directory mode (`0755` to `0700`). *Not done:* deploying it, and every other VM.
+all 20 placed VMs are converted, hypervisor by hypervisor (lucas, chesty, sledge, webb, then blue-ridge's, then
+the Vault VM and the two k8s VMs). Each conversion was gated the same way: evaluated shares equal as a set, VM
+flags, tmpfiles and `microvm@*` ordering equal, and the guest system differing only through the git revision and
+the nix registry. Three Vault credential shares that were not at the standard path were moved there first (copy,
+change, deploy, verify, delete the old copy). *Not done:* the guest-system comparison for the last four VMs
+(the Vault VM's evaluation stalled on the network and was stopped), and deploying ermy and butler, which are
+offline.
 
 **Phase 4: network attachment.**
 The per-hypervisor zone-to-bridge map. This is the least uniform part and the easiest to get wrong

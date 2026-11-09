@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-09
+* **Host model, phase 3 complete**: the Vault VM, ermy's control-plane VM and butler's worker are derived from their records, so all 20 placed MicroVMs are. The Vault VM keeps `restartIfChanged` unset (it evaluates to false), so a deploy never seals Vault. ermy and butler also generate their tap rules and lose their `vm-k8s` globs. HOST-MODEL.md status brought up to date.
+
 ## 2026-11-08
 * **Host model, phase 4 correction**: the router host's `br-lan.<id>` links are VLAN interfaces, not bridges, so the netobs VLAN taps can never join them; an attempt to make those rules apply was reverted after networkd failed three of the VM's five NICs. `fleet` now compares a hypervisor's declared links: a zone mapped to a non-bridge is an error and a hand-written rule enslaving to one is reported. The router host's zone map says `br-lan`.
 * **Host model, phase 4b (generated tap rules)**: `fmf.host.hypervisor.tapRules` (opt-in per hypervisor) makes `fleet` write one entry per tap of each derived guest into `microvms.nix`, to be turned into an exact networkd rule that sorts before the hand-written `vm-*` globs.
