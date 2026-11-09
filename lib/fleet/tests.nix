@@ -15,6 +15,7 @@
       primary = null;
       leaseName = null;
       id = null;
+      guestName = null;
     }
     // a;
   host = name: a:
@@ -39,6 +40,8 @@
       vaultServer = false;
       hypervisorNetworks = {};
       hypervisorTapRules = false;
+      networkDerive = false;
+      networkDns = null;
       netdevs = [];
       scriptedBridges = [];
       vmInterfaces = [];
@@ -54,6 +57,9 @@
     lan = {subnet = "192.168.50.0/24"; gateway = "192.168.50.1"; vlanId = null; dns = []; hostDomain = "lan-hosts.example.com"; description = ""; dhcpRange = {start = "192.168.50.50"; end = "192.168.50.200";};};
     wifi = {subnet = "192.168.51.0/24"; gateway = "192.168.51.1"; vlanId = 10; dns = []; hostDomain = null; description = "";};
   };
+
+  # the same zones with a DNS server on the LAN, for the guest-network tests
+  zonesDns = zones // {lan = zones.lan // {dns = ["192.168.50.2"];};};
 
   hosts = lib.listToAttrs (map (h: lib.nameValuePair h.name h) [
     (host "blue-ridge" {interfaces.lan = iface {mac = "aa:00:00:00:00:01"; ip = "192.168.50.1";}; topology = {role = "router"; location = null; rack = null; tags = ["core"];};})
@@ -299,6 +305,39 @@
     ["a static address the machine does not configure is reported"
       (has "192.168.50.10 is static in the record but the machine configures 192.168.50.99" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.99/24"]) (nf "30-vm-taps" ["vm-*"] "br0" [])];})]))]
     ["networking.interfaces addresses count too" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])]; interfaceAddresses = ["192.168.50.10/24"];})])))]
+    # ---- 4c: the guest's own networking, from the record and the zone catalogue ----
+    ["guest network: link by MAC, static address with the zone's prefix and gateway, tap interface"
+      (let g = f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;};});
+       in g.links == {"10-lan0" = {mac = "02:00:00:00:01:01"; name = "lan0";};}
+         && g.networks == {"20-lan0" = {name = "lan0"; address = ["192.168.50.31/24"]; gateway = ["192.168.50.1"];};}
+         && g.nameservers == ["192.168.50.2"]
+         && g.interfaces == [{type = "tap"; id = "vm-a"; mac = "02:00:00:00:01:01";}])]
+    ["guest network: an explicit guest name and an explicit hypervisor name are used"
+      (let g = f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true; guestName = "eth7"; id = "vm-aa";};});
+       in lib.attrNames g.links == ["10-eth7"] && lib.attrNames g.networks == ["20-eth7"] && (lib.head g.interfaces).id == "vm-aa")]
+    ["guest network: nameservers come from the record when it sets them, [] means none, null means the zone's"
+      (let mk' = d: (f.guestNetworkOf zonesDns (vm "vm-a" "hv" {networkDns = d; interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true;};})).nameservers;
+       in mk' ["1.1.1.1" "8.8.8.8"] == ["1.1.1.1" "8.8.8.8"] && mk' [] == [] && mk' null == ["192.168.50.2"])]
+    ["guest network: an interface that is not static gets no link or network, but its tap is still listed"
+      (let g = f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = false;};});
+       in g.links == {} && g.networks == {} && lib.length g.interfaces == 1)]
+    ["guest network: an interface without an address or without a MAC is skipped"
+      (let g = f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces = {lan = iface {mac = "02:00:00:00:01:01"; static = true;}; wifi = iface {ip = "192.168.51.9"; static = true; zone = "wifi";};};});
+       in g.links == {} && g.networks == {})]
+    ["guest network: only the primary interface gets the gateway"
+      (let g = f.guestNetworkOf zonesDns (multi {interfaces.lan.static = true; interfaces.wifi.static = true;});
+       in g.networks."20-lan0".gateway == ["192.168.50.1"] && g.networks."20-wifi0".gateway == [] && g.networks."20-wifi0".address == ["192.168.51.32/24"])]
+    ["guest network: a macvtap interface is not defined here (the NIC is the hypervisor's to name)"
+      (let g = f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true; attach = "macvtap";};});
+       in g.interfaces == [] && lib.attrNames g.networks == ["20-lan0"])]
+    ["guest network: a zone the catalogue does not have is skipped, not an error"
+      ((f.guestNetworkOf zonesDns (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "10.9.9.9"; static = true; zone = "nowhere";};})).networks == {})]
+    ["guest network: the tap names the guest defines are the ones the hypervisor side computes"
+      (let
+         guestIds = lib.sort (a: b: a < b) (map (i: i.id) (f.guestNetworkOf zonesDns (multi {})).interfaces);
+         hostIds = lib.sort (a: b: a < b) (map (x: x.id) (lib.filter (x: x.vm == "vm-multi") (nw [(multi {})]).attachments.hv));
+       in guestIds == hostIds && guestIds == ["vm-multi" "vm-multi-wifi"])]
+
     # ---- a tap can only join a bridge: the blue-ridge netobs mistake (br-lan.10 is a VLAN interface, not a bridge) ----
     ["a zone attached to a VLAN interface is an error"
       (has "hypervisor.networks.wifi: `br0.10` is a vlan interface, not a bridge, and a tap can only join a bridge"

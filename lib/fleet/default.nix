@@ -103,6 +103,8 @@
       interfaces = h.network.interfaces;
       vaultAgent = lib.attrByPath ["fmf" "services" "vault-agent" "enable"] false config;
       vaultServer = lib.attrByPath ["fmf" "services" "vault" "enable"] false config;
+      networkDerive = h.network.derive or false;
+      networkDns = h.network.dns or null;
       hypervisorNetworks = (h.hypervisor or {}).networks or {};
       hypervisorTapRules = (h.hypervisor or {}).tapRules or false;
       # What the machine itself is configured with, so records can be checked against it.
@@ -201,6 +203,60 @@
     else if length marked == 0 && length names == 1
     then head names
     else null;
+
+  # The interface's name on the hypervisor (a tap's name): explicit `id`, else the host name for the primary (or
+  # only) interface, `<host>-<interface>` for the others.
+  tapIdOf = h: n: let
+    i = h.interfaces.${n};
+  in
+    if (i.id or null) != null
+    then i.id
+    else if n == primaryOf h
+    then h.name
+    else "${h.name}-${n}";
+
+  # ---- guest networking (phase 4c) ----------------------------------------------------------------
+  #
+  # What a MicroVM configures for itself, derived from its own record and the zone catalogue so the address, MAC,
+  # gateway and DNS are written once. Pure: the guest module turns it into NixOS options, and the tests check it.
+  #   links     { "10-<name>" = { mac; name; }; }               rename the NIC with this MAC
+  #   networks  { "20-<name>" = { name; address; gateway; }; }  static address, the zone's gateway on the primary
+  #   nameservers                                               `dns` of the record, else the primary zone's
+  #   interfaces  [ { type; id; mac; } ]                        the taps (a macvtap is written by hand)
+  guestNameOf = h: n: let
+    i = h.interfaces.${n};
+  in
+    if (i.guestName or null) != null
+    then i.guestName
+    else "${n}0";
+
+  guestNetworkOf = zones: h: let
+    names = attrNames h.interfaces;
+    usable = filter (n: let i = h.interfaces.${n}; in (i.static or false) && i.ip != null && i.mac != null && zones ? ${i.zone}) names;
+    primary = primaryOf h;
+    prefixOf = z: lib.last (splitString "/" z.subnet);
+    gatewayOf = n: let z = zones.${h.interfaces.${n}.zone}; in optional (n == primary && (z.gateway or null) != null) z.gateway;
+    zoneOfPrimary = if primary != null && zones ? ${h.interfaces.${primary}.zone} then zones.${h.interfaces.${primary}.zone} else {};
+  in {
+    links = listToAttrs (map (n: nameValuePair "10-${guestNameOf h n}" {
+      mac = h.interfaces.${n}.mac;
+      name = guestNameOf h n;
+    }) usable);
+    networks = listToAttrs (map (n: nameValuePair "20-${guestNameOf h n}" {
+      name = guestNameOf h n;
+      address = ["${h.interfaces.${n}.ip}/${prefixOf zones.${h.interfaces.${n}.zone}}"];
+      gateway = gatewayOf n;
+    }) usable);
+    nameservers =
+      if (h.networkDns or null) != null
+      then h.networkDns
+      else zoneOfPrimary.dns or [];
+    interfaces = map (n: {
+      type = "tap";
+      id = tapIdOf h n;
+      mac = h.interfaces.${n}.mac;
+    }) (filter (n: (h.interfaces.${n}.attach or "tap") == "tap" && h.interfaces.${n}.mac != null) names);
+  };
 
   leaseNameOf = h: ifname: let
     i = h.interfaces.${ifname};
@@ -348,14 +404,6 @@
     # ---- network attachment (phase 4): which bridge or NIC each guest interface reaches the network through ----
     # One row per interface of a placed MicroVM. `target` is the hypervisor's attachment for that zone (null when the
     # hypervisor has not described its networks yet, or not this zone).
-    tapIdOf = h: n: let
-      i = h.interfaces.${n};
-    in
-      if (i.id or null) != null
-      then i.id
-      else if n == primaryOf h
-      then h.name
-      else "${h.name}-${n}";
     mapOf = hv: (managed.${hv} or {}).hypervisorNetworks or {};
     attachRows = concatMap (h:
       map (n: let
@@ -664,5 +712,5 @@
     microvms = header + "{\n" + concatStringsSep "" (mapAttrsToList hvBlock r.hypervisors) + "}\n";
   in {inherit leases dns forwards microvms;};
 in {
-  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf;};
+  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf guestNetworkOf tapIdOf;};
 }

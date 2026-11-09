@@ -25,6 +25,9 @@ with lib.fmf; let
         description = "Zone id from `fmf.network.zones`. Selects subnet, VLAN, gateway and DNS domain.";
       };
       attach = mkOpt (types.enum ["tap" "macvtap"]) "tap" "MicroVM only: how the interface reaches the network.";
+      guestName =
+        mkOpt (types.nullOr types.str) null
+        "MicroVM only, with `network.derive`: the name the interface has inside the guest. null = `<interface>0` (the `lan` interface is `lan0`).";
       id =
         mkOpt (types.nullOr (types.strMatching "[A-Za-z0-9_.-]{1,15}")) null
         "MicroVM only: the interface's name on the hypervisor (microvm's `id`; Linux allows at most 15 characters). null = the host name for its primary (or only) interface, `<host>-<interface>` for the others. Firewall rules and bridge matches on the hypervisor refer to this name.";
@@ -137,6 +140,22 @@ in {
 
     network.interfaces = mkOpt (types.attrsOf interfaceType) {} "Network interfaces, by name. A host may have several, each in its own zone.";
 
+    network.derive = mkOpt types.bool false ''
+      MicroVM only. Configure the guest's own networking from this record and the zone catalogue, so the address,
+      MAC, gateway and DNS are written once. For each interface with `static = true`, an `ip` and a `mac`: a link
+      that names it (matched by MAC), a systemd-networkd network with its address, the zone's gateway on the primary
+      interface, and no DHCP. It also sets `networking.useNetworkd`, `networking.useDHCP = false` and
+      `networking.nameservers` (all at default priority, so a VM can still override them), and defines
+      `microvm.interfaces` for the interfaces that are taps (a macvtap interface still has to be written by hand,
+      because its NIC is the hypervisor's to name). Anything beyond that, such as extra DNS routing, is added in the
+      VM's own configuration and merges with the generated network. Off by default: a VM that gets its address from
+      DHCP, or that needs another layout, does not opt in.
+    '';
+    network.dns = mkOpt (types.nullOr (types.listOf types.str)) null ''
+      With `network.derive`: the guest's `networking.nameservers`. null = the DNS servers of the primary interface's
+      zone. Set it to a list to override the zone (the DNS server itself uses public resolvers), or `[]` for none.
+    '';
+
     hypervisor.tapRules = mkOpt types.bool false ''
       Generate, for every guest that sets `derive`, one systemd-networkd rule per tap interface that joins it to its
       zone's bridge (from `hypervisor.networks`), written to the committed `microvms` file by `fleet`. The rules are
@@ -209,21 +228,50 @@ in {
     };
   };
 
-  # A MicroVM that opts in (`derive`) gets its shares and store overlay from its own record. The same pure
-  # functions give its hypervisor the matching directories, so the two sides cannot disagree. Nothing else
-  # in this module has an effect on the machine.
+  # A MicroVM that opts in (`derive`, `network.derive`) gets its shares, store overlay and own networking from its
+  # record. The same pure functions give its hypervisor the matching directories and names, so the two sides cannot
+  # disagree. Nothing else in this module has an effect on the machine.
   #
   # The `microvm` options exist only on machines that import the microvm guest module, and the module
-  # system reports a definition of a missing option even under `mkIf false`. So the attributes are only
+  # system reports a definition of a missing option even under `mkIf false`. So the microvm attributes are only
   # written where the option is declared; a physical host never sees them.
   config = let
     active = cfg.kind == "microvm" && cfg.derive;
+    netActive = cfg.kind == "microvm" && cfg.network.derive;
     fl = (import ../../../../lib/fleet/default.nix {inherit lib;}).fleet;
     self = fl.extract config.networking.hostName config;
     overlay = fl.overlayOf self;
+    guest = fl.guestNetworkOf config.fmf.network.zones self;
   in
-    optionalAttrs (options ? microvm && options.microvm ? shares && options.microvm ? writableStoreOverlay) {
-      microvm.shares = mkIf active (fl.sharesOf self);
-      microvm.writableStoreOverlay = mkIf (active && overlay != null) overlay;
-    };
+    mkMerge [
+      (optionalAttrs (options ? microvm && options.microvm ? shares && options.microvm ? writableStoreOverlay) {
+        microvm.shares = mkIf active (fl.sharesOf self);
+        microvm.writableStoreOverlay = mkIf (active && overlay != null) overlay;
+      })
+      (optionalAttrs (options ? microvm && options.microvm ? interfaces) {
+        microvm.interfaces = mkIf netActive guest.interfaces;
+      })
+      {
+        # Default priority on the generic settings, so a VM that needs something else just says so.
+        networking.useNetworkd = mkIf netActive (mkDefault true);
+        networking.useDHCP = mkIf netActive (mkDefault false);
+        networking.nameservers = mkIf netActive (mkDefault guest.nameservers);
+        systemd.network.links = mkIf netActive (mapAttrs (_: l: {
+            matchConfig.MACAddress = l.mac;
+            linkConfig.Name = l.name;
+          })
+          guest.links);
+        systemd.network.networks = mkIf netActive (mapAttrs (_: n: {
+            matchConfig.Name = n.name;
+            address = n.address;
+            gateway = n.gateway;
+            networkConfig = {
+              DHCP = "no";
+              IPv6AcceptRA = false;
+            };
+            linkConfig.RequiredForOnline = "routable";
+          })
+          guest.networks);
+      }
+    ];
 }
