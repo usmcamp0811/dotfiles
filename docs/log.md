@@ -1,6 +1,7 @@
 # Update Log
 
 ## 2026-11-09
+* **Host model, all VMs migrated**: the 11 standby, unplaced MicroVMs (authentik, lemmy, netbird, nextcloud, topology and the k8s VMs) now take their shares and store overlay from a `storage.nix` each, so every one of the 31 VMs is derived; nothing is generated for a hypervisor for them until they are placed.
 * **Host model, phase 3 complete**: the Vault VM, ermy's control-plane VM and butler's worker are derived from their records, so all 20 placed MicroVMs are. The Vault VM keeps `restartIfChanged` unset (it evaluates to false), so a deploy never seals Vault. ermy and butler also generate their tap rules and lose their `vm-k8s` globs. HOST-MODEL.md status brought up to date.
 
 ## 2026-11-08

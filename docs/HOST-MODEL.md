@@ -15,9 +15,10 @@ status: draft
 `fmf.host` and `fmf.network.zones` options (`modules/nixos/system/host`), the fleet function (`lib/fleet`, with
 tests) and the `fleet` command (`packages/scripts/fleet`) exist. Campground has a record for all 44 hosts
 (`systems/<host>/host.nix`), and its router leases, DNS names and host port forwards are generated from them
-(`network/generated`). **Phase 3:** all 20 MicroVMs that are placed on a hypervisor get their shares, store
-overlay, hypervisor stanza, directories (unless marked external) and start ordering from their record; the
-Vault VM's `restartIfChanged` stays unset on purpose. **Phase 4:** guest interface names and each hypervisor's
+(`network/generated`). **Phase 3:** all 31 MicroVMs get their shares and store overlay from their record, and the
+20 that are placed on a hypervisor also get its stanza, directories (unless marked external) and start ordering
+generated (the other 11 are standby and generate nothing on a hypervisor until they are placed); the Vault VM's
+`restartIfChanged` stays unset on purpose. **Phase 4:** guest interface names and each hypervisor's
 zone map are in the records and checked against the machines; webb, sledge, lucas, ermy and butler generate one
 tap rule per guest and have dropped their hand-written `vm-*` globs; the router host is hand-wired by decision;
 the hosts' own bridges and uplinks (4d) and the guest-side address, gateway and DNS (4c) are not derived. Not
@@ -428,9 +429,11 @@ all 20 placed VMs are converted, hypervisor by hypervisor (lucas, chesty, sledge
 the Vault VM and the two k8s VMs). Each conversion was gated the same way: evaluated shares equal as a set, VM
 flags, tmpfiles and `microvm@*` ordering equal, and the guest system differing only through the git revision and
 the nix registry. Three Vault credential shares that were not at the standard path were moved there first (copy,
-change, deploy, verify, delete the old copy). *Not done:* the guest-system comparison for the last four VMs
-(the Vault VM's evaluation stalled on the network and was stopped), and deploying ermy and butler, which are
-offline.
+change, deploy, verify, delete the old copy). The 11 standby VMs were converted last, from their evaluated
+configuration (nothing runs them, so there was no ground truth beyond that): shares equal as sets, the same
+flags, overlay, interfaces, CPU and memory, with two control-plane credentials paths standardised. *Not done:*
+the guest-system comparison for the last 15 VMs (the Vault VM's evaluation stalled on the network and was
+stopped), deploying ermy and butler, which are offline, and booting any standby VM.
 
 **Phase 4: network attachment.**
 The per-hypervisor zone-to-bridge map. This is the least uniform part and the easiest to get wrong
