@@ -18,34 +18,7 @@ with lib.fmf; {
   ############################################################
   microvm = {
     hypervisor = "qemu";
-    writableStoreOverlay = "/nix/.rw-store";
-
-    shares = [
-      {
-        proto = "virtiofs";
-        tag = "ro-store";
-        source = "/nix/store";
-        mountPoint = "/nix/.ro-store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "rw-store";
-        source = "/persist/vm-stores/vm-gitea/nix-store";
-        mountPoint = "/nix/.rw-store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/vm-gitea";
-        mountPoint = "/var/lib/vault/vm-gitea";
-      }
-      {
-        proto = "virtiofs";
-        tag = "gitea-data";
-        source = "/persist/vm-data/vm-gitea";
-        mountPoint = "/var/lib/gitea";
-      }
-    ];
+    # Shares and the writable store overlay come from ./storage.nix (fmf.host), not from here.
 
     interfaces = [
       {

@@ -14,29 +14,7 @@ with lib.fmf; {
   microvm = {
     # Use microvm as the hypervisor (lightweight, fast boot)
     hypervisor = "qemu";
-    writableStoreOverlay = "/nix/.rw-store";
-
-    # Share the host's Nix store to save disk space
-    shares = [
-      {
-        proto = "virtiofs";
-        tag = "ro-store";
-        source = "/nix/store";
-        mountPoint = "/nix/.ro-store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "rw-store";
-        source = "/persist/vm-stores/vm-websites/nix-store";
-        mountPoint = "/nix/.rw-store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/vm-websites"; # Share actual files, not symlinks
-        mountPoint = "/var/lib/vault/vm-websites";
-      }
-    ];
+    # Shares and the writable store overlay come from ./storage.nix (fmf.host), not from here.
 
     # Networking - TAP interface bridged to host network
     interfaces = [

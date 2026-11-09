@@ -5,7 +5,14 @@
   ...
 }:
 with lib;
-with lib.fmf; {
+with lib.fmf; let
+  # Generated from the hosts' `fmf.host` records by `fleet` (network/generated): the LAN leases and the port
+  # forwards to hosts. Edit a record and run `fleet`; do not edit them here.
+  generated = {
+    leases = import ../../../network/generated/leases.nix;
+    forwards = import ../../../network/generated/forwards.nix;
+  };
+in {
   imports = [
     ./hardware.nix
     ./disko.nix
@@ -107,46 +114,9 @@ with lib.fmf; {
               rangeStart = "192.169.1.50";
               rangeEnd = "192.169.1.200";
 
-              # Static DHCP leases (MAC → IP) served by dnsmasq
-              staticLeases = [
-                # MicroVMs
-                {
-                  mac = "02:00:00:00:00:10";
-                  ip = "192.169.1.10";
-                  hostname = "vm-vault";
-                }
-                {
-                  mac = "02:00:00:00:00:11";
-                  ip = "192.169.1.11";
-                  hostname = "vm-websites";
-                }
-                {
-                  mac = "02:00:00:00:00:20";
-                  ip = "192.169.1.20";
-                  hostname = "vm-pub-traefik";
-                }
-                {
-                  mac = "02:00:00:00:00:21";
-                  ip = "192.169.1.21";
-                  hostname = "vm-lan-traefik";
-                }
-                {
-                  mac = "02:00:00:00:00:30";
-                  ip = "192.169.1.2";
-                  hostname = "vm-adguard";
-                }
-                {
-                  mac = "02:00:00:00:00:40";
-                  ip = "192.169.1.40";
-                  hostname = "vm-gitea";
-                }
-                # Physical machines
-                {
-                  mac = "60:6d:3c:c2:4a:6e";
-                  ip = "192.169.1.101";
-                  hostname = "butler";
-                }
-              ];
+              # Static DHCP leases (MAC → IP) served by dnsmasq: every host on the LAN, generated from its
+              # fmf.host record (network/generated/leases.nix).
+              staticLeases = generated.leases.lan or [];
             };
             dns = {
               servers = ["192.169.1.2"]; # AdGuard for DNS filtering
@@ -299,40 +269,9 @@ with lib.fmf; {
         };
       };
 
-      # Port forwarding (declarative)
-      portForwards = [
-        {
-          port = 443;
-          destination = "192.169.1.20";
-          protocol = "tcp";
-          description = "HTTPS to vm-pub-traefik";
-        }
-        {
-          port = 80;
-          destination = "192.169.1.2";
-          destinationPort = 3000;
-          protocol = "tcp";
-          description = "vm-AdGuard Web UI via port 80 -> 3000 (optional)";
-        }
-        {
-          port = 3000;
-          destination = "192.169.1.40";
-          protocol = "tcp";
-          description = "vm-Gitea Web UI";
-        }
-        {
-          port = 8445;
-          destination = "192.169.1.40";
-          protocol = "tcp";
-          description = "vm-Gitea HTTPS (nginx proxy)";
-        }
-        {
-          port = 22022;
-          destination = "192.169.1.40";
-          protocol = "tcp";
-          description = "vm-Gitea SSH";
-        }
-      ];
+      # Port forwarding: every forward to a host is generated from its fmf.host record
+      # (`expose`, network/generated/forwards.nix).
+      portForwards = generated.forwards;
     };
 
     # User configuration
@@ -353,44 +292,9 @@ with lib.fmf; {
     useNotifySockets = true;
   };
 
-  microvm.vms = {
-    vm-vault = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-    vm-websites = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-    vm-pub-traefik = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-    vm-lan-traefik = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-    vm-adguard = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-    vm-gitea = {
-      flake = inputs.self;
-      autostart = true;
-      restartIfChanged = true;
-      updateFlake = "git+https://gitlab.com/usmcamp0811/dotfiles.git";
-    };
-  };
+  # The VM stanzas (flake, autostart, restartIfChanged), their host directories and their start ordering
+  # are generated from each VM's fmf.host record (network/generated/microvms.nix, read by
+  # network/microvm-host.nix). vm-vault leaves restartIfChanged unset on purpose: restarting it seals Vault.
 
   ############################################################
   # Networking

@@ -433,7 +433,13 @@
         ]
         ++ (lib.attrValues (
           lib.filterAttrs (name: _: lib.hasPrefix "stig" name) crystal-forge.nixosModules
-        ));
+        ))
+        # The fleet's network zones (shared by every host) and what a hypervisor reads from the committed
+        # output of `fleet` (see docs/HOST-MODEL.md and network/)
+        ++ [
+          ./network/zones.nix
+          ./network/microvm-host.nix
+        ];
 
       # systemds.hosts.lucas.modules = with inputs; [
       #   unstable.nixosModules.services.k3s
@@ -441,28 +447,32 @@
 
       systems.hosts = let
         hostDir = ./systems/x86_64-linux;
-        hostNames = builtins.attrNames (builtins.readDir hostDir);
-        vmHosts = builtins.filter (name: lib.hasPrefix "vm-" name) hostNames;
-        mkVmModules = name: {
-          modules = [inputs.microvm.nixosModules.microvm];
-        };
-        vmHostsConfig = builtins.listToAttrs (
-          map (name: {
-            inherit name;
-            value = mkVmModules name;
-          })
-          vmHosts
-        );
-      in
-        vmHostsConfig
-        // {
-          blue-ridge.modules = with inputs; [disko.nixosModules.disko];
-          butler.modules = with inputs; [
+        hostNames = builtins.attrNames (lib.filterAttrs (_: type: type == "directory") (builtins.readDir hostDir));
+        # Per-host extra modules
+        extra = with inputs; {
+          blue-ridge = [disko.nixosModules.disko];
+          butler = [
             nixos-hardware.nixosModules.lenovo-thinkpad-p1
             nixos-hardware.nixosModules.lenovo-thinkpad-p53
           ];
-
-          gray.modules = with inputs; [nixos-hardware.nixosModules.framework-16-7040-amd];
+          gray = [nixos-hardware.nixosModules.framework-16-7040-amd];
+        };
+        # A host's fmf.host record: host.nix (identity, interfaces, placement), storage.nix (a MicroVM's
+        # shares and store layout) and attachment.nix (network attachment). See docs/HOST-MODEL.md.
+        record = name:
+          builtins.filter builtins.pathExists [
+            (hostDir + "/${name}/host.nix")
+            (hostDir + "/${name}/storage.nix")
+            (hostDir + "/${name}/attachment.nix")
+          ];
+      in
+        lib.genAttrs hostNames (name: {
+          modules =
+            lib.optional (lib.hasPrefix "vm-" name) inputs.microvm.nixosModules.microvm
+            ++ (extra.${name} or [])
+            ++ record name;
+        })
+        // {
           base.modules = [({...}: {amazonImage.sizeMB = 32 * 1024;})];
         };
 

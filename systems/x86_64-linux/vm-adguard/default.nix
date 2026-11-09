@@ -19,26 +19,7 @@ with lib.fmf; {
   microvm = {
     hypervisor = "qemu";
 
-    shares = [
-      {
-        proto = "virtiofs";
-        tag = "ro-store";
-        source = "/nix/store";
-        mountPoint = "/nix/store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "rw-store";
-        source = "/persist/vm-stores/vm-adguard/nix-store";
-        mountPoint = "/nix/.rw-store";
-      }
-      {
-        proto = "virtiofs";
-        tag = "vault-agent";
-        source = "/persist/system/var/lib/vault/vm-adguard";
-        mountPoint = "/var/lib/vault/vm-adguard";
-      }
-    ];
+    # Shares and the writable store overlay come from ./storage.nix (fmf.host), not from here.
 
     interfaces = [
       {
