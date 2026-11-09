@@ -137,6 +137,12 @@ in {
 
     network.interfaces = mkOpt (types.attrsOf interfaceType) {} "Network interfaces, by name. A host may have several, each in its own zone.";
 
+    hypervisor.tapRules = mkOpt types.bool false ''
+      Generate, for every guest that sets `derive`, one systemd-networkd rule per tap interface that joins it to its
+      zone's bridge (from `hypervisor.networks`), written to the committed `microvms` file by `fleet`. The rules are
+      numbered below the usual hand-written `vm-*` globs, so they win; turn this on one hypervisor at a time.
+    '';
+
     hypervisor.networks = mkOpt (types.attrsOf attachmentType) {} ''
       Physical hosts that run MicroVMs: how a guest interface in each zone is connected, by zone id. Set exactly one
       of `bridge` (for `attach = "tap"`) or `macvtap` (for `attach = "macvtap"`). Read by lib.fmf.fleet to check, and

@@ -38,6 +38,7 @@
       vaultAgent = false;
       vaultServer = false;
       hypervisorNetworks = {};
+      hypervisorTapRules = false;
       vmInterfaces = [];
       networkd = [];
       interfaceAddresses = [];
@@ -291,6 +292,23 @@
     ["a static address the machine does not configure is reported"
       (has "192.168.50.10 is static in the record but the machine configures 192.168.50.99" (nwWarns [(hvHost {networkd = [(nf "20-br0" ["br0"] null ["192.168.50.99/24"]) (nf "30-vm-taps" ["vm-*"] "br0" [])];})]))]
     ["networking.interfaces addresses count too" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])]; interfaceAddresses = ["192.168.50.10/24"];})])))]
+    # ---- 4b: generated tap rules ----
+    ["no tap rules unless the hypervisor opts in" ((nw []).hypervisors.hv.tapRules == [])]
+    ["tap rules: one per tap of a derived guest, to its zone's bridge, sorted"
+      ((nw [(hvHost {hypervisorTapRules = true;}) (multi {})]).hypervisors.hv.tapRules
+        == [{name = "vm-a"; bridge = "br0";} {name = "vm-multi"; bridge = "br0";} {name = "vm-multi-wifi"; bridge = "br-wifi";}])]
+    ["tap rules use the explicit hypervisor name"
+      ((nw [(hvHost {hypervisorTapRules = true;}) (vm "vm-a" "hv" {interfaces.lan = iface {mac = "02:00:00:00:01:01"; ip = "192.168.50.31"; static = true; id = "vm-aa";};})]).hypervisors.hv.tapRules
+        == [{name = "vm-aa"; bridge = "br0";}])]
+    ["no tap rule for a guest that has not opted in to derive"
+      (!(lib.any (t: t.name == "vm-multi") (nw [(hvHost {hypervisorTapRules = true;}) (multi {derive = false;})]).hypervisors.hv.tapRules))]
+    ["no tap rule in a macvtap zone"
+      ((nw [(hvHost {hypervisorTapRules = true; hypervisorNetworks.wifi = {bridge = null; macvtap = {link = "enp7s0"; mode = "bridge";};};}) (multi {interfaces.wifi.attach = "macvtap";})]).hypervisors.hv.tapRules
+        == [{name = "vm-a"; bridge = "br0";} {name = "vm-multi"; bridge = "br0";}])]
+    ["microvms file lists the tap rules"
+      (let m = (f.render (nw [(hvHost {hypervisorTapRules = true;})])).microvms; in lib.hasInfix "    tapRules = [\n      {name = \"vm-a\"; bridge = \"br0\";}\n    ];\n" m)]
+    ["microvms file has an empty tapRules list without the opt-in" (lib.hasInfix "    tapRules = [\n    ];\n" (f.render (nw [])).microvms)]
+
     ["a machine that configures no address at all is not checked" (!(has "is static in the record" (nwWarns [(hvHost {networkd = [(nf "30-vm-taps" ["vm-*"] "br0" [])];})])))]
 
     ["a guest computes its own shares the same way the hypervisor does"

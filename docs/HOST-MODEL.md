@@ -437,9 +437,12 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   where the record and the evaluated machine disagree: a guest's `microvm.interfaces` (name, type, MAC, macvtap
   NIC), the bridge each tap actually joins under the hypervisor's networkd rules (first matching `.network` file in
   lexical order, shell globs), and a static address in the record that the machine does not configure.
-- **4b, generate the tap rules.** One exact `.network` rule per guest interface in `microvms.nix`, numbered below
-  the hand-written globs so it wins; then the globs go. Only guest taps change, never the host's uplink, so a
-  mistake loses a VM's network, not the host.
+- **4b, generate the tap rules (built; switched per hypervisor).** With `hypervisor.tapRules = true`, `fleet` writes
+  one entry per tap of each derived guest into `microvms.nix` (`tapRules = [ { name; bridge; } ]`), and the downstream
+  module turns each into a `28-<tap>` `.network` file with the same settings as the hand-written globs (`30-`, `31-`),
+  so the exact rule wins. Then the globs go. Only guest taps change, never the host's uplink, so a mistake loses a
+  VM's network, not the host. Gate per hypervisor: its evaluated `systemd.network` equals today's plus the new
+  `28-` files, and every tap lands on the bridge it already uses.
 - **4c, the guest side.** `microvm.interfaces` and the guest's static address, gateway and DNS from the record and
   the zone catalogue.
 - **4d, the host's bridges, VLANs and uplink.** The same equality gate as phase 3: the host's evaluated

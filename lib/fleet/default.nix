@@ -104,6 +104,7 @@
       vaultAgent = lib.attrByPath ["fmf" "services" "vault-agent" "enable"] false config;
       vaultServer = lib.attrByPath ["fmf" "services" "vault" "enable"] false config;
       hypervisorNetworks = (h.hypervisor or {}).networks or {};
+      hypervisorTapRules = (h.hypervisor or {}).tapRules or false;
       # What the machine itself is configured with, so records can be checked against it.
       # A MicroVM's own interface definitions (empty on a physical host).
       # macvtap.link is an option without a default: reading it on a tap throws (an undefined option is not a
@@ -320,6 +321,19 @@
       shares = listToAttrs (map (h: nameValuePair h.name (sharesOf h)) gs);
       overlays = listToAttrs (map (h: nameValuePair h.name (overlayOf h)) gs);
       units = listToAttrs (concatMap unitsOf gs);
+      # phase 4b: one networkd rule per tap of a derived guest, joining it to its zone's bridge. Opt-in per hypervisor
+      # (hypervisor.tapRules); a zone the hypervisor attaches with macvtap needs no rule here.
+      tapRules = optionals ((managed.${hv} or {}).hypervisorTapRules or false) (sort (a: b: a.name < b.name)
+        (concatMap (h:
+          concatMap (n: let
+            i = h.interfaces.${n};
+            t = (mapOf hv).${i.zone} or null;
+          in
+            optional ((i.attach or "tap") == "tap" && t != null && t.bridge != null) {
+              name = tapIdOf h n;
+              inherit (t) bridge;
+            }) (attrNames h.interfaces))
+        gs));
     })) (unique (map (h: h.placement.runsOn) guests)));
 
     # ---- network attachment (phase 4): which bridge or NIC each guest interface reaches the network through ----
@@ -595,7 +609,7 @@
       + "}\n";
     forwards = header + "[\n" + concatStringsSep "" (map forwardLine ordered) + "]\n";
 
-    # microvms: { "<hypervisor>" = { vms; tmpfiles; units; }; } for VMs that set fmf.host.derive. The
+    # microvms: { "<hypervisor>" = { vms; tmpfiles; units; tapRules; }; } for VMs that set fmf.host.derive. The
     # consumer adds `flake` to each VM. Everything is sorted, so it compares byte for byte.
     list = xs: "[" + concatStringsSep " " (map q xs) + "]";
     vmLine = n: v:
@@ -610,7 +624,9 @@
       + concatStringsSep "" (map (t: "      ${q t}\n") x.tmpfiles)
       + "    ];\n    units = {\n"
       + concatStringsSep "" (mapAttrsToList unitLine x.units)
-      + "    };\n  };\n";
+      + "    };\n    tapRules = [\n"
+      + concatStringsSep "" (map (t: "      {name = ${q t.name}; bridge = ${q t.bridge};}\n") (x.tapRules or []))
+      + "    ];\n  };\n";
     microvms = header + "{\n" + concatStringsSep "" (mapAttrsToList hvBlock r.hypervisors) + "}\n";
   in {inherit leases dns forwards microvms;};
 in {
