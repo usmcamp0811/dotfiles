@@ -8,7 +8,7 @@ okf_version: "0.2"
 
 # Design
 
-* [Host model - one record per machine (draft spec)](HOST-MODEL.md) - A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, MicroVM hosting and boot ordering from it.
+* [Host model - one record per machine](HOST-MODEL.md) - A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure) and a fleet function that derives leases, DNS, port forwards, MicroVM hosting, boot ordering and the hosts' own networking from it. Lists what is designed but not built.
 
 # Examples
 

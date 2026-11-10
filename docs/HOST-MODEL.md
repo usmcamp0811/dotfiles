@@ -1,9 +1,9 @@
 ---
 type: Design
-title: Host model - one record per machine (draft spec)
-description: A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure, Vault, topology) and a fleet function that derives leases, DNS, port forwards, Vault roles, MicroVM hosting and boot ordering from it.
+title: Host model - one record per machine
+description: A single per-host module (identity, interfaces, lifecycle, placement, storage, boot order, DNS, exposure) and a fleet function that derives leases, DNS, port forwards, MicroVM hosting, boot ordering and the hosts' own networking from it. Lists what is designed but not built.
 tags: [fleet, hosts, microvm, network, vault, design]
-status: draft
+status: stable
 ---
 
 # Host model: one record per machine
@@ -11,19 +11,31 @@ status: draft
 > Addresses in this document are fmf's example network (`192.168.50.0/24` for the LAN, `192.168.51-54.0/24`
 > for the VLANs), not Campground's real ones; the structure, counts and findings are real.
 
-**Status: phases 0 to 3 done in Campground, phase 4 done except where it was deliberately left out.** The
-`fmf.host` and `fmf.network.zones` options (`modules/nixos/system/host`), the fleet function (`lib/fleet`, with
-tests) and the `fleet` command (`packages/scripts/fleet`) exist. Campground has a record for all 44 hosts
-(`systems/<host>/host.nix`), and its router leases, DNS names and host port forwards are generated from them
-(`network/generated`). **Phase 3:** all 31 MicroVMs get their shares and store overlay from their record, and the
-20 that are placed on a hypervisor also get its stanza, directories (unless marked external) and start ordering
-generated (the other 11 are standby and generate nothing on a hypervisor until they are placed); the Vault VM's
-`restartIfChanged` stays unset on purpose. **Phase 4:** guest interface names and each hypervisor's
-zone map are in the records and checked against the machines; webb, sledge, lucas, ermy and butler generate one
-tap rule per guest and have dropped their hand-written `vm-*` globs; the router host is hand-wired by decision;
-a MicroVM can configure its own address, gateway and DNS from its record (4c, `network.derive`, opt in per VM); the hosts' own bridges and uplinks (4d) are not derived. Not
-done: the router's zones built from `fmf.network.zones`, and putting the network-monitoring VM on the VLANs. Results are in
-[Phase 0 results](#phase-0-results), [Phase 1 import](#phase-1-import) and
+**Status: adopted.** This describes what is built; what is designed but not built is listed in
+[Not built](#not-built) and marked where it appears. The `fmf.host` and `fmf.network.zones` options
+(`modules/nixos/system/host`), the fleet function (`lib/fleet`, with tests) and the `fleet` command
+(`packages/scripts/fleet`) exist. Campground has a record for all 44 hosts (`systems/<host>/host.nix`), and its
+router leases, DNS names and host port forwards are generated from them (`network/generated`).
+
+- **Phase 3, hosting.** All 31 MicroVMs get their shares and store overlay from their record, and the 20 that are
+  placed on a hypervisor also get its `microvm.vms` stanza, directories (unless marked external) and start ordering
+  generated. The other 11 are standby and generate nothing on a hypervisor until they are placed. The Vault VM's
+  `restartIfChanged` stays unset on purpose.
+- **Phase 4, networking.** Guest interface names and each hypervisor's zone map are in the records and checked
+  against the machines. webb, sledge, lucas, ermy and butler generate one tap rule per guest and dropped their
+  hand-written `vm-*` globs. 19 MicroVMs configure their own address, gateway and DNS from their record
+  (`network.derive`, opt in). Eight physical hosts (butler, daly, ermy, lucas, mattis, reckless, sledge, webb) get
+  their address, gateway, DNS, bridge, NICs and k8s VLAN bridge from their record.
+- **Hand-wired on purpose:** the router host (blue-ridge), chesty (macvtap, no bridge) and the network-monitoring VM
+  (five interfaces on the router's LAN bridge). Odd per-host things (an unmanaged USB NIC, spare NICs, sysctls,
+  wait-online arguments) stay in the host's own configuration.
+
+**What "done" means here.** Each change was gated by evaluation: the evaluated configuration before and after must be
+equal, with the differences listed in the phase text. That is what this document verifies. Which hosts have been
+deployed is not tracked here, and a bridge or tap change can still break a host's own link, so deploy one host at a
+time with a rollback (`deploy-rs` magic rollback).
+
+Results are in [Phase 0 results](#phase-0-results), [Phase 1 import](#phase-1-import) and
 [Phase 1: what now reads the records](#phase-1-what-now-reads-the-records); decisions are in
 [Decisions](#decisions); phases and their gates are in [Phasing](#phasing-and-verification).
 
@@ -106,7 +118,8 @@ Campground.
 
 ## The host record (`fmf.host`)
 
-Option names are provisional; the structure is what matters.
+These are the options as built (`modules/nixos/system/host`, with a table in its README). Parts marked *not built*
+are designed but have no implementation or no consumer; see [Not built](#not-built).
 
 ### Identity and lifecycle
 
@@ -141,15 +154,29 @@ fmf.host.network.interfaces.<name> = {
 
 - **Zones are defined once, fleet-wide** (name, `subnet`, `gateway`, `vlanId`, DHCP range), and
   interfaces refer to them by name. A VLAN is a zone with a `vlanId`; an interface does not carry its
-  own tag. Today these live in blue-ridge's `fmf.router.zones`; they must be reachable by the fleet
-  function, either by reading them from that configuration or by moving the catalogue to a shared
-  place (open question).
+  own tag. The catalogue is `fmf.network.zones` (decision 5). The router's own zone definitions
+  (`fmf.router.zones`) are still a second copy of it; building them from the catalogue is
+  [not built](#not-built).
 - **Several interfaces** are the normal case: `lucas` has eth and wifi leases; a `vm-netobs`-style VM
   has one interface per monitored VLAN. Each interface produces its own lease and address. For Vault,
   the expected address set of a host is the union over its interfaces.
 - **`static = true`** means the module configures the address in the guest (systemd-networkd) from the
   same record, so the lease and the machine cannot disagree. A generated lease is still produced so the
-  address stays reserved and the audit knows it. Whether VMs should default to static is an open question.
+  address stays reserved and the audit knows it. A MicroVM defaults to static (decision 3).
+- **Interface options beyond the address**, all built:
+
+  | Option | Meaning |
+  |---|---|
+  | `id` | MicroVM: the interface's name on the hypervisor (its tap), at most 15 characters. |
+  | `guestName` | MicroVM with `network.derive`: its name inside the guest (default `<interface>0`). |
+  | `leaseName` | The lease's host name where it differs from the derived one. |
+  | `link` | Physical host: the bridge or link that carries this address. |
+  | `members` | Physical host: the NICs enslaved to `link`. |
+  | `pinMac` | Physical host: give the bridge this interface's MAC. |
+
+  Host-level: `network.derive` (a MicroVM configures its own networking from the record; opt in) and
+  `network.dns` (override the zone's name servers; `[]` means none). On a hypervisor,
+  `hypervisor.networks.<zone>` and `hypervisor.tapRules`. What each produces is in [Phase 4](#phasing-and-verification).
 
 ### Placement and hosting a MicroVM
 
@@ -193,20 +220,19 @@ measured on the real fleet (see [Phase 3 ground truth](#phase-3-ground-truth)), 
 `/persist/system/secrets` (the `root-password` share's source) holds the host's own credentials and is shared
 by every guest, so the model never generates it.
 
-**Network attachment is not uniform today, and is the highest-risk part.** Each hypervisor wires taps to
-bridges by hand: blue-ridge matches `vm-*` onto `br-lan` and sends the netobs taps to VLAN bridges; lucas
-builds `br0` over `eno1`, a VLAN `br0.40` on a separate `br-k8s` bridge, and trusts them in its firewall;
-chesty has no bridge and uses macvtap on `enp7s0`. The model proposes a per-hypervisor map from zone to
-attachment, declared once on the hypervisor:
+**Network attachment was not uniform, and is the highest-risk part.** Each hypervisor wired taps to bridges by
+hand: blue-ridge matches `vm-*` onto `br-lan`; lucas builds `br0` over `eno1`, a VLAN `br0.40` on a separate
+`br-k8s` bridge, and trusts them in its firewall; chesty has no bridge and uses macvtap on `enp7s0`. Each
+hypervisor now declares a map from zone to attachment once:
 
 ```nix
 fmf.host.hypervisor.networks.<zone> = { bridge = "br0"; };            # taps join this bridge
 fmf.host.hypervisor.networks.<zone> = { macvtap.link = "enp7s0"; };   # or macvtap on a NIC
 ```
 
-A VM's interface on zone X is then attached by looking up X on its hypervisor. **This is deliberately a
-later phase** (see Phasing); until then the bridges stay hand-written and only the uniform parts above
-are derived.
+A VM's interface on zone X is attached by looking up X on its hypervisor. With `hypervisor.tapRules = true`
+the tap rule is generated too (phase 4b). The hypervisor's own bridge, NICs and VLAN bridge come from its record
+(phase 4d). The router host (blue-ridge) sets none of this and stays hand-wired.
 
 ### Storage
 
@@ -277,6 +303,11 @@ The **bare host name belongs to the primary interface.** A host with several lea
 VLAN, a stale extra NIC) gets the short name only for its primary address; its other interfaces get their
 lease names and, in a different zone domain, an FQDN. Without this, `mattis` would resolve to three addresses.
 
+**Resolvers.** A guest with `network.derive` and a physical host with `link` get the zone's DNS, or `network.dns`.
+Do not list a public resolver after the local one: systemd-resolved moves to the next server when one fails and
+*stays* there, so a split-horizon name then resolves to its public address until `systemd-resolved` is restarted
+(see 4d).
+
 Every active host gets records for its short name and its FQDN per interface address, which replaces the
 hand-typed `lanHosts` map in `vm-adguard` (today it contains both `vault` and `vm-vault`, and
 `pub-traefik` and `vm-pub-traefik`, as separate entries that must be kept in step). `names` adds service
@@ -304,6 +335,12 @@ fmf.host.vault = {
 };
 ```
 
+**Built, but nothing consumes it.** The option exists and the fleet function returns `vault.roles`,
+`vault.expectedIps` and `vault.retiredRoles` (tested). No downstream reads them: Campground's `approles.nix` is
+still declared by hand, and `vault-access` works out each role's expected addresses itself, from the lease files
+(including the generated one). So what follows is the design, not what runs today. See [Not built](#not-built) and
+decision 10 (aliases are not used).
+
 - **Policies are derived, not listed.** The `svc-*` policies already come from the vault-agent templates;
   the host record never repeats them. `extraPolicies` is for access with no template behind it (CLI or
   script access, the policy agent, a service account such as `gitlab-runner`).
@@ -329,29 +366,35 @@ These feed `fmf.services.circuit-breaker.hints` with `mkDefault`, so existing hi
 nothing is declared twice. Addresses, MACs and placement need no entry: the inventory already reads them
 from the evaluated configuration.
 
+**Built, but nothing consumes it.** The option exists and the fleet function returns `topology`, but nothing feeds
+Circuit Breaker's hints from it yet ([Not built](#not-built)).
+
 ### Non-NixOS devices
 
 Leases also cover machines that have no NixOS configuration at all: the iot zone (18), wifi (7), guest,
-`pikvm`, access points and switches. A host record cannot describe them. They are declared as
-`fmf.host.devices.<name>` on the machine that manages them (typically the router), with the same
-interface fields, and appear in the generated leases, DNS and topology. Circuit Breaker already has a
-`hints.devices` option for the same purpose; whether to reuse it or have one shared declaration is an open
-question.
+`pikvm`, access points and switches. A host record cannot describe them. **There is no `fmf.host.devices`**:
+by decision 7 their leases stay in hand-kept files (Campground's `*-leases.nix`), which the fleet function reads
+as device leases, merges with the generated host leases, and checks for address and MAC clashes. Modelling them
+(possibly through Circuit Breaker's `hints.devices`) is [not built](#not-built).
 
 ## The fleet function
 
-`lib.fmf.fleet.mk { nixosConfigurations; zones; }` returns pure data:
+`lib.fmf.fleet.mk { hosts; zones; }` (with each host read by `fleet.extract`) returns pure data:
 
 | Output | Used for |
 |---|---|
-| `hosts`, with `active` / `standby` / `retired` partitions | everything below |
+| `hosts.{active, standby, retired, unmanaged}` | the partitions everything below uses |
 | `leases.<zone>` | the router's `dhcp.staticLeases`, **merged** with the remaining hand-kept device leases (an overlap is an error) |
-| `dns.rewrites` | the AdGuard rewrites, replacing `lanHosts` |
+| `dns` | the AdGuard rewrites, replacing `lanHosts` |
 | `forwards` | the router port forwards |
-| `vault.{roles, expectedIps, aliases}` | `approles` and the IP audit |
-| `hypervisors.<host>.{vms, directories, shares, units}` | the MicroVM hosting a hypervisor needs |
-| `bootGraph` | ordering units and the cycle check |
-| `assertions` | the fleet-wide checks below |
+| `hypervisors.<host>` | the MicroVM hosting a hypervisor needs: VM flags, directories, ordering units, tap rules (`microvms.nix`) |
+| `attachments` | where each guest interface lands on its hypervisor, for the drift checks |
+| `vault.{roles, expectedIps, retiredRoles}` | built, **not consumed** (see [Vault](#vault)) |
+| `topology` | built, **not consumed** (see [Topology](#topology)) |
+| `errors`, `warnings` | the fleet-wide checks below |
+
+`fleet.render` turns these into the files `fleet` writes (`leases.nix`, `dns.nix`, `forwards.nix`, `microvms.nix`).
+The per-host pieces a module needs (`guestNetworkOf`, `hostNetworkOf`, `sharesOf`) are separate pure functions.
 
 It is lazy and defensive in the same way as the Circuit Breaker exporter: each datum is read through an
 accessor, and a host that cannot be read degrades to a diagnostic and not a crash of the whole fleet.
@@ -370,6 +413,10 @@ contradictions can be fixed one at a time.
 - Two hosts claiming the same Vault role or alias.
 - Two VMs claiming the same non-shared storage `hostPath`.
 - A name that would resolve to two addresses.
+- Network attachment (phase 4a): a guest interface name over 15 characters or used twice on a hypervisor, a zone
+  the hypervisor does not attach, a tap in a macvtap zone or the reverse, and a zone mapped to something that is
+  not a bridge. Warnings where the record and the evaluated machine disagree (a guest's `microvm.interfaces`, the
+  bridge a tap actually joins, a static address the machine does not configure).
 - Warnings: a MicroVM MAC that is not locally administered (`02:...`); a static address inside the zone's
   DHCP pool (`dhcpRange`) that no lease reserves (lucas's situation); a DHCP interface with no MAC; a host
   with no interface.
@@ -383,10 +430,13 @@ The first run over the real fleet found three live contradictions; see [Phase 1 
 | `blue-ridge/router/*-leases.nix` | **done**: host leases generated from the records; the files now hold only non-NixOS devices (later: `hints.devices`), merged in |
 | `vm-adguard` `lanHosts`, `wifiHosts`, `iotHosts`, `k8sHosts` | **done**: generated (`network/generated/dns.nix`); only service names and wildcards stay in `vm-adguard` |
 | `port-forwards.nix` destinations | **done**: forwards to hosts generated; only the Kubernetes load-balancer forwards stay hand-kept |
-| `approles.nix` explicit host roles, `generated/host-ips.nix`, `expected-ips.nix` | derived from `vault` |
-| Per-hypervisor `microvm.vms.*`, per-VM `tmpfiles`, `microvm.shares` boilerplate | derived from placement and storage |
-| `systemd.services."microvm@..."` ordering on blue-ridge | derived from boot order |
-| Hand-set circuit-breaker role, location, tags | `topology` |
+| `approles.nix` explicit host roles, `generated/host-ips.nix`, `expected-ips.nix` | **not built**: still hand-declared; `vault-access` derives the addresses from the lease files |
+| Per-hypervisor `microvm.vms.*`, per-VM `tmpfiles`, `microvm.shares` boilerplate | **done**: derived from placement and storage (`microvms.nix`) |
+| `systemd.services."microvm@..."` ordering on blue-ridge | **done**: derived from boot order |
+| A VM's own `microvm.interfaces`, address, gateway and DNS | **done** for the 19 static VMs (`network.derive`) |
+| A hypervisor's `vm-*` tap globs | **done** on webb, sledge, lucas, ermy and butler (`hypervisor.tapRules`) |
+| A physical host's bridge, NIC, VLAN bridge, address, gateway and DNS | **done** on eight hosts (`link`, `members`, `pinMac`) |
+| Hand-set circuit-breaker role, location, tags | **not built**: `topology` is declared but feeds nothing |
 
 ## Phasing and verification
 
@@ -407,11 +457,15 @@ the rewrites and role map equal what they replace (set comparisons, since order 
 by a flake check over committed generated files. Device leases (iot, wifi, guest, appliances) are not
 touched. *Risk:* a wrong lease can take
 machines off the network. Deploy blue-ridge only after the comparison is exact, and keep the previous
-generation.
+generation. *Done:* leases and DNS. The Vault role and expected-address maps are computed and were compared with
+the real ones (see [Phase 1 import](#phase-1-import)), but nothing reads them: they are [not built](#not-built) as
+a consumer.
 
 **Phase 2: exposure and topology.**
 Generated port forwards and circuit-breaker hints. *Gate:* forwards equal today's list; the Circuit
-Breaker inventory is unchanged.
+Breaker inventory is unchanged. *Done:* the port forwards (generated, and checked by the drift check). *Not
+done:* the hints; `topology` is declared and returned by the fleet function but nothing feeds Circuit Breaker
+from it.
 
 **Phase 3: placement, storage and boot order (the uniform parts).**
 Derive `microvm.vms`, directories, standard and per-VM shares, the credential directory and same-host
@@ -457,7 +511,8 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   lexical order, shell globs), and a static address in the record that the machine does not configure. A tap can only
   join a bridge, so a zone mapped to anything else (a VLAN interface, or a link the hypervisor does not declare) is an
   error, and a hand-written rule that enslaves to a non-bridge is reported.
-- **4b, generate the tap rules (built; switched per hypervisor).** With `hypervisor.tapRules = true`, `fleet` writes
+- **4b, generate the tap rules (done on webb, sledge, lucas, ermy and butler; not on blue-ridge, which is
+  hand-wired by decision, or chesty, which has no bridge).** With `hypervisor.tapRules = true`, `fleet` writes
   one entry per tap of each derived guest into `microvms.nix` (`tapRules = [ { name; bridge; } ]`), and the downstream
   module turns each into a `28-<tap>` `.network` file with the same settings as the hand-written globs (`30-`, `31-`),
   so the exact rule wins. Then the globs go. Only guest taps change, never the host's uplink, so a mistake loses a
@@ -519,13 +574,13 @@ is a separate design problem (VLAN filtering on the LAN bridge, which affects al
 and is not part of this model. Every other guest interface, every record name and type, and every static address
 agreed with the machines.
 
-## Evaluation cost (decided by measurement, see Phase 0 results)
+## Evaluation cost
 
-The router reading the whole fleet makes its build evaluate every host. For scale, the Vault-agent
-extraction over all 44 hosts in one process took about 69 seconds and 3.7 GB; the host record is a small
-slice and should be much cheaper, but **that has not been measured**. If it is too heavy for a build, the
-fallback is committed generated files plus a drift check, as the Vault policies already work. Phase 0
-decides this by measurement.
+Reading the whole fleet makes a build evaluate every host. Measured in phase 0 ([results](#phase-0-results)): one
+host's record takes about 11 s and 0.56 GB, all 44 took 209 s three at a time, and reading all 44 in **one**
+process did not finish on an 8 GB machine. So no build evaluates the fleet. Consumers use **committed generated
+files plus a drift check** (`fleet` writes them, Campground's `checks/fleet` fails when they are stale), as the Vault policies
+already do. The same limit applies to running `fleet` itself: expect several minutes and a lot of memory.
 
 ## Decisions
 
@@ -540,16 +595,18 @@ Settled in review on 2026-11-07:
 4. **Boot order:** only between VMs on the same hypervisor, explicit, no cross-machine wait.
 5. **Zones** live in the network configuration (`fmf.network.zones`); interfaces refer to them by id.
 6. **Topology and devices** share Circuit Breaker's hints: `topology` feeds `hints` (as defaults), and
-   non-NixOS devices use `hints.devices`.
+   non-NixOS devices use `hints.devices`. *Decided, not built* (see [Not built](#not-built)).
 7. **Non-NixOS machines keep working.** The iot, wifi and guest devices and appliances have no host
    record and are not managed by it. Until devices are modelled, their leases stay where they are and
    the generated host leases are **added** to them, never replacing them; the router consumer must merge,
    and an address or MAC claimed by both is an error.
 8. **`restartIfChanged`** is left unset unless a VM sets it, so the Vault VM keeps not restarting.
-9. **Network attachment should become uniform** where possible (phase 4), with the per-hypervisor
-   zone-to-bridge map; it stays hand-written until then.
+9. **Network attachment is uniform where it can be** (phase 4): the per-hypervisor zone-to-bridge map, generated
+   tap rules, and the guest's and the host's own networking from the record. **The router host stays hand-wired**
+   (its networking belongs to the router module), as does the network-monitoring VM (five interfaces), and odd
+   per-host settings stay in the host's own configuration. Single place for the simple path, not for every case.
 10. **No Vault aliases for legacy roles.** A host that still logs in with an old role name gets credentials
-    for its correctly named role instead (the role already exists, declared from its record), and the old
+     for its correctly named role instead (the role already exists, declared in `approles.nix`), and the old
     role is then deleted. A role used by something outside the model (a device or a service account) stays
     declared by hand. The `vault.aliases` option and its handling in `lib/fleet` exist and are tested, but
     nothing uses them; remove them if that stays true.
@@ -676,6 +733,20 @@ record made the mismatch visible; with the owner's confirmation it was deleted.
 hypervisor hosting and boot order (phase 3), network attachment (phase 4), and building the router's zone
 definitions from `fmf.network.zones` (today the zone catalogue and the router's zones are two copies).
 
+## Not built
+
+Designed here, or half built, and deliberately not finished. Each is safe to leave as it is.
+
+| Item | State |
+|---|---|
+| **Vault roles from the records** | `fmf.host.vault` and the fleet's `vault.roles` / `expectedIps` exist and are tested, but nothing reads them. `approles.nix` is hand-declared and `vault-access` computes expected addresses from the lease files. The `vault.aliases` option is unused (decision 10) and should be removed if it stays that way. |
+| **`topology` into Circuit Breaker's hints** | The option and the fleet's `topology` output exist; nothing feeds `hints` from them. |
+| **`fmf.host.devices`** | Does not exist. Non-NixOS devices keep hand-kept lease files (decision 7). |
+| **The router's zones from `fmf.network.zones`** | The router module has its own zone definitions, so the catalogue exists twice. |
+| **The network-monitoring VM on the VLANs** | Needs VLAN filtering on the router's LAN bridge or per-VLAN bridges (a tap cannot join a VLAN interface); not part of this model. Its five interfaces sit on the LAN bridge. |
+| **Guest networking for the DHCP VMs** | The 8 k8s VMs, the Vault VM, the LAN proxy and the websites VM get their address from DHCP, so `network.derive` is not used on them. |
+| **Phase 3 leftovers** | The guest-system comparison for the last 15 VMs, and booting any standby VM. |
+
 ## Risks, stated plainly
 
 - **Network lock-out.** Leases and bridges are how machines reach each other. Phases 1 and 4 can take
@@ -684,7 +755,10 @@ definitions from `fmf.network.zones` (today the zone catalogue and the router's 
   outage for everything that reads secrets.
 - **One more place to be wrong.** A mistaken record now propagates to the router, DNS and Vault together.
   The assertions and the equality gates exist to stop that before deployment.
-- **Evaluation weight.** Unmeasured; see above.
+- **Evaluation weight.** Measured (see above): the fleet cannot be evaluated in one process on a small machine,
+  which is why the generated files are committed.
+- **A tap or bridge change can drop a host's own link.** The evaluation gates compare rules, not behaviour; one
+  attempt to put taps on VLAN interfaces failed on the real router and was reverted (see 4a).
 
 ## Phase 3 ground truth
 
@@ -729,8 +803,10 @@ deliberately the one thing that changes.
 
 ## Evidence this was written from
 
-Counts and file contents were read directly from the repositories on 2026-11-07: the lease files, the
-`microvm.vms` stanzas and `tmpfiles` lines on blue-ridge, lucas and chesty, `vm-mealie`'s shares, the
-blue-ridge ordering block, the AdGuard `lanHosts` map, the router zone definitions, and fmf's Circuit
-Breaker hints. Per-hypervisor VM counts (blue-ridge about 6, chesty and lucas about 4, sledge and webb 2,
-butler and ermy 1) come from a pattern match and are approximate. Nothing here has been run.
+The [Problem](#problem) section's counts and file contents were read directly from the repositories on
+2026-11-07: the lease files, the `microvm.vms` stanzas and `tmpfiles` lines on blue-ridge, lucas and chesty,
+`vm-mealie`'s shares, the blue-ridge ordering block, the AdGuard `lanHosts` map, the router zone definitions, and
+fmf's Circuit Breaker hints. Per-hypervisor VM counts there come from a pattern match and are approximate. The
+later sections record what was measured and compared as each phase was built; the tests are in `lib/fleet/tests.nix`.
+That the options table, the fleet function's outputs and the checks listed here match the code was re-read against
+the code when the spec was adopted.

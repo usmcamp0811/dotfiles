@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-10
+* **Host model spec adopted**: HOST-MODEL.md is now `status: stable`. It was re-read against the code: the status text, the options, the fleet function's outputs (there is no `bootGraph` or `assertions`), the checks and the decisions now match what is built, and a new "Not built" section lists what is designed but has no consumer (Vault roles from records, `topology` into Circuit Breaker hints, `fmf.host.devices`, the router's zones from the catalogue, the network-monitoring VM on the VLANs). No `verified` field was added: nobody has reviewed it.
+
 ## 2026-11-09
 * **Host model, phase 4d (host bridges)**: `fmf.host.network.interfaces.<n>.members` and `pinMac` make a physical host's bridge, the NICs on it and the k8s VLAN bridge come from its record. Campground's eight hosts dropped about 370 lines of networkd blocks; the evaluated rules and netdevs match before and after apart from a renamed NIC block, a duplicated `vlan` entry and a lowercase MAC. The router and per-host oddities stay hand-written.
 * **Host model, host link addresses**: `fmf.host.network.interfaces.<n>.link` makes a physical host's bridge network get its address, and on the primary interface the zone's gateway and DNS, from the record and the zone, so the simple path is written once. Eight Campground hosts use it; the bridges, VLANs and policy stay hand-written. `network.dns` now applies to hosts too, and the docs warn against a public resolver after the zone's own (systemd-resolved sticks to the last server that worked, which broke daly's Nix caches). Pure function `hostNetworkOf` with tests.
