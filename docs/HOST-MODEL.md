@@ -494,9 +494,16 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
     resolver after AdGuard and now use the zone's DNS alone: systemd-resolved moves to the next server when one
     fails and *stays* there, so the fallback made split-horizon names (the Nix caches) resolve to their public
     addresses after every brief AdGuard outage.
-  - **The bridges, VLANs and NIC wiring (not done).** They are topology the record does not hold, and they have the
-    per-host oddities (a USB NIC kept unmanaged, spare NICs, pinned bridge MACs, wait-online arguments). They stay
-    hand-written, and so does the router, whose networking belongs to the router module.
+  - **The bridges, VLANs and NIC wiring (done).** `interfaces.<n>.members` lists the physical NICs enslaved to the
+    link, and `pinMac` gives the bridge the interface's MAC. For a `link` the module writes the bridge netdev
+    (`10-<link>`), a `10-<nic>` network joining each member, and, for a non-primary interface in a zone with a
+    `vlanId`, the VLAN bridge (netdev `15-<link>`, VLAN `<primary link>.<id>`, its `21-` network enslaving it, and the
+    primary link's `vlan` list). The policy values (`RequiredForOnline`, no DHCP, no router advertisements) are
+    defaults a host's own block overrides. Odd things stay hand-written: a USB NIC kept unmanaged, spare NICs,
+    wait-online arguments, sysctls, `domains`, and the router, whose networking belongs to the router module. In
+    Campground the eight hosts dropped about 370 lines. Evaluated before and after the rules and netdevs match, apart
+    from three harmless differences: the NIC's block is now named `10-<nic>`, a `vlan` entry that used to appear twice
+    appears once, and one bridge MAC is lowercase.
 
 *Found by 4a in Campground, and a mistake worth recording.* The router host's network-monitoring VM has four extra
 interfaces meant for the wifi, IoT, guest and k8s VLANs, with hand-written rules putting them on `br-lan.10` to
