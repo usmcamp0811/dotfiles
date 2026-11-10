@@ -16,6 +16,7 @@ okf_version: "0.2"
 
 # Guide
 
+* [Building aarch64 on a throwaway EC2 instance (ec2-build)](EC2-BUILD.md) - How to build aarch64-linux derivations at native speed from an x86_64 machine with ec2-build, which creates a Graviton NixOS instance, uses it as a remote builder for one command and destroys it.
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.
 * [nixpkgs-multiverse: pinning one package version without a new flake input](NIXPKGS-MULTIVERSE.md) - This flake now has nixpkgs-multiverse as an input, and a small library helper, lib.fmf.multiversePackage, that resolves it.
 * [Open Knowledge Format in fmf](OKF.md) - How fmf's docs, modules and systems directories are OKF v0.2 bundles, and how to keep them conformant.

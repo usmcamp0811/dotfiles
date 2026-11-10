@@ -1,6 +1,7 @@
 # Update Log
 
 ## 2026-11-10
+* **ec2-build**: new command (`packages/scripts/ec2-build`, guide in EC2-BUILD.md) that creates a Graviton NixOS instance on EC2 with terranix and OpenTofu, runs one Nix command with it as the `aarch64-linux` builder, and destroys it. Credentials come from the environment or `--env-file`. Checked without AWS (tofu validate, shellcheck, the preflight, env file and cleanup paths against refused credentials); no real run yet, so the guide is `status: draft`.
 * **Host model spec adopted**: HOST-MODEL.md is now `status: stable`. It was re-read against the code: the status text, the options, the fleet function's outputs (there is no `bootGraph` or `assertions`), the checks and the decisions now match what is built, and a new "Not built" section lists what is designed but has no consumer (Vault roles from records, `topology` into Circuit Breaker hints, `fmf.host.devices`, the router's zones from the catalogue, the network-monitoring VM on the VLANs). No `verified` field was added: nobody has reviewed it.
 
 ## 2026-11-09

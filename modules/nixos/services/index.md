@@ -17,7 +17,7 @@
 * [opencode-server](opencode-server/README.md) - Runs `opencode serve` as a systemd service behind HTTP basic auth, with the password from Vault, and a watchdog that restarts it when it hangs.
 * [openvpn](openvpn/README.md) - This README provides a comprehensive guide on how to set up an OpenVPN server on NixOS, with certificates generated and managed by HashiCorp Vault.
 * [paperless](paperless/README.md) - The NixOS Paperless module facilitates the deployment and management of the Paperless document management system on your NixOS setup using a flake.
-* [pikvm](pikvm/README.md) - A comprehensive NixOS module for deploying PiKVM (KVM over IP) for remote server management, typically on Raspberry Pi hardware.
+* [pikvm](pikvm/README.md) - Runs PiKVM (kvmd, KVM over IP) on a Raspberry Pi, with its web UI behind nginx, virtual media, and the OTG, VNC, IPMI and Janus services.
 * [postgresql](postgresql/README.md) - This is a custom NixOS module designed to manage PostgreSQL databases.
 * [user-secrets](user-secrets/README.md) - The User Secrets Service is a NixOS module designed to securely fetch and manage user-specific secrets from HashiCorp's Vault.
 * [vault](vault/README.md) - This module simplifies the configuration and management of HashiCorp Vault on NixOS.

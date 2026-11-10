@@ -1,3 +1,13 @@
+---
+type: NixOS Module
+title: fmf.services.pikvm
+description: Runs PiKVM (kvmd, KVM over IP) on a Raspberry Pi, with its web UI behind nginx, virtual media, and the OTG, VNC, IPMI and Janus services.
+resource: ./default.nix
+tags: [services, pikvm, kvm, raspberry-pi, aarch64]
+status: draft
+generated: { by: claude-agent/opus-5-5, at: 2026-11-10T19:00:00Z }
+---
+
 # PiKVM Service Module
 
 A comprehensive NixOS module for deploying PiKVM (KVM over IP) for remote server management and control.
@@ -250,191 +260,35 @@ The module configures passwordless sudo access for specific helper scripts:
 - `kvmd` user can run `kvmd-helper-otgmsd-remount` and `kvmd-helper-pst-remount`
 - `kvmd-pst` user can run `kvmd-helper-pst-remount`
 
-## Building for ARM on x86_64 Systems
+## Building on an x86_64 machine
 
-Since PiKVM runs on Raspberry Pi (aarch64 architecture), but most development systems are x86_64, you need to cross-build or emulate. Here are your options:
+The target is `aarch64-linux`. From an x86_64 machine there are two ways to build it:
 
-### Option 1: QEMU Emulation (Recommended for most users)
+- **Natively on a throwaway EC2 instance** with `ec2-build`, which creates a Graviton NixOS
+  instance, uses it as the remote builder for one command and destroys it. See
+  [Building aarch64 on a throwaway EC2 instance](../../../../docs/EC2-BUILD.md).
 
-**Pros**: Works on any NixOS system, no additional hardware needed  
-**Cons**: Slow (2-4 hour builds)
+  ```bash
+  nix run .#ec2-build -- --env-file ~/.config/ec2-build.env -- \
+    nix build .#nixosConfigurations.pikvm.config.system.build.toplevel
+  ```
 
-#### Setup
+- **Under emulation** on the build machine itself, which is much slower:
 
-Add to your NixOS configuration:
+  ```nix
+  boot.binfmt.emulatedSystems = ["aarch64-linux"];
+  ```
 
-```nix
-{
-  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  nix.settings.extra-platforms = [ "aarch64-linux" ];
-}
-```
-
-Apply the configuration:
-
-```bash
-sudo nixos-rebuild switch
-```
-
-That's it! Now you can build ARM images directly.
-
-### Option 2: Remote Builder (Fastest)
-
-**Pros**: Native ARM speed, builds in minutes  
-**Cons**: Requires access to an ARM machine
-
-#### Setup
-
-If you have any ARM-based NixOS machine (Raspberry Pi, ARM server, etc.):
-
-1. **On the ARM machine**, ensure SSH and nix are properly configured:
-
-```nix
-{
-  nix.settings.trusted-users = [ "your-user" ];
-  services.openssh.enable = true;
-}
-```
-
-2. **On your x86_64 build machine**, configure the remote builder:
-
-```nix
-# Add to /etc/nix/nix.conf or ~/.config/nix/nix.conf
-builders = ssh://user@arm-host aarch64-linux - 4
-builders-use-substitutes = true
-```
-
-Or use the `--builders` flag when building:
-
-```bash
-nix build --builders "ssh://user@arm-host aarch64-linux" ...
-```
-
-3. **Ensure SSH key authentication** is set up:
-
-```bash
-ssh-copy-id user@arm-host
-```
-
-Builds will now automatically use the ARM machine.
-
-### Option 3: Binary Cache
-
-**Pros**: Instant if someone has already built it  
-**Cons**: May not have your specific configuration
-
-If using a shared binary cache:
-
-```nix
-{
-  nix.settings = {
-    substituters = [
-      "https://cache.nixos.org"
-      "https://nix-community.cachix.org"
-    ];
-    trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-    ];
-  };
-}
-```
-
-### Option 4: GitHub Actions CI
-
-**Pros**: No local resources needed, reproducible  
-**Cons**: Requires GitHub setup, still slow due to emulation
-
-Create `.github/workflows/build-pikvm.yml`:
-
-```yaml
-name: Build PiKVM Image
-
-on:
-  push:
-    paths:
-      - 'systems/**/pikvm/**'
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: cachix/install-nix-action@v24
-        with:
-          extra_nix_config: |
-            extra-platforms = aarch64-linux
-      
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      
-      - name: Build PiKVM Image
-        run: |
-          nix run nixpkgs#nixos-generators -- \
-            -f sd-aarch64 \
-            --flake .#pikvm \
-            --system aarch64-linux \
-            -o ./pikvm-image
-      
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pikvm-sd-image
-          path: ./pikvm-image/sd-image/*.img*
-```
-
-### Performance Comparison
-
-| Method | Typical Build Time | Setup Difficulty | Requirements |
-|--------|-------------------|------------------|--------------|
-| QEMU Emulation | 2-4 hours | Easy | NixOS config change |
-| Remote ARM Builder | 10-30 minutes | Medium | ARM machine access |
-| Binary Cache | Seconds | Easy | Cache availability |
-| CI/CD | 2-4 hours | Medium | GitHub account |
-
-### Troubleshooting
-
-#### "unsupported system type aarch64-linux"
-
-Enable binfmt emulation or add a remote builder (see options above).
-
-Quick fix:
-```bash
-nix build --extra-platforms aarch64-linux --system aarch64-linux ...
-```
-
-#### Build extremely slow
-
-You're using QEMU emulation. This is normal. Options:
-- Use a remote ARM builder
-- Build overnight
-- Use CI/CD
-- Try a binary cache
-
-#### "cannot build derivation on wrong platform"
-
-Some packages don't support cross-compilation. Use QEMU emulation or remote builder.
-
-#### Out of disk space
-
-```bash
-# Free up space
-nix-collect-garbage -d
-
-# Check available space (need 20-30GB)
-df -h /nix
-```
+An existing aarch64 machine can also be a permanent remote builder (`nix.buildMachines`).
 
 ## Installation
 
-**Note**: If building on an x86_64 system, see the [Building for ARM on x86_64 Systems](#building-for-arm-on-x86_64-systems) section above first.
+**Note**: on an x86_64 machine, see [Building on an x86_64 machine](#building-on-an-x86_64-machine) first.
 
 ### 1. Generate SD Card Image
 
 ```bash
-# This will use QEMU emulation if you've enabled it, or a remote builder if configured
+# On x86_64, prefix with: nix run .#ec2-build -- --env-file ~/.config/ec2-build.env --
 nix run nixpkgs#nixos-generators -- \
   -f sd-aarch64 \
   --flake .#pikvm \
