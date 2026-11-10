@@ -25,6 +25,17 @@ with lib.fmf; let
         description = "Zone id from `fmf.network.zones`. Selects subnet, VLAN, gateway and DNS domain.";
       };
       attach = mkOpt (types.enum ["tap" "macvtap"]) "tap" "MicroVM only: how the interface reaches the network.";
+      link =
+        mkOpt (types.nullOr types.str) null
+        ''
+          Physical host only: the name of the link on this machine that carries this address, for example the
+          bridge `br0`. Setting it makes the module write that link's systemd-networkd network from this record
+          and the zone: the address (with the zone's prefix), and on the primary interface the zone's gateway and
+          DNS (or `network.dns`). Everything else about the link, such as the bridge itself, a VLAN on it or
+          `RequiredForOnline`, stays in the host's own configuration and merges with this. The network is named
+          `20-<link>` for the primary interface and `25-<link>` for any other, so the host's own block for that
+          link must use that name.
+        '';
       guestName =
         mkOpt (types.nullOr types.str) null
         "MicroVM only, with `network.derive`: the name the interface has inside the guest. null = `<interface>0` (the `lan` interface is `lan0`).";
@@ -152,8 +163,12 @@ in {
       DHCP, or that needs another layout, does not opt in.
     '';
     network.dns = mkOpt (types.nullOr (types.listOf types.str)) null ''
-      With `network.derive`: the guest's `networking.nameservers`. null = the DNS servers of the primary interface's
-      zone. Set it to a list to override the zone (the DNS server itself uses public resolvers), or `[]` for none.
+      The DNS servers: a MicroVM with `network.derive` gets them as `networking.nameservers`, and a physical host
+      gets them on the link of its primary interface (see `network.interfaces.<n>.link`). null = the DNS servers of
+      the primary interface's zone. Set it to a list to override the zone (the DNS server itself uses public
+      resolvers), or `[]` for none. Do not list a public resolver after the zone's own: systemd-resolved moves to
+      the next server when one fails and stays there, so a public fallback makes split-horizon names resolve to
+      their public addresses after every brief outage of the zone's resolver.
     '';
 
     hypervisor.tapRules = mkOpt types.bool false ''
@@ -242,6 +257,7 @@ in {
     self = fl.extract config.networking.hostName config;
     overlay = fl.overlayOf self;
     guest = fl.guestNetworkOf config.fmf.network.zones self;
+    hostLinks = fl.hostNetworkOf config.fmf.network.zones self;
   in
     mkMerge [
       (optionalAttrs (options ? microvm && options.microvm ? shares && options.microvm ? writableStoreOverlay) {
@@ -276,6 +292,18 @@ in {
             linkConfig.RequiredForOnline = "routable";
           })
           guest.networks);
+      }
+      {
+        # A physical host: only the interfaces that name their `link` are touched, and only with the address,
+        # gateway and DNS. The bridge, VLANs and policy are the host's own and merge with this (same name).
+        systemd.network.networks = mkIf (cfg.kind == "physical") (mapAttrs (_: n: {
+            matchConfig.Name = n.name;
+            networkConfig =
+              {Address = n.address;}
+              // optionalAttrs (n.gateway != null) {Gateway = n.gateway;}
+              // optionalAttrs (n.dns != null) {DNS = n.dns;};
+          })
+          hostLinks);
       }
     ];
 }

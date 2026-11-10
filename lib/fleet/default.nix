@@ -258,6 +258,38 @@
     }) (filter (n: (h.interfaces.${n}.attach or "tap") == "tap" && h.interfaces.${n}.mac != null) names);
   };
 
+  # ---- the networking of a physical host's own links (the address, gateway and DNS of a bridge) -------
+  #
+  # An interface that names its `link` (the bridge that carries the address) gets that link's systemd-networkd
+  # network written from the record and the zone. Only the facts the record already holds: the address with the
+  # zone's prefix and, on the primary interface, the zone's gateway and DNS (or the record's `network.dns`).
+  # The bridge itself, VLANs and policy stay in the host's own configuration and merge with this, which is why
+  # the name is fixed: `20-<link>` for the primary interface, `25-<link>` for any other.
+  #   { "20-br0" = { name = "br0"; address = "10.8.0.89/24"; gateway = "10.8.0.1"; dns = ["10.8.0.2"]; }; ... }
+  hostNetworkOf = zones: h: let
+    names = attrNames h.interfaces;
+    usable = filter (n: let i = h.interfaces.${n}; in (i.link or null) != null && (i.static or false) && i.ip != null && zones ? ${i.zone}) names;
+    primary = primaryOf h;
+    prefixOf = z: lib.last (splitString "/" z.subnet);
+    zoneOf = n: zones.${h.interfaces.${n}.zone};
+  in
+    listToAttrs (map (n: let
+      i = h.interfaces.${n};
+      isPrimary = n == primary;
+      z = zoneOf n;
+    in
+      nameValuePair "${if isPrimary then "20" else "25"}-${i.link}" {
+        name = i.link;
+        address = "${i.ip}/${prefixOf z}";
+        gateway = if isPrimary && (z.gateway or null) != null then z.gateway else null;
+        dns =
+          if !isPrimary
+          then null
+          else if (h.networkDns or null) != null
+          then h.networkDns
+          else z.dns or [];
+      }) usable);
+
   leaseNameOf = h: ifname: let
     i = h.interfaces.${ifname};
     base =
@@ -712,5 +744,5 @@
     microvms = header + "{\n" + concatStringsSep "" (mapAttrsToList hvBlock r.hypervisors) + "}\n";
   in {inherit leases dns forwards microvms;};
 in {
-  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf guestNetworkOf tapIdOf;};
+  fleet = {inherit extract mk render parseIp parseCidr inSubnet inPool sharesOf overlayOf directoriesOf guestNetworkOf hostNetworkOf tapIdOf;};
 }

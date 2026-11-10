@@ -16,6 +16,7 @@
       leaseName = null;
       id = null;
       guestName = null;
+      link = null;
     }
     // a;
   host = name: a:
@@ -337,6 +338,27 @@
          guestIds = lib.sort (a: b: a < b) (map (i: i.id) (f.guestNetworkOf zonesDns (multi {})).interfaces);
          hostIds = lib.sort (a: b: a < b) (map (x: x.id) (lib.filter (x: x.vm == "vm-multi") (nw [(multi {})]).attachments.hv));
        in guestIds == hostIds && guestIds == ["vm-multi" "vm-multi-wifi"])]
+
+    # ---- the networking of a physical host's own links, from the record and the zone ----
+    ["host link: address with the zone's prefix, gateway and DNS on the primary, named 20-<link>"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0";};});
+       in g == {"20-br0" = {name = "br0"; address = "192.168.50.60/24"; gateway = "192.168.50.1"; dns = ["192.168.50.2"];};})]
+    ["host link: a non-primary interface gets only its address, named 25-<link>, no gateway and no DNS"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces = {
+             lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; primary = true;};
+             wifi = iface {mac = "aa:00:00:00:00:52"; ip = "192.168.51.60"; static = true; link = "br-w"; zone = "wifi";};};});
+       in g."25-br-w" == {name = "br-w"; address = "192.168.51.60/24"; gateway = null; dns = null;} && lib.attrNames g == ["20-br0" "25-br-w"])]
+    ["host link: network.dns replaces the zone's DNS, [] means none"
+      (let mk' = d: (f.hostNetworkOf zonesDns (host "h1" {networkDns = d; interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0";};})).${"20-br0"}.dns;
+       in mk' ["9.9.9.9"] == ["9.9.9.9"] && mk' [] == [] && mk' null == ["192.168.50.2"])]
+    ["host link: an interface without a link is left alone"
+      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true;};}) == {})]
+    ["host link: a DHCP interface, or one without an address, is left alone"
+      (f.hostNetworkOf zonesDns (host "h1" {interfaces = {
+         lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = false; link = "br0";};
+         wifi = iface {mac = "aa:00:00:00:00:52"; static = true; link = "br-w"; zone = "wifi";};};}) == {})]
+    ["host link: a zone the catalogue does not have is skipped"
+      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "10.9.9.9"; static = true; link = "br0"; zone = "nowhere";};}) == {})]
 
     # ---- a tap can only join a bridge: the blue-ridge netobs mistake (br-lan.10 is a VLAN interface, not a bridge) ----
     ["a zone attached to a VLAN interface is an error"
