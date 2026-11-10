@@ -480,11 +480,23 @@ that put guest taps on a bridge (or, on a macvtap host, the NIC each guest sits 
   from definitions of the *same* priority is concatenated, and one VM had silently relied on its plain
   assignment replacing a module's `127.0.0.1` default; and a VM's own assignment (priority 100) still overrides
   the generated value.
-- **4d, the host's bridges, VLANs and uplink.** The same equality gate as phase 3: the host's evaluated
+- **4d, the host's own links.** Split in two, with the same equality gate as phase 3: the host's evaluated
   `systemd.network` must equal today's before it is deployed, because this is the path the deploy itself runs over
   (a bridge without its pinned MAC, a parent without its `vlan`, or a second `.network` file with a lower number that
-  silently wins would drop the host's own link). Host oddities stay hand-written (a USB NIC kept unmanaged, spare
-  NICs, wait-online arguments), and so does the router, whose networking belongs to the router module.
+  silently wins would drop the host's own link).
+  - **The addresses (done).** A record interface that names its `link` (the bridge that carries the address) gets
+    that link's network written from the record and the zone: the address with the zone's prefix and, on the primary
+    interface, the zone's gateway and DNS (or `network.dns`). The network is named `20-<link>` for the primary
+    interface and `25-<link>` for any other, because generated config only merges into a hand-written block of the
+    same name. The bridge, VLANs, `RequiredForOnline`, the IPv6 flags and `domains` stay in the host's own
+    configuration and merge with it. In Campground eight hosts use it. Evaluated on the hand-written and on the
+    derived configuration the rules are identical, except that three hosts (butler, ermy, mattis) listed a public
+    resolver after AdGuard and now use the zone's DNS alone: systemd-resolved moves to the next server when one
+    fails and *stays* there, so the fallback made split-horizon names (the Nix caches) resolve to their public
+    addresses after every brief AdGuard outage.
+  - **The bridges, VLANs and NIC wiring (not done).** They are topology the record does not hold, and they have the
+    per-host oddities (a USB NIC kept unmanaged, spare NICs, pinned bridge MACs, wait-online arguments). They stay
+    hand-written, and so does the router, whose networking belongs to the router module.
 
 *Found by 4a in Campground, and a mistake worth recording.* The router host's network-monitoring VM has four extra
 interfaces meant for the wifi, IoT, guest and k8s VLANs, with hand-written rules putting them on `br-lan.10` to
