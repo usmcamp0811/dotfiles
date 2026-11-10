@@ -266,29 +266,71 @@
   # The bridge itself, VLANs and policy stay in the host's own configuration and merge with this, which is why
   # the name is fixed: `20-<link>` for the primary interface, `25-<link>` for any other.
   #   { "20-br0" = { name = "br0"; address = "10.8.0.89/24"; gateway = "10.8.0.1"; dns = ["10.8.0.2"]; }; ... }
+  #
+  # Beyond the address, the same record describes the simple topology around it, with the names the hand-written
+  # configuration already used so that generated and hand-written parts merge:
+  #   members     the NICs enslaved to the link: the link is a bridge ("10-<link>" netdev, MAC from the record when
+  #               pinMac) and each NIC gets a "10-<nic>" network joining it.
+  #   a non-primary interface in a VLAN zone (zone.vlanId) is a bridge for that VLAN: "15-<link>" netdev, a VLAN
+  #   "<primary link>.<id>" ("20-<primary link>-vlan<id>" netdev) and its "21-<primary link>-vlan<id>" network that
+  #   enslaves it to the bridge; the primary link's network lists that VLAN.
+  # `role` says which defaults the module applies (primary: routable; secondary: no DHCP, no RA, not required for
+  # online; member and vlan: enslaved).
+  #   { netdevs = { "<key>" = { kind; name; mac; vlanId; }; };
+  #     networks = { "<key>" = { role; name; address; gateway; dns; bridge; vlan; }; }; }
   hostNetworkOf = zones: h: let
     names = attrNames h.interfaces;
     usable = filter (n: let i = h.interfaces.${n}; in (i.link or null) != null && (i.static or false) && i.ip != null && zones ? ${i.zone}) names;
     primary = primaryOf h;
     prefixOf = z: lib.last (splitString "/" z.subnet);
     zoneOf = n: zones.${h.interfaces.${n}.zone};
-  in
-    listToAttrs (map (n: let
+    primaryLink = if primary != null && elem primary usable then h.interfaces.${primary}.link else null;
+    vlanIdOf = n: (zoneOf n).vlanId or null;
+    isVlanBridge = n: n != primary && primaryLink != null && vlanIdOf n != null;
+    vlanName = n: "${primaryLink}.${toString (vlanIdOf n)}";
+    vlanKey = n: "${primaryLink}-vlan${toString (vlanIdOf n)}";
+    vlanBridges = filter isVlanBridge usable;
+    one = n: let
       i = h.interfaces.${n};
       isPrimary = n == primary;
       z = zoneOf n;
-    in
-      nameValuePair "${if isPrimary then "20" else "25"}-${i.link}" {
-        name = i.link;
-        address = "${i.ip}/${prefixOf z}";
-        gateway = if isPrimary && (z.gateway or null) != null then z.gateway else null;
-        dns =
-          if !isPrimary
-          then null
-          else if (h.networkDns or null) != null
-          then h.networkDns
-          else z.dns or [];
-      }) usable);
+      members = i.members or [];
+    in {
+      netdevs =
+        lib.optionalAttrs (members != []) {
+          "10-${i.link}" = {kind = "bridge"; name = i.link; mac = if (i.pinMac or false) && i.mac != null then i.mac else null; vlanId = null;};
+        }
+        // lib.optionalAttrs (isVlanBridge n) {
+          "15-${i.link}" = {kind = "bridge"; name = i.link; mac = null; vlanId = null;};
+          "20-${vlanKey n}" = {kind = "vlan"; name = vlanName n; mac = null; vlanId = vlanIdOf n;};
+        };
+      networks =
+        {
+          "${if isPrimary then "20" else "25"}-${i.link}" = {
+            role = if isPrimary then "primary" else "secondary";
+            name = i.link;
+            address = "${i.ip}/${prefixOf z}";
+            gateway = if isPrimary && (z.gateway or null) != null then z.gateway else null;
+            dns =
+              if !isPrimary
+              then null
+              else if (h.networkDns or null) != null
+              then h.networkDns
+              else z.dns or [];
+            bridge = null;
+            vlan = if isPrimary then map vlanName vlanBridges else [];
+          };
+        }
+        // listToAttrs (map (nic: nameValuePair "10-${nic}" {role = "member"; name = nic; address = null; gateway = null; dns = null; bridge = i.link; vlan = [];}) members)
+        // lib.optionalAttrs (isVlanBridge n) {
+          "21-${vlanKey n}" = {role = "vlan"; name = vlanName n; address = null; gateway = null; dns = null; bridge = i.link; vlan = [];};
+        };
+    };
+    parts = map one usable;
+  in {
+    netdevs = lib.foldl' (a: p: a // p.netdevs) {} parts;
+    networks = lib.foldl' (a: p: a // p.networks) {} parts;
+  };
 
   leaseNameOf = h: ifname: let
     i = h.interfaces.${ifname};

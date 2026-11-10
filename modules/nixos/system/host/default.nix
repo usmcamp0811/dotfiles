@@ -36,6 +36,18 @@ with lib.fmf; let
           `20-<link>` for the primary interface and `25-<link>` for any other, so the host's own block for that
           link must use that name.
         '';
+      members =
+        mkOpt (types.listOf types.str) []
+        ''
+          Physical host only, with `link`: the physical NICs enslaved to that link, which makes the link a bridge.
+          The module then writes the bridge, and a network that joins each of these NICs to it.
+        '';
+      pinMac =
+        mkOpt types.bool false
+        ''
+          Physical host only, with `members`: give the bridge this interface's MAC address, the NIC's, so the host
+          keeps the address its DHCP reservation and its switch port know.
+        '';
       guestName =
         mkOpt (types.nullOr types.str) null
         "MicroVM only, with `network.derive`: the name the interface has inside the guest. null = `<interface>0` (the `lan` interface is `lan0`).";
@@ -294,16 +306,44 @@ in {
           guest.networks);
       }
       {
-        # A physical host: only the interfaces that name their `link` are touched, and only with the address,
-        # gateway and DNS. The bridge, VLANs and policy are the host's own and merge with this (same name).
-        systemd.network.networks = mkIf (cfg.kind == "physical") (mapAttrs (_: n: {
+        # A physical host: only the interfaces that name their `link` are touched. Each gets its address (and on
+        # the primary one the gateway and DNS), the bridge it is, the NICs that join it and the VLAN bridge, all
+        # under the names the host's own blocks use, so anything else the host says about them merges. The policy
+        # values are at default priority: a host that needs another says so in its own block.
+        systemd.network.netdevs = mkIf (cfg.kind == "physical") (mapAttrs (_: d:
+          {
+            netdevConfig = {Kind = d.kind; Name = d.name;} // optionalAttrs (d.mac != null) {MACAddress = d.mac;};
+          }
+          // optionalAttrs (d.vlanId != null) {vlanConfig.Id = d.vlanId;})
+        hostLinks.netdevs);
+        systemd.network.networks = mkIf (cfg.kind == "physical") (mapAttrs (_: n:
+          if n.role == "primary"
+          then {
             matchConfig.Name = n.name;
             networkConfig =
               {Address = n.address;}
               // optionalAttrs (n.gateway != null) {Gateway = n.gateway;}
               // optionalAttrs (n.dns != null) {DNS = n.dns;};
+            linkConfig.RequiredForOnline = mkDefault "routable";
+          }
+          // optionalAttrs (n.vlan != []) {vlan = n.vlan;}
+          else if n.role == "secondary"
+          then {
+            matchConfig.Name = n.name;
+            networkConfig = {
+              Address = n.address;
+              DHCP = mkDefault "no";
+              IPv6AcceptRA = mkDefault false;
+            };
+            linkConfig.RequiredForOnline = mkDefault "no";
+          }
+          else {
+            # a NIC joining its bridge, or the VLAN joining its bridge
+            matchConfig.Name = n.name;
+            networkConfig.Bridge = n.bridge;
+            linkConfig.RequiredForOnline = mkDefault "enslaved";
           })
-          hostLinks);
+        hostLinks.networks);
       }
     ];
 }

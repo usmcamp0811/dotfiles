@@ -17,6 +17,8 @@
       id = null;
       guestName = null;
       link = null;
+      members = [];
+      pinMac = false;
     }
     // a;
   host = name: a:
@@ -342,23 +344,47 @@
     # ---- the networking of a physical host's own links, from the record and the zone ----
     ["host link: address with the zone's prefix, gateway and DNS on the primary, named 20-<link>"
       (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0";};});
-       in g == {"20-br0" = {name = "br0"; address = "192.168.50.60/24"; gateway = "192.168.50.1"; dns = ["192.168.50.2"];};})]
-    ["host link: a non-primary interface gets only its address, named 25-<link>, no gateway and no DNS"
-      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces = {
-             lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; primary = true;};
-             wifi = iface {mac = "aa:00:00:00:00:52"; ip = "192.168.51.60"; static = true; link = "br-w"; zone = "wifi";};};});
-       in g."25-br-w" == {name = "br-w"; address = "192.168.51.60/24"; gateway = null; dns = null;} && lib.attrNames g == ["20-br0" "25-br-w"])]
+       in g.networks == {"20-br0" = {role = "primary"; name = "br0"; address = "192.168.50.60/24"; gateway = "192.168.50.1"; dns = ["192.168.50.2"]; bridge = null; vlan = [];};} && g.netdevs == {})]
     ["host link: network.dns replaces the zone's DNS, [] means none"
-      (let mk' = d: (f.hostNetworkOf zonesDns (host "h1" {networkDns = d; interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0";};})).${"20-br0"}.dns;
+      (let mk' = d: (f.hostNetworkOf zonesDns (host "h1" {networkDns = d; interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0";};})).networks."20-br0".dns;
        in mk' ["9.9.9.9"] == ["9.9.9.9"] && mk' [] == [] && mk' null == ["192.168.50.2"])]
     ["host link: an interface without a link is left alone"
-      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true;};}) == {})]
+      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true;};}) == {netdevs = {}; networks = {};})]
     ["host link: a DHCP interface, or one without an address, is left alone"
       (f.hostNetworkOf zonesDns (host "h1" {interfaces = {
          lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = false; link = "br0";};
-         wifi = iface {mac = "aa:00:00:00:00:52"; static = true; link = "br-w"; zone = "wifi";};};}) == {})]
+         wifi = iface {mac = "aa:00:00:00:00:52"; static = true; link = "br-w"; zone = "wifi";};};}) == {netdevs = {}; networks = {};})]
     ["host link: a zone the catalogue does not have is skipped"
-      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "10.9.9.9"; static = true; link = "br0"; zone = "nowhere";};}) == {})]
+      (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "10.9.9.9"; static = true; link = "br0"; zone = "nowhere";};}) == {netdevs = {}; networks = {};})]
+    # members: the link is a bridge, with a network joining each NIC; the bridge MAC is the record's only when pinned
+    ["host topology: members make the link a bridge and each NIC joins it"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; members = ["eno1" "eno2"];};});
+       in g.netdevs == {"10-br0" = {kind = "bridge"; name = "br0"; mac = null; vlanId = null;};}
+         && g.networks."10-eno1" == {role = "member"; name = "eno1"; address = null; gateway = null; dns = null; bridge = "br0"; vlan = [];}
+         && lib.hasAttr "10-eno2" g.networks)]
+    ["host topology: pinMac gives the bridge the interface's MAC, and only then"
+      (let mk' = p: (f.hostNetworkOf zonesDns (host "h1" {interfaces.lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; members = ["eno1"]; pinMac = p;};})).netdevs."10-br0".mac;
+       in mk' true == "aa:00:00:00:00:51" && mk' false == null)]
+    # a non-primary interface in a VLAN zone: a bridge for that VLAN, carried by the primary link
+    ["host topology: a VLAN zone gets its bridge, the VLAN on the primary link and the VLAN joined to the bridge"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces = {
+             lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; primary = true; members = ["eno1"];};
+             wifi = iface {mac = "aa:00:00:00:00:52"; ip = "192.168.51.60"; static = true; link = "br-w"; zone = "wifi";};};});
+       in g.netdevs."15-br-w" == {kind = "bridge"; name = "br-w"; mac = null; vlanId = null;}
+         && g.netdevs."20-br0-vlan10" == {kind = "vlan"; name = "br0.10"; mac = null; vlanId = 10;}
+         && g.networks."21-br0-vlan10" == {role = "vlan"; name = "br0.10"; address = null; gateway = null; dns = null; bridge = "br-w"; vlan = [];}
+         && g.networks."20-br0".vlan == ["br0.10"]
+         && g.networks."25-br-w" == {role = "secondary"; name = "br-w"; address = "192.168.51.60/24"; gateway = null; dns = null; bridge = null; vlan = [];})]
+    ["host topology: a non-primary interface in a zone without a VLAN is only an address"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces = {
+             lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; link = "br0"; primary = true;};
+             other = iface {mac = "aa:00:00:00:00:52"; ip = "192.168.50.61"; static = true; link = "br1";};};});
+       in g.netdevs == {} && lib.attrNames g.networks == ["20-br0" "25-br1"])]
+    ["host topology: no VLAN bridge without a primary link to carry the VLAN"
+      (let g = f.hostNetworkOf zonesDns (host "h1" {interfaces = {
+             lan = iface {mac = "aa:00:00:00:00:51"; ip = "192.168.50.60"; static = true; primary = true;};
+             wifi = iface {mac = "aa:00:00:00:00:52"; ip = "192.168.51.60"; static = true; link = "br-w"; zone = "wifi";};};});
+       in g.netdevs == {} && lib.attrNames g.networks == ["25-br-w"])]
 
     # ---- a tap can only join a bridge: the blue-ridge netobs mistake (br-lan.10 is a VLAN interface, not a bridge) ----
     ["a zone attached to a VLAN interface is an error"
