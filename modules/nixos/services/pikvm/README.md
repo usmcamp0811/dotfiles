@@ -105,7 +105,7 @@ PiKVM is a platform-independent, open-source KVM (Keyboard, Video, Mouse) over I
 
 ### `fmf.services.pikvm.package`
 - **Type**: `package`
-- **Default**: `pkgs.kvmd`
+- **Default**: `pkgs.fmf.kvmd`
 - **Description**: The kvmd package to use
 
 ### `fmf.services.pikvm.hardwareVersion`

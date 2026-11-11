@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  options,
   pkgs,
   inputs,
   ...
@@ -9,6 +10,12 @@ with lib;
 with lib.fmf;
 let
   cfg = config.fmf.services.pikvm;
+
+  # hardware.raspberry-pi.* is declared by nixos-hardware's raspberry-pi module, which only the
+  # Raspberry Pi host imports. Every other host still evaluates this module, and the module system
+  # rejects a definition (even under mkIf false) for an option that does not exist, so only emit
+  # those definitions where the option is declared.
+  hasRaspberryPiOptions = options ? hardware && options.hardware ? raspberry-pi;
 
   # Convert settings to YAML format
   settingsFormat = pkgs.formats.yaml { };
@@ -50,8 +57,8 @@ in
 
     package = mkOption {
       type = types.package;
-      default = pkgs.kvmd;
-      defaultText = literalExpression "pkgs.kvmd";
+      default = pkgs.fmf.kvmd;
+      defaultText = literalExpression "pkgs.fmf.kvmd";
       description = "The kvmd package to use.";
     };
 
@@ -190,21 +197,25 @@ in
     # Raspberry Pi specific configuration (only applies when using Raspberry Pi hardware)
     # Note: The nixos-hardware.nixosModules.raspberry-pi-4 should be imported in the
     # system configuration (default.nix) when using Raspberry Pi hardware
-    hardware = mkIf (lib.hasInfix "rpi" cfg.hardwareVersion) {
-      raspberry-pi = {
-        configtxt.deviceTreeOverlays.pi4 = [ { dwc2.dr_mode = "peripheral"; } ];
-        "4" = {
-          tc358743.enable = true;
-          apply-overlays-dtmerge.enable = true;
+    hardware = mkIf (lib.hasInfix "rpi" cfg.hardwareVersion) (
+      {
+        i2c.enable = true;
+      }
+      // optionalAttrs hasRaspberryPiOptions {
+        raspberry-pi = {
+          configtxt.deviceTreeOverlays.pi4 = [ { dwc2.dr_mode = "peripheral"; } ];
+          "4" = {
+            tc358743.enable = true;
+            apply-overlays-dtmerge.enable = true;
+          };
+          firmware = {
+            enable = true;
+            uboot.enable = true;
+            useGenerationDeviceTree = true;
+          };
         };
-        firmware = {
-          enable = true;
-          uboot.enable = true;
-          useGenerationDeviceTree = true;
-        };
-      };
-      i2c.enable = true;
-    };
+      }
+    );
 
     # Htpasswd generation service (only when passwordFile is set)
     systemd.services.kvmd-htpasswd = mkIf (cfg.passwordFile != null) {

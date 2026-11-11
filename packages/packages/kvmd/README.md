@@ -29,7 +29,7 @@ If you need to use the package directly (e.g., for custom scripts):
 
 ```nix
 {
-  environment.systemPackages = [ pkgs.kvmd ];
+  environment.systemPackages = [ pkgs.fmf.kvmd ];
 }
 ```
 
