@@ -22,6 +22,7 @@ in
       pcat = "${pkgs.bat}/bin/bat -p $@";
       grep = "${pkgs.gnugrep}/bin/grep --color=auto $@";
 
+    } // optionalAttrs config.fmf.archetypes.desktop.enable {
       zathura = "${pkgs.devour}/bin/devour ${pkgs.zathura}/bin/zathura $@";
     };
     home.packages = with pkgs; [

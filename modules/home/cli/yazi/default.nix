@@ -185,17 +185,19 @@ in {
               for = "unix";
             }
           ];
-          openPdf = [
-            {
-              run = ''${pkgs.zathura}/bin/zathura "$@" '';
-              block = true;
-              for = "unix";
-            }
-          ];
           extract = [
             {
               run = ''${pkgs.ouch}/bin/ouch d -y "$@" '';
               desc = "Extract here with ouch";
+              for = "unix";
+            }
+          ];
+        } // optionalAttrs config.fmf.archetypes.desktop.enable {
+          # zathura (and its gtk/gstreamer closure) is a desktop-only PDF viewer
+          openPdf = [
+            {
+              run = ''${pkgs.zathura}/bin/zathura "$@" '';
+              block = true;
               for = "unix";
             }
           ];
@@ -208,6 +210,7 @@ in {
               url = "*.{svg,png,jpg,jpeg,gif}";
               use = "openImage";
             }
+          ] ++ optionals config.fmf.archetypes.desktop.enable [
             {
               url = "*.pdf";
               use = "openPdf";

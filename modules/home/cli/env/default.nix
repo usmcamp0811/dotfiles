@@ -31,14 +31,16 @@ in
     };
 
   config = {
-    home.sessionVariables = {
+    home.sessionVariables = optionalAttrs config.fmf.archetypes.desktop.enable {
+      # zathura (and its gtk/gstreamer closure) is a desktop-only PDF viewer
+      READER = "${pkgs.zathura}/bin/zathura";
+    } // {
       NIXOS_CONFIG = "/config";
       KUBECONFIG = "/etc/k8s/config";
       EDITOR = "${pkgs.campground-nvim}/bin/nvim";
       TERMINAL = "kitty";
       # BROWSER = "firefox";
       BROWSER = "brave";
-      READER = "${pkgs.zathura}/bin/zathura";
       XDG_CONFIG_HOME = "${home-directory}/.config";
       DOCKER = "/var/run/docker.sock";
       DOCKER_CONFIG = "${config.home.sessionVariables.XDG_CONFIG_HOME}/docker";
