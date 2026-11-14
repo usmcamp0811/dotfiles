@@ -57,7 +57,7 @@ with lib.fmf; let
 
     buildCommand = ''
       mkdir -p $out/bin
-      makeWrapper ${pkgs.nodePackages.prettier}/bin/prettier $out/bin/prettier \
+      makeWrapper ${pkgs.prettier}/bin/prettier $out/bin/prettier \
         --add-flags "--plugin=${slidevPlugin}/lib/node_modules/prettier-plugin-slidev/index.js"
     '';
   };
