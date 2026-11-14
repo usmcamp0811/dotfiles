@@ -8,6 +8,11 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.apps.opencode-remote;
 
+  # Keeps `opencode attach` alive across server outages: notifies when the server stops answering and
+  # reattaches when it is back (see attach-loop.sh).
+  attachLoop = pkgs.writeShellScript "opencode-remote-attach-loop"
+    (builtins.replaceStrings ["@curl@"] ["${pkgs.curl}/bin/curl"] (builtins.readFile ./attach-loop.sh));
+
   wrapper = pkgs.writeShellScriptBin cfg.command ''
     set -eu
 
@@ -31,13 +36,15 @@ with lib.fmf; let
         "$dir"/*) dir="$PWD" ;;
       esac
     ''}
+    health="''${url%/}/global/health"
+
     for arg in "$@"; do
       case "$arg" in
-        --dir|--dir=*) exec ${cfg.package}/bin/opencode attach "$url" "$@" ;;
+        --dir|--dir=*) exec ${attachLoop} "$health" -- ${cfg.package}/bin/opencode attach "$url" "$@" ;;
       esac
     done
 
-    exec ${cfg.package}/bin/opencode attach "$url" --dir "$dir" "$@"
+    exec ${attachLoop} "$health" -- ${cfg.package}/bin/opencode attach "$url" --dir "$dir" "$@"
   '';
 in {
   options.fmf.apps.opencode-remote = with types; {
