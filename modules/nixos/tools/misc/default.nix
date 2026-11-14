@@ -24,7 +24,7 @@ in
       wget
       ripgrep
       bat
-      ranger
+      yazi
       lsd
       git
       rsync

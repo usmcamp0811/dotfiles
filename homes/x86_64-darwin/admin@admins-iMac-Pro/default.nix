@@ -14,7 +14,7 @@ with lib.fmf; {
       bash = enabled;
       env = enabled;
       home-manager = enabled;
-      ranger = enabled;
+      yazi = enabled;
       neovim = enabled;
       misc = enabled;
     };

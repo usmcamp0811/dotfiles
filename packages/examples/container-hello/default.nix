@@ -51,7 +51,7 @@ let
       copyToRoot = pkgs.buildEnv {
         name = "image-root";
         pathsToLink = [ "/bin" ];
-        paths = [ pkgs.coreutils pkgs.ranger pkgs.neovim ];
+        paths = [ pkgs.coreutils pkgs.yazi pkgs.neovim ];
       };
       extraCommands = ''
         mkdir -p tmp
@@ -59,7 +59,7 @@ let
       '';
       config = {
         Env = [
-          "PATH=${pkgs.coreutils}/bin/:${pkgs.ranger}/bin/:${pkgs.neovim}/bin/"
+          "PATH=${pkgs.coreutils}/bin/:${pkgs.yazi}/bin/:${pkgs.neovim}/bin/"
         ];
         WorkingDir = "/config/bin";
         Cmd = [ "${pkgs.bash}/bin/bash" "/config/bin/entrypoint.sh" ];

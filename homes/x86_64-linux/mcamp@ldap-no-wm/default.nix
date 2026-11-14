@@ -15,7 +15,7 @@ with lib.fmf; {
       home-manager = enabled;
       # k9s = enabled;
       # broot = enabled;
-      ranger = enabled;
+      yazi = enabled;
       # neovim = enabled;
     };
     services = {
