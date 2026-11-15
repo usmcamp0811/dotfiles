@@ -19,8 +19,7 @@
 * [paperless](paperless/README.md) - The NixOS Paperless module facilitates the deployment and management of the Paperless document management system on your NixOS setup using a flake.
 * [pikvm](pikvm/README.md) - Runs PiKVM (kvmd, KVM over IP) on a Raspberry Pi, with its web UI behind nginx, virtual media, and the OTG, VNC, IPMI and Janus services.
 * [postgresql](postgresql/README.md) - This is a custom NixOS module designed to manage PostgreSQL databases.
-* [strata](strata/README.md) - Strata (VRAM + system-RAM MoE inference) as a pinned CUDA service, the remote client module, and the OpenCode provider; Qwen3.6-35B-A3B only.
-* [strata/tutor-strata.md](strata/tutor-strata.md) - Step-by-step guide to running bigger models with Strata on your 4070 Ti Super.
+* [strata](strata/) - Strata (GPU VRAM + system RAM MoE inference) as a pinned NixOS service, the remote client module, and the OpenCode provider that uses it.
 * [user-secrets](user-secrets/README.md) - The User Secrets Service is a NixOS module designed to securely fetch and manage user-specific secrets from HashiCorp's Vault.
 * [vault](vault/README.md) - This module simplifies the configuration and management of HashiCorp Vault on NixOS.
 * [vault-agent](vault-agent/README.md) - This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault.

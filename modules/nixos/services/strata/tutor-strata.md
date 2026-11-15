@@ -1,127 +1,101 @@
 ---
 type: Tutorial
-title: Run bigger models with Strata on your 4070 Ti Super
-description: "Step-by-step guide to setting up Strata inference and connecting it to OpenCode — larger MoE models than llama.cpp alone can fit."
-resource: ./default.nix
+title: Run a bigger model with Strata on a 16 GB GPU
+description: "Short walkthrough: enable the Strata server on a GPU host, point a workstation's OpenCode at it, and pick a Qwen3.6 model."
 tags: [services, strata, ai, tutorial]
 ---
 
-# Run bigger models with Strata on your 4070 Ti Super
+# Run a bigger model with Strata on a 16 GB GPU
 
-llama.cpp on a 16 GB card tops out around an 8–12 GB model. Strata lets you run
-a **35B Mixture-of-Experts** model by keeping the most-used experts in your GPU
-VRAM and computing the rest from pinned system RAM. You trade speed for capacity:
-it works, it's slower than a fitting model on llama.cpp, but it runs something
-that would otherwise be impossible.
+llama.cpp on a 16 GB card needs the model to fit mostly in VRAM. Strata runs a
+Mixture-of-Experts model that does not fit: the engine keeps the most-used
+experts in VRAM and computes the rest on the CPU from a pinned RAM copy. The
+model runs. It is slower than a model that fits. The [module
+README](README.md) has the details and the limits.
 
-This tutorial takes you from zero to `opencode --model strata/...` working in
-under an hour (excluding the first CUDA build).
+Two machines are involved: the **GPU host** runs the server, and each
+**workstation** only gets an OpenCode provider and a key. A workstation has no
+engine, no CUDA and no weights.
 
-## 1. What you need
+## 1. Pick a model
 
-- A GPU host with an NVIDIA card (RTX 4070 Ti Super works; driver 580+) and at
-  least **32 GB system RAM** (64 GB recommended). The docs target a 128 GB box,
-  but 64 GB is enough.
-- The model weights are a separate **~22.9 GB download** from the llama.cpp ones.
+One server instance serves one model. These are in the catalog (all Qwen3.6-35B-A3B,
+Unsloth MTP GGUFs, 65,536-token context):
 
-## 2. On the GPU host: enable `fmf.services.strata`
+| `model` id | File size | RAM upstream plans for |
+| --- | ---: | ---: |
+| `qwen3.6-35b-a3b-ud-q4_k_xl` (default) | 22.9 GB | 32 GB |
+| `qwen3.6-35b-a3b-ud-q6_k_xl` | 32.6 GB | 44 GB |
+| `qwen3.6-35b-a3b-q8_0` | 37.8 GB | 52 GB |
 
-```nix
-# In your NixOS config (the server node):
-fmf.services.strata = {
-  enable = true;
-  host = "10.8.0.177";           # your host's LAN IP
-  port = 18081;
-  vault.enable = true;
-  vault.path = "secret/campground/data/strata";   # Vault KV v2 path
-  lazyLoad = true;
-  idleUnloadSeconds = 300;
-};
-```
+Start with the default. Only it has been sized for a 16 GB card; the other two
+have not been run here. Each model is a separate download from the llama.cpp one.
 
-Then deploy:
-
-```bash
-sudo nixos-rebuild switch --flake .#<hostname>
-```
-
-## 3. Create the API key (one-time)
-
-On your Vault host, run once:
+## 2. Create the API key (once)
 
 ```bash
 vault kv put secret/campground/strata api_key="$(openssl rand -hex 32)"
 ```
 
-Then regenerate AppRole policies with `vault-access` so `svc-strata` exists on
-the GPU node and the per-user read policies exist for your workstations.
+The server refuses to start without a key. Run `vault-access` afterwards so
+the `svc-strata` and per-user policies exist.
 
-## 4. Build the CUDA engine (one time, takes a while)
-
-The engine is pinned to Strata v0.2.13.1 with CUDA 13.0. Building from source
-takes a while on CPU:
-
-```bash
-nix build .#strata.engine -L
-```
-
-If the farm transfer fails (it has), build it **on the GPU host itself**:
-
-```bash
-sudo nix build /home/mcamp/code/dotfiles/#strata.engine -L
-```
-
-## 5. On your workstation: enable `fmf.services.strata-client`
+## 3. Enable the server on the GPU host
 
 ```nix
-# In your Home Manager config:
-fmf.services.strata-client = {
+fmf.services.strata = {
   enable = true;
-  user = "your-username";         # must match the Vault key path below
-  baseURL = "https://strata.lan.aicampground.com/v1";  # or your host IP + port
+  host = "10.8.0.177";                 # the host's LAN address
+  port = 18081;
+  model = "qwen3.6-35b-a3b-ud-q4_k_xl";
+  vault = { enable = true; path = "secret/campground/data/strata"; };
+  lazyLoad = true;                     # start unloaded, load on first request
+  idleUnloadSeconds = 300;             # give the VRAM back when idle
+  memoryMax = "64G";
 };
 ```
 
-This renders the API key to `/var/lib/vault/users/your-username/strata_api_key`
-and configures OpenCode with a new provider called `strata`. Your workstation gets
-**no engine, no CUDA, and no weights** — it just sends requests over the network.
-
-## 6. Use it
-
-Restart OpenCode, then pick the model:
+The engine is a CUDA build and has not been built to completion in this repo's
+CI. Build it on the GPU host before you rely on it:
 
 ```bash
-opencode --model strata/qwen3.6-35b-a3b-ud-q4_k_xl run "explain quantum computing"
+nix build .#strata
 ```
 
-Or in an existing session, open `/models` and select `strata/qwen3.6-35b-a3b-ud-q4_k_xl`.
+Then deploy (`sudo nixos-rebuild switch --flake .#<host>`).
 
-To check the server is running:
+## 4. Enable the client on a workstation
+
+`fmf.services.strata-client` is a **NixOS** module. The user must already exist.
+
+```nix
+fmf.services.strata-client = {
+  enable = true;
+  user = "mcamp";
+  baseURL = "https://strata.lan.aicampground.com/v1";   # or http://<host>:18081/v1
+  model = "qwen3.6-35b-a3b-ud-q4_k_xl";                 # same as the server
+  vault.path = "secret/campground/data/strata";
+};
+```
+
+`model` (and `contextSize`, if you set it) must match the server. The key is
+rendered to `/var/lib/vault/users/<user>/strata_api_key`.
+
+## 5. Use it
 
 ```bash
-curl -s http://10.8.0.177:18081/health | jq
-# → {"status":"ok","model":"qwen3.6-35b-a3b-ud-q4_k_xl","loaded":true,...}
+strata-status                     # on the GPU host: /health and /v1/models
+opencode --model strata/qwen3.6-35b-a3b-ud-q4_k_xl run "reply with OK"
 ```
 
-`"loaded": false` is normal with `lazyLoad` until a request arrives — the first
-request pays the cold-load cost of loading 22.9 GB of weights into VRAM + RAM.
+`"loaded": false` in `/health` is normal with `lazyLoad` until the first
+request. That request pays the cold load.
 
-## Quick troubleshooting
+## If it does not work
 
-| Symptom | Fix |
-|---|---|
-| Unit fails: "API key file … missing" | Check `detsys-vaultAgent-strata` status; ensure the Vault secret exists and AppRole has `svc-strata`. |
-| 503 on request | VRAM is busy with llama.cpp or the desktop. Wait ~300 s for idle unload, then try again. |
-| 401 unauthorized | Wrong key or missing file. The client reads `/var/lib/vault/users/<user>/strata_api_key`. |
-| Engine crashes at start | Context size doesn't fit beside the experts and GPU reserve. Lower `contextSize` on both server and client. |
-
-## What you're actually running
-
-The model is **Qwen3.6-35B-A3B** — 35 billion parameters, but only ~3B active
-per token (hence "A3B"). Strata keeps the frequently-used experts in VRAM and
-falls back to CPU for the rest. On a 16 GB card this is hybrid mode: it works,
-but don't expect llama.cpp-on-a-larger-card speed.
-
-Context window is 65,536 tokens. The KV cache alone takes ~2.75 GB at full
-context. Compaction fires before the window overflows thanks to the built-in
-headroom setting (default 6,144 tokens).
+| Symptom | Likely cause |
+| --- | --- |
+| Unit fails: "API key file … missing or unreadable" | The Vault key was not rendered. Check `systemctl status detsys-vaultAgent-strata`. |
+| 401 | Wrong or missing key on the client. |
+| 503 | `minFreeVramMiB` not met: llama.cpp or the desktop holds the VRAM. |
+| Engine exits right after start | The context does not fit beside the experts. Lower `contextSize` on the server and the client. |
