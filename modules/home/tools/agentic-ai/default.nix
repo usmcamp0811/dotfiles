@@ -11,12 +11,25 @@ with lib.fmf; let
   system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
   llamaModels = lib.fmf.llamaCppModels {inherit pkgs;};
-  opencodePackage = if cfg.llamaCpp.enable then pkgs.writeShellScriptBin "opencode" ''
+  # Names, limits and ids only are read from this catalog: `package` stays unevaluated, so a client never
+  # acquires model weights.
+  strataModels = lib.fmf.strataModels {inherit pkgs;};
+  strataModel = strataModels.${cfg.strata.model};
+  strataContext =
+    if cfg.strata.contextSize == null
+    then strataModel.contextSize
+    else cfg.strata.contextSize;
+  # Runtime credentials, exported when OpenCode starts. Each provider that is enabled adds one.
+  runtimeKeys =
+    lib.optional cfg.llamaCpp.enable {env = "LLAMA_CPP_API_KEY"; file = cfg.llamaCpp.apiKeyFile;}
+    ++ lib.optional cfg.strata.enable {env = "STRATA_API_KEY"; file = cfg.strata.apiKeyFile;};
+  opencodePackage = if runtimeKeys != [] then pkgs.writeShellScriptBin "opencode" ''
     # Read at process startup, not Nix evaluation; GUI and non-zsh launches work.
     # Missing Vault credentials must not break unrelated cloud providers.
-    if [ -z "''${LLAMA_CPP_API_KEY:-}" ] && [ -r ${lib.escapeShellArg (if cfg.llamaCpp.apiKeyFile == null then "/dev/null" else cfg.llamaCpp.apiKeyFile)} ]; then
-      export LLAMA_CPP_API_KEY="$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg (if cfg.llamaCpp.apiKeyFile == null then "/dev/null" else cfg.llamaCpp.apiKeyFile)})"
-    fi
+    ${lib.concatMapStringsSep "\n" (key: ''
+      if [ -z "''${${key.env}:-}" ] && [ -r ${lib.escapeShellArg (if key.file == null then "/dev/null" else key.file)} ]; then
+        export ${key.env}="$(${pkgs.coreutils}/bin/cat ${lib.escapeShellArg (if key.file == null then "/dev/null" else key.file)})"
+      fi'') runtimeKeys}
     exec ${pkgs.llm-agents.opencode}/bin/opencode "$@"
   '' else pkgs.llm-agents.opencode;
   # OpenCode v1 Anthropic OAuth plugin. Anthropic gates model access on the
@@ -165,6 +178,38 @@ in {
         };
       };
     };
+    strata = {
+      enable = lib.mkEnableOption "authenticated remote Strata provider in OpenCode (a separate provider; llama.cpp and Ollama are untouched)";
+      baseURL = mkOption {
+        type = types.str;
+        default = "http://127.0.0.1:18081/v1";
+        description = "OpenAI-compatible Strata API base URL. Use HTTPS across the network.";
+      };
+      apiKeyFile = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "User-readable runtime API-key path, outside the Nix store. Exported as STRATA_API_KEY when OpenCode starts.";
+      };
+      model = mkOption {
+        type = types.str;
+        default = "qwen3.6-35b-a3b-ud-q4_k_xl";
+        description = ''
+          The one model the Strata instance serves (a name in `lib.fmf.strataModels`, which is also the id the
+          server reports). A Strata instance answers every request with its single model whatever id the client
+          sends, so exactly one model is advertised. Use it as `opencode --model strata/<this id>`.
+        '';
+      };
+      contextSize = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        description = "Context window to advertise; null uses the catalog value. Keep it equal to the server's `fmf.services.strata.contextSize`.";
+      };
+      compactionHeadroom = mkOption {
+        type = types.ints.unsigned;
+        default = 6144;
+        description = "Tokens kept free below the window when OpenCode compacts; same meaning as for llama.cpp (see llamaCpp.compactionHeadroom). The tool-output limits come from llamaCpp.toolOutput.";
+      };
+    };
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode =
       mkBoolOpt true "Enable qwen-code CLI for Qwen3-Coder models.";
@@ -225,7 +270,18 @@ in {
         && lib.hasPrefix "/" cfg.llamaCpp.apiKeyFile
         && !(lib.hasPrefix "/nix/store/" cfg.llamaCpp.apiKeyFile);
       message = "The llama.cpp OpenCode provider requires OpenCode and an absolute runtime apiKeyFile outside /nix/store.";
-    }];
+    }] ++ lib.optionals cfg.strata.enable [
+      {
+        assertion = cfg.enableOpencode && cfg.strata.apiKeyFile != null
+          && lib.hasPrefix "/" cfg.strata.apiKeyFile
+          && !(lib.hasPrefix "/nix/store/" cfg.strata.apiKeyFile);
+        message = "The Strata OpenCode provider requires OpenCode and an absolute runtime apiKeyFile outside /nix/store.";
+      }
+      {
+        assertion = builtins.hasAttr cfg.strata.model strataModels;
+        message = "fmf.tools.agentic-ai.strata.model '${cfg.strata.model}' is not in lib.fmf.strataModels (${lib.concatStringsSep ", " (builtins.attrNames strataModels)}).";
+      }
+    ];
     home.packages =
       (optionals cfg.enableAider [pkgs.aider-chat])
       ++ (optionals cfg.enableOpencode [
@@ -471,6 +527,28 @@ in {
                     modalities = {input = ["text"]; output = ["text"];};
                   }) llamaModels;
                 };
+              } // lib.optionalAttrs cfg.strata.enable {
+                strata = {
+                  npm = "@ai-sdk/openai-compatible";
+                  name = "Strata";
+                  env = ["STRATA_API_KEY"];
+                  options = {
+                    baseURL = cfg.strata.baseURL;
+                    apiKey = "{env:STRATA_API_KEY}";
+                    timeout = 600000;
+                  };
+                  # One instance serves one model: advertise exactly that one, under the id the server reports.
+                  models.${cfg.strata.model} = {
+                    name = strataModel.name;
+                    tool_call = true;
+                    limit = {
+                      context = strataContext;
+                      output = strataModel.maxOutputTokens;
+                      input = strataContext - strataModel.maxOutputTokens - cfg.strata.compactionHeadroom;
+                    };
+                    modalities = {input = ["text"]; output = ["text"];};
+                  };
+                };
               };
 
               agent = let
@@ -540,7 +618,7 @@ in {
             // optAttrs cfg.enableOpencodeAnthropicAuthPlugin {
               plugin = [opencodeAnthropicMaxFixPlugin];
             }
-            // optAttrs cfg.llamaCpp.enable {
+            // optAttrs (cfg.llamaCpp.enable || cfg.strata.enable) {
               # Global in OpenCode, so it also applies to cloud models while llama.cpp is enabled.
               tool_output = {
                 max_lines = cfg.llamaCpp.toolOutput.maxLines;
