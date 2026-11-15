@@ -30,7 +30,22 @@ in {
     contextSize = lib.mkOption {
       type = lib.types.nullOr lib.types.ints.positive;
       default = null;
-      description = "Context window to advertise; null uses the catalog value. Must match the server's `fmf.services.strata.contextSize`.";
+      description = "Context window to advertise for `model`; null uses the catalog value. Must match the server's `fmf.services.strata.contextSize`.";
+    };
+    models = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options.contextSize = lib.mkOption {
+          type = lib.types.nullOr lib.types.ints.positive;
+          default = null;
+          description = "Context window to advertise for this model; null uses the catalog value. Must match the server's setting for it.";
+        };
+      });
+      default = {${cfg.model} = {contextSize = cfg.contextSize;};};
+      defaultText = lib.literalExpression "{ \${model} = { contextSize = contextSize; }; }";
+      description = ''
+        The models to offer in OpenCode, by catalog id, against a server that switches between them
+        (`fmf.services.strata.router.models`: list the same ids). Ignores `model` and `contextSize` once set.
+      '';
     };
     vault = {
       enable = lib.mkOption {
@@ -76,7 +91,7 @@ in {
       # Only the provider and a credential: no engine, no model weights, no CUDA on a client.
       home-manager.users.${cfg.user}.fmf.tools.agentic-ai.strata = {
         enable = true;
-        inherit (cfg) baseURL apiKeyFile model contextSize;
+        inherit (cfg) baseURL apiKeyFile model contextSize models;
       };
     }
     (lib.mkIf cfg.vault.enable {

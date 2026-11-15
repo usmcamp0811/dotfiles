@@ -14,11 +14,13 @@ with lib.fmf; let
   # Names, limits and ids only are read from this catalog: `package` stays unevaluated, so a client never
   # acquires model weights.
   strataModels = lib.fmf.strataModels {inherit pkgs;};
-  strataModel = strataModels.${cfg.strata.model};
-  strataContext =
-    if cfg.strata.contextSize == null
-    then strataModel.contextSize
-    else cfg.strata.contextSize;
+  # The advertised window of one model: its own setting, else the catalog's.
+  strataContextOf = id: let
+    own = cfg.strata.models.${id}.contextSize;
+  in
+    if own == null
+    then strataModels.${id}.contextSize
+    else own;
   # Runtime credentials, exported when OpenCode starts. Each provider that is enabled adds one.
   runtimeKeys =
     lib.optional cfg.llamaCpp.enable {env = "LLAMA_CPP_API_KEY"; file = cfg.llamaCpp.apiKeyFile;}
@@ -194,15 +196,32 @@ in {
         type = types.str;
         default = "qwen3.6-35b-a3b-ud-q4_k_xl";
         description = ''
-          The one model the Strata instance serves (a name in `lib.fmf.strataModels`, which is also the id the
-          server reports). A Strata instance answers every request with its single model whatever id the client
-          sends, so exactly one model is advertised. Use it as `opencode --model strata/<this id>`.
+          The one model a plain Strata instance serves (a name in `lib.fmf.strataModels`, which is also the id the
+          server reports). A plain instance answers every request with its single model whatever id the client
+          sends, so exactly one model is advertised. Use it as `opencode --model strata/<this id>`. Ignored once
+          `models` is set.
         '';
       };
       contextSize = mkOption {
         type = types.nullOr types.ints.positive;
         default = null;
-        description = "Context window to advertise; null uses the catalog value. Keep it equal to the server's `fmf.services.strata.contextSize`.";
+        description = "Context window to advertise for `model`; null uses the catalog value. Keep it equal to the server's `fmf.services.strata.contextSize`.";
+      };
+      models = mkOption {
+        type = types.attrsOf (types.submodule {
+          options.contextSize = mkOption {
+            type = types.nullOr types.ints.positive;
+            default = null;
+            description = "Context window to advertise for this model; null uses the catalog value. Keep it equal to the server's setting for it.";
+          };
+        });
+        default = {${cfg.strata.model} = {contextSize = cfg.strata.contextSize;};};
+        defaultText = lib.literalExpression "{ \${model} = { contextSize = contextSize; }; }";
+        description = ''
+          The models to advertise, by id (names in `lib.fmf.strataModels`), for a server that switches between them
+          (`fmf.services.strata.router`): `opencode --model strata/<id>`, or `/models` in a session. A plain
+          instance serves one model whatever the client names, so against one list only that model here.
+        '';
       };
       compactionHeadroom = mkOption {
         type = types.ints.unsigned;
@@ -278,8 +297,8 @@ in {
         message = "The Strata OpenCode provider requires OpenCode and an absolute runtime apiKeyFile outside /nix/store.";
       }
       {
-        assertion = builtins.hasAttr cfg.strata.model strataModels;
-        message = "fmf.tools.agentic-ai.strata.model '${cfg.strata.model}' is not in lib.fmf.strataModels (${lib.concatStringsSep ", " (builtins.attrNames strataModels)}).";
+        assertion = lib.all (id: builtins.hasAttr id strataModels) (builtins.attrNames cfg.strata.models);
+        message = "fmf.tools.agentic-ai.strata: model(s) ${lib.concatStringsSep ", " (builtins.filter (id: !(builtins.hasAttr id strataModels)) (builtins.attrNames cfg.strata.models))} not in lib.fmf.strataModels (${lib.concatStringsSep ", " (builtins.attrNames strataModels)}).";
       }
     ];
     home.packages =
@@ -537,17 +556,20 @@ in {
                     apiKey = "{env:STRATA_API_KEY}";
                     timeout = 600000;
                   };
-                  # One instance serves one model: advertise exactly that one, under the id the server reports.
-                  models.${cfg.strata.model} = {
-                    name = strataModel.name;
+                  # Each model under the id the server reports. A plain server holds one model, so the list then has one.
+                  models = lib.mapAttrs (id: _: let
+                    entry = strataModels.${id};
+                    context = strataContextOf id;
+                  in {
+                    name = entry.name;
                     tool_call = true;
                     limit = {
-                      context = strataContext;
-                      output = strataModel.maxOutputTokens;
-                      input = strataContext - strataModel.maxOutputTokens - cfg.strata.compactionHeadroom;
+                      inherit context;
+                      output = entry.maxOutputTokens;
+                      input = context - entry.maxOutputTokens - cfg.strata.compactionHeadroom;
                     };
                     modalities = {input = ["text"]; output = ["text"];};
-                  };
+                  }) cfg.strata.models;
                 };
               };
 

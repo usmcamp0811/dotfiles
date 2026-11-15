@@ -32,9 +32,10 @@ compatibility (upstream `docs/AI_SETUP.md`). Against this repository's llama.cpp
 | `qwen3.5-9b` | No | Not a Strata family. Stays on llama.cpp. |
 | `qwen3-coder-30b-a3b` | No | Not a Strata family. Stays on llama.cpp. |
 | `devstral-small-2` | No | Not a Strata family. Stays on llama.cpp. |
-| Qwen3.8-Flash-Next | Supported upstream, **not packaged here** | See below. |
+| Qwen3.8-Flash-Next, DeepSeek V4.1-Flash | Supported upstream, **packaged here but never run** | See below. |
 
-The Strata catalog is `lib.fmf.strataModels` and holds exactly the models verified above:
+The Qwen3.6 entries of the catalog (`lib.fmf.strataModels`; the Qwen3.8 and DeepSeek entries are in
+`lib/strata-models/default.nix`, 16 models in all):
 
 | Id (what `/v1/models` reports) | File | Size | RAM upstream plans for | Context here |
 | --- | --- | ---: | ---: | ---: |
@@ -52,21 +53,75 @@ module code, but nothing has been run: on a 16 GB card more of their experts liv
 them to be slower than UD-Q4_K_XL, and `memoryMax` (64G on sledge) leaves less headroom for Q8_0. Set one with
 `fmf.services.strata.model = "qwen3.6-35b-a3b-q8_0"` and the same value as the client's `model`.
 
-### Qwen3.8-Flash-Next (evaluated, not implemented)
+### Qwen3.8-Flash-Next and DeepSeek V4.1-Flash (packaged, never run)
 
-Upstream's recommended pack is ISTA-DASLab; IQ3_S needs 54.8 GB of RAM+VRAM (it fits 128 GB) and is the
-slowest and highest quality of the family. It is not packaged because it is a different engine path with a
-multi-shard pack, a draft layer that Strata's first start downloads (about 6 GB), prepared tokenizer/pack/profile
-steps and a different run-config schema. None of that can be reproduced as a pure, hash-pinned artifact set without
-running it on the GPU first. Adding it means a second catalog entry, its shard and MTP artifacts, and a second
-run-config generator in the module; the instance would still serve one model at a time.
+Both are other engine paths, selected by the catalog entry's `family`, and the module writes each one's arguments
+and run config as upstream's `setup.py` does. Qwen3.8 comes as ISTA-DASLab sets (four sizes and a pruned Coder),
+and as Unsloth 4 to 8 bit files; DeepSeek as three 2-bit ISTA-DAS sets (1.75, 2.00 and 2.25 bits per weight). A
+sharded set is read through a directory of symlinks, its pack is a pure derivation, and the Qwen3.8 draft layer is a
+fixed-output fetch. **No Qwen3.8 or DeepSeek set has been run on a GPU from here**; the RAM figures in the catalog
+are upstream's planning numbers. They are large downloads: about 57 to 190 GB for a Qwen3.8 set, and 119 to 153 GB
+for a DeepSeek set plus a 110 GB Engram table (and a 7 GB drafter) that every DeepSeek set shares.
 
 ## One instance, one model
 
 A Strata server answers every request with its loaded model whatever `model` the client sends (`serve/server.py`:
-"Other names are still served"). So an instance advertises exactly one model, under the id it reports, and OpenCode
-lists exactly one. To serve another model, run a second instance on another port; two instances on one 16 GB GPU
-will not fit at once, which is what the load/unload controls below are for.
+"Other names are still served"). So a plain instance advertises exactly one model, under the id it reports, and
+OpenCode lists exactly one. Two instances on one 16 GB GPU will not fit at once, which is what the load/unload
+controls below are for. To choose between several models from the client, use the router.
+
+## Switching between models (router)
+
+```nix
+fmf.services.strata = {
+  enable = true;
+  # ... host, port, vault, lazyLoad as below ...
+  router = {
+    enable = true;
+    models = {
+      "qwen3.6-35b-a3b-ud-q4_k_xl" = {};
+      "qwen3.6-35b-a3b-q8_0" = {};
+      "qwen3.8-flash-next-iq2_xs" = {contextSize = 32768;};   # per-model settings override the service-wide ones
+    };
+  };
+};
+fmf.services.strata-client.models = {     # on the clients: the same ids
+  "qwen3.6-35b-a3b-ud-q4_k_xl" = {};
+  "qwen3.6-35b-a3b-q8_0" = {};
+  "qwen3.8-flash-next-iq2_xs" = {};
+};
+```
+
+With `router.enable` the `strata` unit is no longer the engine but a small router (`router.py`, standard library
+only) on `host`:`port`. Each listed model gets its own unit, `strata-<id>`, on loopback (ports from
+`router.backendPortBase`, in name order), with the same settings as a plain instance. The router:
+
+* checks the client key (the one key of this service) and answers `GET /v1/models` with every id, without
+  loading anything;
+* for a request naming a configured model, stops the other model units, starts that one, waits for it to answer
+  `/health`, and forwards the request, streaming the answer back. The first request after a switch pays that model's
+  cold load (with `lazyLoad` the unit starts unloaded and the load happens inside the request);
+* waits for requests already running on another model to finish before switching, up to
+  `router.switchWaitSeconds`, then answers 503 (the running model is still in use);
+* answers a request that names no configured model with the model that is running (a plain instance would do the
+  same), or `router.default` when none is.
+
+Only one model runs at a time, so they share the GPU and the pinned RAM, and `memoryMax` applies to each model's
+unit (the router has none). `OpenCode`'s `/models` then really switches the model.
+
+How the units are controlled: the router runs as the `strata` user and a polkit rule lets that user start and stop
+exactly the `strata-<id>` units, nothing else (`security.polkit` is enabled). The model units are `PartOf` the
+router: stopping or restarting it (a deploy, a rotated key) stops the running model too, and the router also stops
+every model unit when it starts. **Keys:** the model units never see the client's key. The router writes a random
+key to `/run/strata/backend-key` (readable by the `strata` user only) at each start and sends it on every forwarded
+request, so rotating the client key needs only a restart of `strata`, which Vault's change action already does.
+
+Logs: `journalctl -u strata` is the router (one line per switch), `journalctl -u strata-<id>` is a model.
+
+What is tested: `checks.strata-config` (units, ports, polkit rule, refusals) and `checks.strata-router-vm`, which runs
+the real router, units and polkit with the server's mock engine: switching, streaming, key isolation, and that the
+router can stop a model unit but not another unit. **Not tested:** a switch between real engines on a GPU, and
+whether the cold loads of the large sets fit the time limits (`router.upstreamTimeoutSeconds`, and the proxy's).
 
 ## Server
 

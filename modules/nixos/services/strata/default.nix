@@ -6,214 +6,339 @@
 }: let
   inherit (lib) mkOption mkIf types;
   cfg = config.fmf.services.strata;
+  routerOn = cfg.router.enable;
   vaultDefaults = config.fmf.services.vault-agent.settings.vault or {};
   vaultKey = config.fmf.services.vault-agent.services.strata.secrets.file.files.api-key.path;
   stateDir = "/var/lib/strata";
 
-  model = cfg.models.${cfg.model};
-  contextSize =
-    if cfg.contextSize == null
-    then model.contextSize
-    else cfg.contextSize;
-
-  # Three engine paths, selected by the catalog entry (lib/strata-models). Each one's arguments and run-config keys
-  # are what Strata v0.2.13.1 writes for it: strata_control/setup_config.py (config_for, dsv41_config_for) and
-  # setup.py (install_own_path for qwen36).
-  isQwen36 = model.family == "qwen36";
-  isFlash = model.family == "flashnext";
-  isDeepseek = model.family == "deepseek41";
-
-  # A sharded model is read through a directory of symlinks under the sibling file names (packages/applications/strata).
-  farm = cfg.package.farmFor cfg.model model;
-  # What setup.py's "preparing the model for Strata" step builds, as a pure derivation: Flash-Next's pack
-  # (tools/iq_pack.py), DeepSeek's pack (tools/dsv41/pack_gguf.py). Qwen3.6 only needs a tokenizer, from the GGUF.
-  pack =
-    if isFlash
-    then cfg.package.packFlashNext cfg.model model
-    else if isDeepseek
-    then cfg.package.packDeepseek cfg.model model
-    else null;
-  tokenizerDir =
-    if isQwen36
-    then "${cfg.package.tokenizerFor model.package}/tokenizer"
-    else "${pack}/tokenizer";
-
-  # `mtp` means a count of draft tokens for qwen36 (`--mtp N`). Flash-Next takes a folder with the draft layer's
-  # weights instead, so there it is only on or off: 0 is off (setup.py's `--mtp off`: `"mtp": false` in the run
-  # config, which removes --mtp and --spec-min-p and keeps --spec). DeepSeek has no MTP draft layer.
-  mtpSetting =
-    if cfg.mtp == null
-    then (model.mtp or 1)
-    else cfg.mtp;
-  draftOn = mtpSetting > 0;
-
-  # The knobs that exist in every path's engine.
-  poolWorkersArgs = lib.optionals (cfg.poolWorkers != null) ["--pool-workers" (toString cfg.poolWorkers)];
-
-  # qwen36: `--native <gguf> --max-context N --prefill auto --mtp N`, plus the optional VRAM/CPU knobs. Note that the
-  # Qwen3.6 engine (strata-q36) answers `--vram-reserve-mib` in serve mode with "ignoring ... (not an option of this
-  # engine)": its own knob is --expert-vram. The flag is still passed, as before, so nothing changes for it.
-  qwen36Args =
-    [
-      "--native"
-      "${model.package}"
-      "--max-context"
-      (toString contextSize)
-      "--prefill"
-      "auto"
-      "--mtp"
-      (toString mtpSetting)
-    ]
-    ++ lib.optionals (cfg.expertVramGiB != null) ["--expert-vram" (toString cfg.expertVramGiB)]
-    ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
-    ++ poolWorkersArgs;
-
-  # Flash-Next, in the order setup_config.config_for writes them for a text-only start on one NVIDIA card: the pack
-  # and the first shard (the engine finds the other shards beside it by name), the expert profile from the Strata
-  # tree (read only unless --expert-profile-save is given), the draft layer's folder, the context, and `--kv int8`
-  # above 8192 tokens. KV streaming (--kv-resident) starts at 64K and is not written: pass it in extraEngineArgs.
-  flashArgs =
-    [
-      "--pack"
-      "${pack}"
-      "--native"
-      "${farm}/${model.native}"
-    ]
-    ++ lib.optionals (model.ple != null) ["--ple-gguf" "${farm}/${model.ple}"]
-    ++ [
-      "--expert-profile"
-      "${cfg.package.root}/data/${model.profile}"
-      "--expert-cache"
-      "auto"
-      "--prefill"
-      "auto"
-      "--spec"
-      "4"
-    ]
-    ++ lib.optionals draftOn [
-      "--spec-min-p"
-      "0.5"
-      "--mtp"
-      "${cfg.package.mtpRt}"
-    ]
-    ++ ["--max-context" (toString contextSize)]
-    ++ lib.optionals (contextSize > 8192) ["--kv" "int8"]
-    ++ lib.optionals (cfg.residentBudgetGiB != null) ["--resident-budget-gib" (toString cfg.residentBudgetGiB)]
-    ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
-    ++ poolWorkersArgs;
-
-  # DeepSeek (dsv41_config_for): the pack and the context, `--eos 1`, no pictures (the pack is made without the
-  # picture reader), the DSpark drafter chosen by the engine (`--dspark auto`, never `off`: that still loads it) with
-  # upstream's confidence floor for the ISTA-DAS sets, and --profile-readonly because the pack is in the store.
-  # `--reserve-mib` is this engine's name for the VRAM left free.
-  deepseekArgs =
-    [
-      "--pack"
-      "${pack}"
-      "--max-context"
-      (toString contextSize)
-      "--eos"
-      "1"
-      "--vision"
-      "off"
-      "--dspark"
-      "auto"
-      "--dspark-conf"
-      "0.65"
-      "--profile-readonly"
-    ]
-    ++ lib.optionals (cfg.vramReserveMiB != null) ["--reserve-mib" (toString cfg.vramReserveMiB)];
-
-  engineArgs =
-    (
-      if isQwen36
-      then qwen36Args
-      else if isFlash
-      then flashArgs
-      else deepseekArgs
-    )
-    ++ cfg.extraEngineArgs;
-
-  # Unsloth files: upstream's unsloth_default_env. The K-quant MMQ prompt kernels for UD-Q5_K_XL and UD-Q6_K_XL, and
-  # STRATA_ROUTE_TAIL_SKIP=0 where every expert is in RAM (the skip costs accuracy there); the RAM-budget mode keeps it.
-  runEnv = lib.optionalAttrs (isFlash && model.recipe == "unsloth") (
-    lib.optionalAttrs model.mmqKq {STRATA_MMQ_KQ = "1";}
-    // lib.optionalAttrs (cfg.residentBudgetGiB == null) {STRATA_ROUTE_TAIL_SKIP = "0";}
-  );
-
-  engineExe =
-    if isDeepseek
-    then cfg.package.enginePathDsv41
-    else cfg.package.enginePath;
-
-  # The run config (strata-<model>.json in upstream). The API key is deliberately NOT in it: this file is in the
-  # Nix store. The key reaches the server as $STRATA_API_KEY (see the launcher).
-  isMock = cfg.engine == "mock";
-
-  runConfigAttrs = {
-      args = engineArgs;
-      cwd = stateDir;
-      model_name = cfg.model;
-      log = "${stateDir}/engine.log";
-      lib_dirs = ["/run/opengl-driver/lib"];
-      port = cfg.port;
-      host = cfg.host;
-    }
-    # qwen36 and DeepSeek write the GGUF architecture; Flash-Next writes none (the server defaults to qwen4exp).
-    // lib.optionalAttrs (model ? arch) {inherit (model) arch;}
-    // lib.optionalAttrs (isFlash && !draftOn) {mtp = false;}
-    // lib.optionalAttrs (runEnv != {}) {env = runEnv;}
-    # 300+ GB are read from the files at the first start: DeepSeek's start can take a long time (upstream: 3600).
-    // lib.optionalAttrs isDeepseek {engine_ready_s = 3600;}
-    # The mock engine needs neither the engine binary nor a tokenizer (the server falls back to a byte tokenizer):
-    # a VM test then does not have to build or fetch the real ones.
-    // lib.optionalAttrs (!isMock) {
-      exe = engineExe;
-      tokenizer = tokenizerDir;
-    }
-    // lib.optionalAttrs cfg.lazyLoad {lazy_load = true;}
-    // lib.optionalAttrs (cfg.idleUnloadSeconds != null) {idle_unload_s = cfg.idleUnloadSeconds;}
-    // lib.optionalAttrs (cfg.minFreeVramMiB != null) {min_free_vram_mib = cfg.minFreeVramMiB;}
-    // lib.optionalAttrs (cfg.parallel > 1) {parallel = cfg.parallel;}
-    // cfg.extraConfig;
-
-  runConfig = pkgs.writeText "strata-${cfg.model}.json" (builtins.toJSON runConfigAttrs);
-
+  # The client's key: the Vault Agent's file, or a systemd credential. With the router it is the router that checks it.
   keyPath =
     if cfg.vault.enable
     then vaultKey
     else "/run/credentials/strata.service/api-key";
+  # Router mode: the instances never see the client's key. The router writes a random one here at each start (its
+  # RuntimeDirectory, readable by the strata user only) and presents it on every forwarded request.
+  backendKeyPath = "/run/strata/backend-key";
 
-  launcherText = ''
-    set -eu
-    key_file=${lib.escapeShellArg keyPath}
-    if [ ! -r "$key_file" ]; then
-      echo "strata: API key file $key_file is missing or unreadable; refusing to start without authentication" >&2
-      exit 1
-    fi
-    key="$(${pkgs.coreutils}/bin/cat "$key_file")"
-    if ! printf '%s' "$key" | ${pkgs.gnugrep}/bin/grep -Eq '^[[:graph:]]{32,256}$'; then
-      echo "strata: API key must be 32-256 printable characters without spaces; refusing to start" >&2
-      exit 1
-    fi
-    ${lib.optionalString (!isMock) ''
-      if [ ! -r ${lib.escapeShellArg "${model.package}"} ]; then
-        echo "strata: model file ${model.package} is missing" >&2
+  # One Strata instance for one catalog model. Without the router there is exactly one (the `model` option, on the
+  # public address, with the client's key); with it there is one per `router.models` entry, on loopback with the
+  # router's key. `over` holds that model's own settings; null falls back to the service-wide option of the same name.
+  mkInstance = {
+    id,
+    host,
+    port,
+    keyFile,
+    logFile,
+    over,
+  }: let
+    model = cfg.models.${id};
+    pick = name: fallback: let
+      v = over.${name} or null;
+    in
+      if v == null
+      then fallback
+      else v;
+
+    contextSize = pick "contextSize" (
+      if cfg.contextSize == null
+      then model.contextSize
+      else cfg.contextSize
+    );
+    expertVramGiB = pick "expertVramGiB" cfg.expertVramGiB;
+    residentBudgetGiB = pick "residentBudgetGiB" cfg.residentBudgetGiB;
+    poolWorkers = pick "poolWorkers" cfg.poolWorkers;
+    extraEngineArgs = pick "extraEngineArgs" cfg.extraEngineArgs;
+    extraConfig = cfg.extraConfig // (over.extraConfig or {});
+
+    # Three engine paths, selected by the catalog entry (lib/strata-models). Each one's arguments and run-config keys
+    # are what Strata v0.2.13.1 writes for it: strata_control/setup_config.py (config_for, dsv41_config_for) and
+    # setup.py (install_own_path for qwen36).
+    isQwen36 = model.family == "qwen36";
+    isFlash = model.family == "flashnext";
+    isDeepseek = model.family == "deepseek41";
+
+    # A sharded model is read through a directory of symlinks under the sibling file names (packages/applications/strata).
+    farm = cfg.package.farmFor id model;
+    # What setup.py's "preparing the model for Strata" step builds, as a pure derivation: Flash-Next's pack
+    # (tools/iq_pack.py), DeepSeek's pack (tools/dsv41/pack_gguf.py). Qwen3.6 only needs a tokenizer, from the GGUF.
+    pack =
+      if isFlash
+      then cfg.package.packFlashNext id model
+      else if isDeepseek
+      then cfg.package.packDeepseek id model
+      else null;
+    tokenizerDir =
+      if isQwen36
+      then "${cfg.package.tokenizerFor model.package}/tokenizer"
+      else "${pack}/tokenizer";
+
+    # `mtp` means a count of draft tokens for qwen36 (`--mtp N`). Flash-Next takes a folder with the draft layer's
+    # weights instead, so there it is only on or off: 0 is off (setup.py's `--mtp off`: `"mtp": false` in the run
+    # config, which removes --mtp and --spec-min-p and keeps --spec). DeepSeek has no MTP draft layer.
+    mtpSetting = pick "mtp" (
+      if cfg.mtp == null
+      then (model.mtp or 1)
+      else cfg.mtp
+    );
+    draftOn = mtpSetting > 0;
+
+    # The knobs that exist in every path's engine.
+    poolWorkersArgs = lib.optionals (poolWorkers != null) ["--pool-workers" (toString poolWorkers)];
+
+    # qwen36: `--native <gguf> --max-context N --prefill auto --mtp N`, plus the optional VRAM/CPU knobs. Note that the
+    # Qwen3.6 engine (strata-q36) answers `--vram-reserve-mib` in serve mode with "ignoring ... (not an option of this
+    # engine)": its own knob is --expert-vram. The flag is still passed, as before, so nothing changes for it.
+    qwen36Args =
+      [
+        "--native"
+        "${model.package}"
+        "--max-context"
+        (toString contextSize)
+        "--prefill"
+        "auto"
+        "--mtp"
+        (toString mtpSetting)
+      ]
+      ++ lib.optionals (expertVramGiB != null) ["--expert-vram" (toString expertVramGiB)]
+      ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
+      ++ poolWorkersArgs;
+
+    # Flash-Next, in the order setup_config.config_for writes them for a text-only start on one NVIDIA card: the pack
+    # and the first shard (the engine finds the other shards beside it by name), the expert profile from the Strata
+    # tree (read only unless --expert-profile-save is given), the draft layer's folder, the context, and `--kv int8`
+    # above 8192 tokens. KV streaming (--kv-resident) starts at 64K and is not written: pass it in extraEngineArgs.
+    flashArgs =
+      [
+        "--pack"
+        "${pack}"
+        "--native"
+        "${farm}/${model.native}"
+      ]
+      ++ lib.optionals (model.ple != null) ["--ple-gguf" "${farm}/${model.ple}"]
+      ++ [
+        "--expert-profile"
+        "${cfg.package.root}/data/${model.profile}"
+        "--expert-cache"
+        "auto"
+        "--prefill"
+        "auto"
+        "--spec"
+        "4"
+      ]
+      ++ lib.optionals draftOn [
+        "--spec-min-p"
+        "0.5"
+        "--mtp"
+        "${cfg.package.mtpRt}"
+      ]
+      ++ ["--max-context" (toString contextSize)]
+      ++ lib.optionals (contextSize > 8192) ["--kv" "int8"]
+      ++ lib.optionals (residentBudgetGiB != null) ["--resident-budget-gib" (toString residentBudgetGiB)]
+      ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
+      ++ poolWorkersArgs;
+
+    # DeepSeek (dsv41_config_for): the pack and the context, `--eos 1`, no pictures (the pack is made without the
+    # picture reader), the DSpark drafter chosen by the engine (`--dspark auto`, never `off`: that still loads it) with
+    # upstream's confidence floor for the ISTA-DAS sets, and --profile-readonly because the pack is in the store.
+    # `--reserve-mib` is this engine's name for the VRAM left free.
+    deepseekArgs =
+      [
+        "--pack"
+        "${pack}"
+        "--max-context"
+        (toString contextSize)
+        "--eos"
+        "1"
+        "--vision"
+        "off"
+        "--dspark"
+        "auto"
+        "--dspark-conf"
+        "0.65"
+        "--profile-readonly"
+      ]
+      ++ lib.optionals (cfg.vramReserveMiB != null) ["--reserve-mib" (toString cfg.vramReserveMiB)];
+
+    engineArgs =
+      (
+        if isQwen36
+        then qwen36Args
+        else if isFlash
+        then flashArgs
+        else deepseekArgs
+      )
+      ++ extraEngineArgs;
+
+    # Unsloth files: upstream's unsloth_default_env. The K-quant MMQ prompt kernels for UD-Q5_K_XL and UD-Q6_K_XL, and
+    # STRATA_ROUTE_TAIL_SKIP=0 where every expert is in RAM (the skip costs accuracy there); the RAM-budget mode keeps it.
+    runEnv = lib.optionalAttrs (isFlash && model.recipe == "unsloth") (
+      lib.optionalAttrs model.mmqKq {STRATA_MMQ_KQ = "1";}
+      // lib.optionalAttrs (residentBudgetGiB == null) {STRATA_ROUTE_TAIL_SKIP = "0";}
+    );
+
+    engineExe =
+      if isDeepseek
+      then cfg.package.enginePathDsv41
+      else cfg.package.enginePath;
+
+    # The run config (strata-<model>.json in upstream). The API key is deliberately NOT in it: this file is in the
+    # Nix store. The key reaches the server as $STRATA_API_KEY (see the launcher).
+    isMock = cfg.engine == "mock";
+
+    runConfigAttrs =
+      {
+        args = engineArgs;
+        cwd = stateDir;
+        model_name = id;
+        log = logFile;
+        lib_dirs = ["/run/opengl-driver/lib"];
+        inherit port host;
+      }
+      # qwen36 and DeepSeek write the GGUF architecture; Flash-Next writes none (the server defaults to qwen4exp).
+      // lib.optionalAttrs (model ? arch) {inherit (model) arch;}
+      // lib.optionalAttrs (isFlash && !draftOn) {mtp = false;}
+      // lib.optionalAttrs (runEnv != {}) {env = runEnv;}
+      # 300+ GB are read from the files at the first start: DeepSeek's start can take a long time (upstream: 3600).
+      // lib.optionalAttrs isDeepseek {engine_ready_s = 3600;}
+      # The mock engine needs neither the engine binary nor a tokenizer (the server falls back to a byte tokenizer):
+      # a VM test then does not have to build or fetch the real ones.
+      // lib.optionalAttrs (!isMock) {
+        exe = engineExe;
+        tokenizer = tokenizerDir;
+      }
+      // lib.optionalAttrs cfg.lazyLoad {lazy_load = true;}
+      // lib.optionalAttrs (cfg.idleUnloadSeconds != null) {idle_unload_s = cfg.idleUnloadSeconds;}
+      // lib.optionalAttrs (cfg.minFreeVramMiB != null) {min_free_vram_mib = cfg.minFreeVramMiB;}
+      // lib.optionalAttrs (cfg.parallel > 1) {parallel = cfg.parallel;}
+      // extraConfig;
+
+    runConfig = pkgs.writeText "strata-${id}.json" (builtins.toJSON runConfigAttrs);
+
+    launcherText = ''
+      set -eu
+      key_file=${lib.escapeShellArg keyFile}
+      if [ ! -r "$key_file" ]; then
+        echo "strata: API key file $key_file is missing or unreadable; refusing to start without authentication" >&2
         exit 1
       fi
-      if [ ! -x ${lib.escapeShellArg engineExe} ]; then
-        echo "strata: engine ${engineExe} is missing" >&2
+      key="$(${pkgs.coreutils}/bin/cat "$key_file")"
+      if ! printf '%s' "$key" | ${pkgs.gnugrep}/bin/grep -Eq '^[[:graph:]]{32,256}$'; then
+        echo "strata: API key must be 32-256 printable characters without spaces; refusing to start" >&2
         exit 1
       fi
-    ''}
-    # The server reads its key from the environment, never from argv (visible in `ps`) or the store.
-    export STRATA_API_KEY="$key"
-    unset key
-    exec ${cfg.package}/bin/strata-server --engine ${cfg.engine} --config ${runConfig} \
-      --host ${lib.escapeShellArg cfg.host} --port ${toString cfg.port} --offline
-  '';
+      ${lib.optionalString (!isMock) ''
+        if [ ! -r ${lib.escapeShellArg "${model.package}"} ]; then
+          echo "strata: model file ${model.package} is missing" >&2
+          exit 1
+        fi
+        if [ ! -x ${lib.escapeShellArg engineExe} ]; then
+          echo "strata: engine ${engineExe} is missing" >&2
+          exit 1
+        fi
+      ''}
+      # The server reads its key from the environment, never from argv (visible in `ps`) or the store.
+      export STRATA_API_KEY="$key"
+      unset key
+      exec ${cfg.package}/bin/strata-server --engine ${cfg.engine} --config ${runConfig} \
+        --host ${lib.escapeShellArg host} --port ${toString port} --offline
+    '';
+  in {
+    inherit id model runConfigAttrs launcherText;
+    launcher = pkgs.writeShellScript "strata-start-${id}" launcherText;
+  };
 
-  launcher = pkgs.writeShellScript "strata-start" launcherText;
+  # The instances: the one `model`, or one per router model. Router instances get a port each, in name order.
+  routerIds = lib.attrNames cfg.router.models;
+  backendPort = id: cfg.router.backendPortBase + (lib.lists.findFirstIndex (x: x == id) 0 routerIds);
+  unitName = id:
+    if routerOn
+    then "strata-${id}"
+    else "strata";
+  instances =
+    lib.mapAttrs (id: over:
+      mkInstance {
+        inherit id over;
+        host =
+          if routerOn
+          then "127.0.0.1"
+          else cfg.host;
+        port =
+          if routerOn
+          then backendPort id
+          else cfg.port;
+        keyFile =
+          if routerOn
+          then backendKeyPath
+          else keyPath;
+        logFile =
+          if routerOn
+          then "${stateDir}/engine-${id}.log"
+          else "${stateDir}/engine.log";
+      })
+    (
+      if routerOn
+      then cfg.router.models
+      else {${cfg.model} = {};}
+    );
+
+  routerConfigAttrs = {
+    listen_host = cfg.host;
+    listen_port = cfg.port;
+    key_file = keyPath;
+    backend_key_file = backendKeyPath;
+    default = cfg.router.default;
+    systemctl = "${config.systemd.package}/bin/systemctl";
+    systemctl_timeout = 300;
+    start_timeout = cfg.router.startTimeoutSeconds;
+    switch_wait = cfg.router.switchWaitSeconds;
+    upstream_timeout = cfg.router.upstreamTimeoutSeconds;
+    models =
+      lib.mapAttrsToList (id: _: {
+        inherit id;
+        unit = "${unitName id}.service";
+        port = backendPort id;
+      })
+      instances;
+  };
+  routerConfig = pkgs.writeText "strata-router.json" (builtins.toJSON routerConfigAttrs);
+
+  # Per-instance assertions. A flag only one engine has is refused for the others instead of being dropped silently.
+  # (They are skipped for an unknown model, so the catalog message is the one that is shown.)
+  instanceAssertions = id: over: let
+    known = builtins.hasAttr id cfg.models;
+    entry = cfg.models.${id};
+    pick = name: fallback: let
+      v = over.${name} or null;
+    in
+      if v == null
+      then fallback
+      else v;
+    where =
+      if routerOn
+      then "fmf.services.strata.router.models.${id}"
+      else "fmf.services.strata";
+  in [
+    {
+      assertion = known;
+      message = "${
+        if routerOn
+        then "fmf.services.strata.router.models"
+        else "fmf.services.strata.model"
+      } '${id}' is not in the Strata catalog (${lib.concatStringsSep ", " (builtins.attrNames cfg.models)}).";
+    }
+    {
+      assertion = !known || pick "expertVramGiB" cfg.expertVramGiB == null || entry.family == "qwen36";
+      message = "${where}.expertVramGiB (--expert-vram) is an option of the Qwen3.6 engine only; model '${id}' is served by another engine.";
+    }
+    {
+      assertion = !known || pick "residentBudgetGiB" cfg.residentBudgetGiB == null || (entry.family == "flashnext" && entry.recipe == "unsloth");
+      message = "${where}.residentBudgetGiB applies to the Unsloth Qwen3.8 Flash Next models only; model '${id}' is not one.";
+    }
+    {
+      assertion = !known || pick "poolWorkers" cfg.poolWorkers == null || entry.family != "deepseek41";
+      message = "${where}.poolWorkers (--pool-workers) is not an option of the DeepSeek engine; model '${id}' uses it.";
+    }
+  ];
 
   statusCommand = pkgs.writeShellScriptBin "strata-status" ''
     url="http://${if cfg.host == "0.0.0.0" then "127.0.0.1" else cfg.host}:${toString cfg.port}"
@@ -227,6 +352,108 @@
       echo "(key ${keyPath} not readable by this user: skipping the authenticated check)"
     fi
   '';
+
+  baseEnvironment = {
+    HOME = stateDir;
+    TMPDIR = "${stateDir}/tmp";
+    XDG_CACHE_HOME = "${stateDir}/cache";
+    XDG_CONFIG_HOME = "${stateDir}/config";
+    XDG_STATE_HOME = "${stateDir}/state";
+    PYTHONNOUSERSITE = "1";
+  };
+
+  # What the engine unit and the router unit share. CUDA needs executable mappings and /proc and the NVIDIA device
+  # nodes (as the llama.cpp module), so the sandbox leaves those alone.
+  sandbox = {
+    User = "strata";
+    Group = "strata";
+    UMask = "0077";
+    NoNewPrivileges = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+    PrivateTmp = true;
+    ProtectKernelTunables = true;
+    ProtectKernelModules = true;
+    ProtectControlGroups = true;
+    RestrictSUIDSGID = true;
+    RestrictNamespaces = true;
+    LockPersonality = true;
+    RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
+    SystemCallArchitectures = "native";
+  };
+
+  startLimits = {
+    StartLimitIntervalSec = 900;
+    StartLimitBurst = 5;
+  };
+
+  # The unit of one engine instance (the whole server when there is no router).
+  engineUnit = inst: {
+    description = "Strata inference server (${inst.id})";
+    environment = baseEnvironment;
+    serviceConfig =
+      sandbox
+      // {
+        ExecStart = inst.launcher;
+        SupplementaryGroups = ["video" "render"];
+        StateDirectory = ["strata" "strata/tmp" "strata/cache" "strata/config" "strata/state"];
+        StateDirectoryMode = "0750";
+        WorkingDirectory = stateDir;
+
+        # A refused context or a missing GPU should not spin the GPU: back off, then stop retrying.
+        Restart = "on-failure";
+        RestartSec = 30;
+        TimeoutStopSec = 60;
+        OOMScoreAdjust = cfg.oomScoreAdjust;
+        # The hybrid mode pins a RAM copy of the experts for the GPU to read.
+        LimitMEMLOCK = "infinity";
+        LimitNOFILE = 1048576;
+      }
+      // lib.optionalAttrs (cfg.memoryMax != null) {MemoryMax = cfg.memoryMax;}
+      // lib.optionalAttrs (cfg.memoryHigh != null) {MemoryHigh = cfg.memoryHigh;}
+      // lib.optionalAttrs (cfg.cpuAffinity != null) {CPUAffinity = cfg.cpuAffinity;};
+    unitConfig = startLimits;
+  };
+
+  overrideModule = {
+    options = {
+      contextSize = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        description = "This model's context window; null uses the service-wide `contextSize`, then the catalog value. The client must advertise the same.";
+      };
+      mtp = mkOption {
+        type = types.nullOr types.ints.unsigned;
+        default = null;
+        description = "This model's `mtp` (see the service-wide option); null uses that.";
+      };
+      expertVramGiB = mkOption {
+        type = types.nullOr (types.either types.int types.float);
+        default = null;
+        description = "This model's `expertVramGiB` (Qwen3.6 only); null uses the service-wide value.";
+      };
+      residentBudgetGiB = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        description = "This model's `residentBudgetGiB` (Unsloth Qwen3.8 only); null uses the service-wide value.";
+      };
+      poolWorkers = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = null;
+        description = "This model's `poolWorkers` (not for DeepSeek); null uses the service-wide value.";
+      };
+      extraEngineArgs = mkOption {
+        type = types.nullOr (types.listOf types.str);
+        default = null;
+        description = "This model's extra engine flags; null uses the service-wide list.";
+      };
+      extraConfig = mkOption {
+        type = types.attrs;
+        default = {};
+        description = "Keys merged into this model's run config, on top of the service-wide `extraConfig`.";
+      };
+    };
+  };
 in {
   options.fmf.services.strata = {
     enable = lib.mkEnableOption "Strata inference server (CUDA, GPU+RAM expert placement for MoE models)";
@@ -253,8 +480,13 @@ in {
       internal = true;
       readOnly = true;
       type = types.attrs;
-      default = {inherit runConfigAttrs launcherText;};
-      description = "The run config (as data) and the launcher script text, so tests can inspect what is generated without building anything.";
+      default =
+        {
+          instances = lib.mapAttrs (_: i: {inherit (i) runConfigAttrs launcherText;}) instances;
+        }
+        // lib.optionalAttrs (!routerOn) {inherit (instances.${cfg.model}) runConfigAttrs launcherText;}
+        // lib.optionalAttrs routerOn {router = routerConfigAttrs;};
+      description = "The run config (as data) and the launcher script text of each instance (and, without the router, of the one instance directly), so tests can inspect what is generated without building anything.";
     };
 
     host = mkOption {
@@ -275,16 +507,63 @@ in {
       type = types.attrsOf types.attrs;
       default = lib.fmf.strataModels {inherit pkgs;};
       defaultText = lib.literalExpression "lib.fmf.strataModels { inherit pkgs; }";
-      description = "Models Strata can serve (see lib/strata-models). Only the selected one is built into the closure.";
+      description = "Models Strata can serve (see lib/strata-models). Only the selected ones are built into the closure.";
     };
     model = mkOption {
       type = types.str;
       default = "qwen3.6-35b-a3b-ud-q4_k_xl";
       description = ''
         Which catalog model this instance serves. One instance serves exactly one model and answers every
-        request with it, whatever model id the client sends.
+        request with it, whatever model id the client sends. With `router.enable` this is only the default for a
+        request that names no known model (`router.default`); the models served are `router.models`.
       '';
     };
+
+    router = {
+      enable = lib.mkEnableOption ''
+        switching between several models by the request's model id. One lazy-loading instance per `router.models`
+        entry is configured, each its own unit (`strata-<id>`) on loopback, and the `strata` unit becomes a router on
+        `host`:`port`: it checks the API key, lists every model, and for a request naming a model stops the other
+        instances, starts that one and forwards. Only one instance runs at a time, so the models share the GPU and the
+        RAM. The first request after a switch pays that model's cold load
+      '';
+      models = mkOption {
+        type = types.attrsOf (types.submodule overrideModule);
+        default = {};
+        example = lib.literalExpression ''{"qwen3.6-35b-a3b-ud-q4_k_xl" = {}; "qwen3.6-35b-a3b-q8_0" = {contextSize = 32768;};}'';
+        description = ''
+          The catalog models to serve, by id. The value holds that model's own settings; everything it leaves null
+          follows the service-wide option of the same name. Every model here is built into the system closure.
+        '';
+      };
+      default = mkOption {
+        type = types.str;
+        default = cfg.model;
+        defaultText = lib.literalExpression "config.fmf.services.strata.model";
+        description = "The model started for a request that names no configured model and arrives while none is running.";
+      };
+      backendPortBase = mkOption {
+        type = types.port;
+        default = 18100;
+        description = "Loopback port of the first instance (in name order); the others follow.";
+      };
+      startTimeoutSeconds = mkOption {
+        type = types.ints.positive;
+        default = 900;
+        description = "How long to wait for a started instance to answer /health. With `lazyLoad` it answers at once; without it, only once the model is loaded.";
+      };
+      switchWaitSeconds = mkOption {
+        type = types.ints.positive;
+        default = 1800;
+        description = "How long a request for another model waits for the running requests to finish before it is answered 503 (the model is still in use).";
+      };
+      upstreamTimeoutSeconds = mkOption {
+        type = types.ints.positive;
+        default = 3600;
+        description = "Read timeout towards an instance. A cold load happens inside the first request, so it must cover the slowest model's load.";
+      };
+    };
+
     contextSize = mkOption {
       type = types.nullOr types.ints.positive;
       default = null;
@@ -380,7 +659,8 @@ in {
       description = ''
         systemd MemoryMax for the service (bytes with a suffix, or a percentage of RAM). The hybrid mode keeps a
         pinned RAM copy of the experts (upstream measured 18.75 GiB for UD-Q4_K_XL; its planning figure is 32 GB
-        of RAM for the model), plus the engine's buffers and the server. null disables the cap.
+        of RAM for the model), plus the engine's buffers and the server. null disables the cap. With the router it
+        applies to each model's unit (one runs at a time), not to the router.
       '';
     };
     memoryHigh = mkOption {
@@ -428,59 +708,55 @@ in {
 
   config = mkIf cfg.enable (lib.mkMerge [
     {
-      assertions = [
-        {
-          assertion = cfg.apiKeyFile != null || cfg.vault.enable;
-          message = "fmf.services.strata always requires an API key: set apiKeyFile or vault.enable (no unauthenticated endpoint).";
-        }
-        {
-          assertion = !(cfg.apiKeyFile != null && cfg.vault.enable);
-          message = "Select either strata vault.enable or apiKeyFile, not both.";
-        }
-        {
-          assertion = cfg.apiKeyFile == null || (lib.hasPrefix "/" cfg.apiKeyFile && !lib.hasPrefix "/nix/store/" cfg.apiKeyFile);
-          message = "Strata API keys must be runtime absolute paths outside /nix/store.";
-        }
-        {
-          assertion = !cfg.vault.enable || cfg.vault.path != "";
-          message = "Set the Strata Vault API path.";
-        }
-        {
-          assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable;
-          message = "Strata Vault authentication requires fmf.services.vault-agent.enable.";
-        }
-        {
-          assertion = !cfg.vault.enable || lib.all (value: value != "") [(vaultDefaults.address or "") (vaultDefaults.role-id or "") (vaultDefaults.secret-id or "")];
-          message = "Strata Vault Agent requires a Vault address and AppRole role-id/secret-id file paths in fmf.services.vault-agent.settings.vault.";
-        }
-        {
-          assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || lib.hasInfix "/data/" cfg.vault.path;
-          message = "strata vault.path must be the KV v2 API path (including /data/).";
-        }
-        {
-          assertion = builtins.hasAttr cfg.model cfg.models;
-          message = "fmf.services.strata.model '${cfg.model}' is not in the Strata catalog (${lib.concatStringsSep ", " (builtins.attrNames cfg.models)}).";
-        }
-        # Options that name a flag only one engine has are refused for the others instead of being dropped silently.
-        # (They are skipped for an unknown model, so the catalog message above is the one that is shown.)
-        {
-          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.expertVramGiB == null || isQwen36;
-          message = "fmf.services.strata.expertVramGiB (--expert-vram) is an option of the Qwen3.6 engine only; model '${cfg.model}' is served by another engine.";
-        }
-        {
-          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.residentBudgetGiB == null || (isFlash && model.recipe == "unsloth");
-          message = "fmf.services.strata.residentBudgetGiB applies to the Unsloth Qwen3.8 Flash Next models only; model '${cfg.model}' is not one.";
-        }
-        {
-          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.poolWorkers == null || !isDeepseek;
-          message = "fmf.services.strata.poolWorkers (--pool-workers) is not an option of the DeepSeek engine; model '${cfg.model}' uses it.";
-        }
-        {
-          # CUDA 13 engines need driver 580+ (docs/INSTALL.md). Skipped for the mock engine.
-          assertion = cfg.engine == "mock" || !(config.hardware ? nvidia) || lib.versionAtLeast config.hardware.nvidia.package.version "580";
-          message = "The Strata CUDA 13 engine needs NVIDIA driver 580 or newer (hardware.nvidia.package is ${config.hardware.nvidia.package.version}).";
-        }
-      ];
+      assertions =
+        [
+          {
+            assertion = cfg.apiKeyFile != null || cfg.vault.enable;
+            message = "fmf.services.strata always requires an API key: set apiKeyFile or vault.enable (no unauthenticated endpoint).";
+          }
+          {
+            assertion = !(cfg.apiKeyFile != null && cfg.vault.enable);
+            message = "Select either strata vault.enable or apiKeyFile, not both.";
+          }
+          {
+            assertion = cfg.apiKeyFile == null || (lib.hasPrefix "/" cfg.apiKeyFile && !lib.hasPrefix "/nix/store/" cfg.apiKeyFile);
+            message = "Strata API keys must be runtime absolute paths outside /nix/store.";
+          }
+          {
+            assertion = !cfg.vault.enable || cfg.vault.path != "";
+            message = "Set the Strata Vault API path.";
+          }
+          {
+            assertion = !cfg.vault.enable || config.fmf.services.vault-agent.enable;
+            message = "Strata Vault authentication requires fmf.services.vault-agent.enable.";
+          }
+          {
+            assertion = !cfg.vault.enable || lib.all (value: value != "") [(vaultDefaults.address or "") (vaultDefaults.role-id or "") (vaultDefaults.secret-id or "")];
+            message = "Strata Vault Agent requires a Vault address and AppRole role-id/secret-id file paths in fmf.services.vault-agent.settings.vault.";
+          }
+          {
+            assertion = !cfg.vault.enable || cfg.vault.kvVersion != 2 || lib.hasInfix "/data/" cfg.vault.path;
+            message = "strata vault.path must be the KV v2 API path (including /data/).";
+          }
+          {
+            assertion = !routerOn || cfg.router.models != {};
+            message = "fmf.services.strata.router.enable needs at least one model in router.models.";
+          }
+          {
+            assertion = !routerOn || builtins.hasAttr cfg.router.default cfg.router.models;
+            message = "fmf.services.strata.router.default '${cfg.router.default}' must be one of router.models (${lib.concatStringsSep ", " routerIds}).";
+          }
+          {
+            # CUDA 13 engines need driver 580+ (docs/INSTALL.md). Skipped for the mock engine.
+            assertion = cfg.engine == "mock" || !(config.hardware ? nvidia) || lib.versionAtLeast config.hardware.nvidia.package.version "580";
+            message = "The Strata CUDA 13 engine needs NVIDIA driver 580 or newer (hardware.nvidia.package is ${config.hardware.nvidia.package.version}).";
+          }
+        ]
+        ++ lib.concatLists (lib.mapAttrsToList instanceAssertions (
+          if routerOn
+          then cfg.router.models
+          else {${cfg.model} = {};}
+        ));
 
       users.groups.strata = {};
       users.users.strata = {
@@ -493,64 +769,72 @@ in {
 
       networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.port];
       environment.systemPackages = [statusCommand];
-
-      systemd.services.strata = {
-        description = "Strata inference server (${cfg.model})";
-        wantedBy = ["multi-user.target"];
-        after = ["network-online.target"];
-        wants = ["network-online.target"];
-        environment = {
-          HOME = stateDir;
-          TMPDIR = "${stateDir}/tmp";
-          XDG_CACHE_HOME = "${stateDir}/cache";
-          XDG_CONFIG_HOME = "${stateDir}/config";
-          XDG_STATE_HOME = "${stateDir}/state";
-          PYTHONNOUSERSITE = "1";
-        };
-        serviceConfig =
-          {
-            ExecStart = launcher;
-            User = "strata";
-            Group = "strata";
-            SupplementaryGroups = ["video" "render"];
-            StateDirectory = ["strata" "strata/tmp" "strata/cache" "strata/config" "strata/state"];
-            StateDirectoryMode = "0750";
-            WorkingDirectory = stateDir;
-            UMask = "0077";
-
-            # A refused context or a missing GPU should not spin the GPU: back off, then stop retrying.
-            Restart = "on-failure";
-            RestartSec = 30;
-            TimeoutStopSec = 60;
-            OOMScoreAdjust = cfg.oomScoreAdjust;
-            # The hybrid mode pins a RAM copy of the experts for the GPU to read.
-            LimitMEMLOCK = "infinity";
-            LimitNOFILE = 1048576;
-
-            # CUDA needs executable mappings and /proc, and the NVIDIA device nodes (as the llama.cpp module).
-            NoNewPrivileges = true;
-            ProtectSystem = "strict";
-            ProtectHome = true;
-            PrivateTmp = true;
-            ProtectKernelTunables = true;
-            ProtectKernelModules = true;
-            ProtectControlGroups = true;
-            RestrictSUIDSGID = true;
-            RestrictNamespaces = true;
-            LockPersonality = true;
-            RestrictAddressFamilies = ["AF_UNIX" "AF_INET" "AF_INET6"];
-            SystemCallArchitectures = "native";
-          }
-          // lib.optionalAttrs (cfg.apiKeyFile != null) {LoadCredential = ["api-key:${cfg.apiKeyFile}"];}
-          // lib.optionalAttrs (cfg.memoryMax != null) {MemoryMax = cfg.memoryMax;}
-          // lib.optionalAttrs (cfg.memoryHigh != null) {MemoryHigh = cfg.memoryHigh;}
-          // lib.optionalAttrs (cfg.cpuAffinity != null) {CPUAffinity = cfg.cpuAffinity;};
-        unitConfig = {
-          StartLimitIntervalSec = 900;
-          StartLimitBurst = 5;
-        };
-      };
     }
+
+    # One model: the server itself, as it always was.
+    (mkIf (!routerOn) {
+      systemd.services.strata =
+        engineUnit instances.${cfg.model}
+        // {
+          wantedBy = ["multi-user.target"];
+          after = ["network-online.target"];
+          wants = ["network-online.target"];
+          serviceConfig =
+            (engineUnit instances.${cfg.model}).serviceConfig
+            // lib.optionalAttrs (cfg.apiKeyFile != null) {LoadCredential = ["api-key:${cfg.apiKeyFile}"];};
+        };
+    })
+
+    # Several models: `strata` is the router, and each model is a unit of its own that only the router starts.
+    (mkIf routerOn {
+      systemd.services =
+        {
+          strata = {
+            description = "Strata model router (${lib.concatStringsSep ", " routerIds})";
+            wantedBy = ["multi-user.target"];
+            after = ["network-online.target"];
+            wants = ["network-online.target"];
+            environment.PYTHONNOUSERSITE = "1";
+            serviceConfig =
+              sandbox
+              // {
+                ExecStart = "${pkgs.python3}/bin/python3 ${./router.py} ${routerConfig}";
+                # The key the router hands the instances lives here, and goes with the router.
+                RuntimeDirectory = "strata";
+                RuntimeDirectoryMode = "0750";
+                Restart = "on-failure";
+                RestartSec = 5;
+                TimeoutStopSec = 30;
+              }
+              // lib.optionalAttrs (cfg.apiKeyFile != null) {LoadCredential = ["api-key:${cfg.apiKeyFile}"];};
+            unitConfig = startLimits;
+          };
+        }
+        // lib.mapAttrs' (id: inst:
+          lib.nameValuePair (unitName id) (
+            engineUnit inst
+            // {
+              # Started and stopped by the router only: never at boot. PartOf: stopping or restarting the router
+              # (a deploy, a rotated key) stops the model that is running with it.
+              after = ["network-online.target" "strata.service"];
+              wants = ["network-online.target"];
+              partOf = ["strata.service"];
+            }
+          ))
+        instances;
+
+      # The router is an unprivileged user that starts and stops exactly these units, and nothing else.
+      security.polkit.enable = true;
+      security.polkit.extraConfig = ''
+        polkit.addRule(function(action, subject) {
+          if (action.id == "org.freedesktop.systemd1.manage-units" && subject.user == "strata" &&
+              ${builtins.toJSON (lib.mapAttrsToList (id: _: "${unitName id}.service") instances)}.indexOf(action.lookup("unit")) >= 0) {
+            return polkit.Result.YES;
+          }
+        });
+      '';
+    })
+
     (mkIf cfg.vault.enable {
       # Same pattern as llama-cpp: the sidecar renders the key owned by the service user and restarts the unit
       # when the secret changes. A template alone leaves auto_auth.method empty, so the agent is configured here.

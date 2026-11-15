@@ -103,6 +103,34 @@
   oldDriver = evalWith {hardware.nvidia.package = lib.mkForce ((pkgs.runCommand "old-nvidia" {} "touch $out") // {version = "570.0";});};
   fileKey = evalWith {fmf.services.strata = {vault.enable = lib.mkForce false; apiKeyFile = "/run/keys/strata";};};
   disabled = evalWith {fmf.services.strata.enable = lib.mkForce false;};
+
+  # --- the model router: one unit per model behind one public unit ---
+  q4 = "qwen3.6-35b-a3b-ud-q4_k_xl";
+  q8 = "qwen3.6-35b-a3b-q8_0";
+  dsv = "deepseek-v4.1-flash-2.00bpw";
+  routed = evalWith {
+    fmf.services.strata = {
+      poolWorkers = lib.mkForce null; # --pool-workers is not an option of the DeepSeek engine
+      router = {
+        enable = true;
+        models = {
+          ${q4} = {};
+          ${q8} = {contextSize = 32768;};
+          ${istaId} = {};
+          ${dsv} = {};
+        };
+      };
+    };
+  };
+  rc = routed.config;
+  routerCfg = rc.fmf.services.strata.generated.router;
+  inst = id: rc.fmf.services.strata.generated.instances.${id};
+  unitOf = id: rc.systemd.services."strata-${id}";
+  routerNoModels = evalWith {fmf.services.strata.router.enable = true;};
+  routerBadDefault = evalWith {fmf.services.strata.router = {enable = true; models.${q4} = {}; default = q8;};};
+  routerUnknown = evalWith {fmf.services.strata.router = {enable = true; models."gpt-oss-20b" = {};};};
+  routerPoolOnDeepseek = evalWith {fmf.services.strata.router = {enable = true; models.${dsv} = {};};};
+  routerExpertVramOnDeepseek = evalWith {fmf.services.strata = {poolWorkers = lib.mkForce null; router = {enable = true; models.${dsv}.expertVramGiB = 10;};};};
 in
   # --- catalog: only Strata-supported models, one served id, accurate limits ---
   assert builtins.attrNames catalog == [
@@ -259,6 +287,53 @@ in
   assert failing poolOnDeepseek "poolWorkers";
   assert failing oldDriver "needs NVIDIA driver 580";
   assert !(lib.any (a: !a.assertion && lib.hasInfix "trata" a.message) c.assertions);
+  # --- the router: `strata` is the public unit, every model has its own unit that only the router starts ---
+  assert !(lib.any (a: !a.assertion && lib.hasInfix "trata" a.message) rc.assertions);
+  assert lib.hasInfix "router.py" rc.systemd.services.strata.serviceConfig.ExecStart;
+  assert rc.systemd.services.strata.serviceConfig.RuntimeDirectory == "strata";
+  assert !(rc.systemd.services.strata.serviceConfig ? MemoryMax) && !(rc.systemd.services.strata.serviceConfig ? LimitMEMLOCK);
+  assert rc.systemd.services.strata.serviceConfig.User == "strata" && rc.systemd.services.strata.serviceConfig.NoNewPrivileges;
+  assert rc.systemd.services.strata.unitConfig.JoinsNamespaceOf == "detsys-vaultAgent-strata.service"; # the key file is in the agent's /tmp
+  assert lib.sort lib.lessThan (lib.attrNames (lib.filterAttrs (n: _: lib.hasPrefix "strata-" n) rc.systemd.services)) == lib.sort lib.lessThan (map (i: "strata-${i}") [q4 q8 istaId dsv]);
+  assert lib.all (id: let u = unitOf id; in u.wantedBy == [] && u.partOf == ["strata.service"] && builtins.elem "strata.service" u.after) [q4 q8 istaId dsv];
+  assert lib.all (id: (unitOf id).serviceConfig.MemoryMax == "64G" && (unitOf id).serviceConfig.LimitMEMLOCK == "infinity" && (unitOf id).serviceConfig.CPUAffinity == "0-7") [q4 q8 istaId dsv];
+  assert lib.all (id: !((unitOf id).serviceConfig ? LoadCredential)) [q4 q8 istaId dsv];
+  # public address for the router, loopback and a port each (name order) for the instances
+  assert routerCfg.listen_host == "10.0.0.5" && routerCfg.listen_port == 18081;
+  assert routerCfg.default == q4;
+  assert map (m: m.id) routerCfg.models == lib.sort lib.lessThan [q4 q8 istaId dsv];
+  assert map (m: m.port) routerCfg.models == [18100 18101 18102 18103];
+  assert (inst dsv).runConfigAttrs.host == "127.0.0.1" && (inst dsv).runConfigAttrs.port == 18100;
+  assert (inst q8).runConfigAttrs.port == 18101 && (inst q4).runConfigAttrs.port == 18102 && (inst q8).runConfigAttrs.model_name == q8;
+  assert map (m: m.unit) routerCfg.models == map (m: "strata-${m.id}.service") routerCfg.models;
+  # each model keeps its own engine path and its own settings; the service-wide ones still apply
+  assert builtins.elem "--max-context" (inst q8).runConfigAttrs.args && builtins.elem "32768" (inst q8).runConfigAttrs.args;
+  assert builtins.elem "65536" (inst q4).runConfigAttrs.args;
+  assert (inst dsv).runConfigAttrs.exe == "/fake/libexec/strata/strata-dsv41" && (inst dsv).runConfigAttrs.arch == "deepseek41";
+  assert (inst istaId).runConfigAttrs.exe == "/fake/libexec/strata/strata" && !((inst istaId).runConfigAttrs ? arch);
+  assert (inst q4).runConfigAttrs.lazy_load == true && (inst q4).runConfigAttrs.idle_unload_s == 300;
+  assert builtins.elem "--vram-reserve-mib" (inst q4).runConfigAttrs.args && builtins.elem "1536" (inst q4).runConfigAttrs.args;
+  assert (inst q4).runConfigAttrs.log != (inst q8).runConfigAttrs.log;
+  # the instances never see the client's key: they read the router's, and nothing about Vault
+  assert lib.hasInfix "/run/strata/backend-key" (inst q4).launcherText && !(lib.hasInfix "detsys-vault" (inst q4).launcherText);
+  assert routerCfg.key_file != routerCfg.backend_key_file && routerCfg.backend_key_file == "/run/strata/backend-key";
+  assert !(lib.hasInfix "api_key" (builtins.toJSON (lib.mapAttrs (_: i: i.runConfigAttrs) rc.fmf.services.strata.generated.instances)));
+  # the router (an unprivileged user) may start and stop exactly these units
+  assert rc.security.polkit.enable;
+  assert lib.hasInfix "org.freedesktop.systemd1.manage-units" rc.security.polkit.extraConfig && lib.hasInfix ''subject.user == "strata"'' rc.security.polkit.extraConfig;
+  assert lib.all (id: lib.hasInfix "\"strata-${id}.service\"" rc.security.polkit.extraConfig) [q4 q8 istaId dsv];
+  assert !(lib.hasInfix "\"strata.service\"" rc.security.polkit.extraConfig);
+  # the credential path is unchanged: Vault restarts `strata`, which is the router and so also stops every model
+  assert rc.fmf.services.vault-agent.services.strata.secrets.file.files.api-key.change-action == "restart";
+  # a router needs models, a default that is one of them, catalog ids, and the same engine-specific refusals per model
+  assert failing routerNoModels "at least one model";
+  assert failing routerBadDefault "router.default";
+  assert failing routerUnknown "is not in the Strata catalog";
+  assert failing routerPoolOnDeepseek "router.models.${dsv}.poolWorkers";
+  assert failing routerExpertVramOnDeepseek "router.models.${dsv}.expertVramGiB";
+  # off: no router, no instance units, no polkit rule
+  assert !(c.systemd.services ? "strata-${q4}") && !(c.security.polkit.enable);
+  assert !(c.fmf.services.strata.generated ? router);
   pkgs.runCommand "strata-config-regression" {} ''
     # Evaluation only: nothing runs and no model, engine or credential is read.
     touch "$out"

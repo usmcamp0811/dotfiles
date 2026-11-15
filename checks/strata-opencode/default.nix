@@ -96,6 +96,29 @@
     };
   };
 
+  q8Id = "qwen3.6-35b-a3b-q8_0";
+  # a client of a server that switches models: every id, each with its own limits, still nothing from the store
+  multi = homeWith {
+    fmf.tools.agentic-ai.strata = {
+      enable = true;
+      apiKeyFile = "/var/lib/vault/users/tester/strata_api_key";
+      models = {
+        "qwen3.6-35b-a3b-ud-q4_k_xl" = {};
+        ${q8Id} = {contextSize = 32768;};
+        ${flashId} = {};
+        ${dsvId} = {};
+      };
+    };
+  };
+  multiBad = homeWith {
+    fmf.tools.agentic-ai.strata = {
+      enable = true;
+      apiKeyFile = "/run/k";
+      models = {"qwen3.6-35b-a3b-ud-q4_k_xl" = {}; "gpt-oss-20b" = {};};
+    };
+  };
+  m = opencodeJson multi;
+
   base = opencodeJson none;
   s = opencodeJson strataOnly;
   b = opencodeJson both;
@@ -129,6 +152,16 @@ in
   assert builtins.attrNames (opencodeJson (otherModel dsvId)).provider.strata.models == [dsvId];
   assert (opencodeJson (otherModel dsvId)).provider.strata.models.${dsvId}.limit.context == 65536;
   assert builtins.getContext (opencodeText (otherModel flashId)) == {} && builtins.getContext (opencodeText (otherModel dsvId)) == {};
+  # --- several models (a switching server): all advertised, each under its id with its own limits ---
+  assert builtins.attrNames m.provider.strata.models == lib.sort lib.lessThan [id q8Id flashId dsvId];
+  assert m.provider.strata.models.${id}.limit.context == 65536 && m.provider.strata.models.${flashId}.limit.context == 32768;
+  assert m.provider.strata.models.${q8Id}.limit.context == 32768 && m.provider.strata.models.${q8Id}.limit.input == 32768 - 2048 - 6144;
+  assert m.provider.strata.models.${dsvId}.limit.context == 65536;
+  assert lib.all (x: x.tool_call == true && x.limit.output == 2048) (builtins.attrValues m.provider.strata.models);
+  assert m.provider.strata.models.${q8Id}.name == "Qwen3.6 35B A3B (Q8_0, Strata)";
+  assert builtins.getContext (opencodeText multi) == {};
+  # without `models` it is still the one model
+  assert builtins.attrNames s.provider.strata.models == [id];
   # --- everything that was there stays: Ollama, llama.cpp's five models, cloud default and agents ---
   assert s.provider ? ollama;
   assert !(s.provider ? "llama-cpp");
@@ -146,6 +179,8 @@ in
   # --- refusals ---
   assert refused storeKey;
   assert refused badModel;
+  assert refused multiBad;
+  assert !(refused multi);
   # and a valid one is not refused
   assert !(refused strataOnly) && !(refused both);
   assert !(lib.any (a: !a.assertion && lib.hasInfix "trata" a.message) strataOnly.config.assertions);
