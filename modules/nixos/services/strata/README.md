@@ -135,6 +135,22 @@ goes through the LAN Traefik with TLS (`https://strata.lan.aicampground.com/v1`)
 opencode --model strata/qwen3.6-35b-a3b-ud-q4_k_xl
 ```
 
+**Headless OpenCode server** (`fmf.services.opencode-server`, attached with `opencode-remote`): the *server*, not the
+attached TUI, calls the model providers, so the server process needs the key too. Its `environmentFiles` default
+lists only the llama.cpp key, and setting the option replaces the default. A host that runs the server and wants
+Strata must list both:
+
+```nix
+fmf.services.opencode-server.environmentFiles = {
+  LLAMA_CPP_API_KEY = config.fmf.services.llama-cpp-client.apiKeyFile;
+  STRATA_API_KEY = config.fmf.services.strata-client.apiKeyFile;
+};
+```
+
+The server reads the provider list from its user's Home Manager config, which `strata-client` fills in. Models are
+then chosen inside the attached session (`/models`); that attached-client behaviour has not been tested here.
+Restart the server after changing providers or keys.
+
 The provider is registered next to `ollama` and `llama-cpp` (not instead of them), with `limit.context`,
 `limit.output` and the same compaction headroom as llama.cpp (`limit.input = context - output - 6144`), so
 compaction still fires before the window overflows.
