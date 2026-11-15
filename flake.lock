@@ -1260,11 +1260,11 @@
         "stable-nixpkgs": "stable-nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1794629922,
-        "narHash": "sha256-zUa93cpCe5ClThFsfqRr1YfAZR0ow/kU7v3vK6EqoOw=",
+        "lastModified": 1794775733,
+        "narHash": "sha256-KuKqtwnyUqNt+W3VeFcBdoxoDH7R4jxMRgxNEYAygg8=",
         "owner": "usmcamp0811",
         "repo": "campground-nvim",
-        "rev": "7a3b927afcac5d96d02de20762779fa7d1be4699",
+        "rev": "7ef0a5ef11fe332cdcf5d675e2fc68494d1f2338",
         "type": "gitlab"
       },
       "original": {
