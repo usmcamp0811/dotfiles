@@ -27,7 +27,7 @@ compatibility (upstream `docs/AI_SETUP.md`). Against this repository's llama.cpp
 
 | Catalog model | On Strata? | Why |
 | --- | --- | --- |
-| `qwen3.6-35b-a3b` | **Yes, with a different file** | Strata's `qwen36` path reads Unsloth's **MTP** GGUFs (`unsloth/Qwen3.6-35B-A3B-MTP-GGUF`) and documents only UD-Q4_K_XL, UD-Q6_K_XL and Q8_0. The llama.cpp catalog's file is UD-IQ3_S from the plain GGUF repository: not a documented Strata artifact. |
+| `qwen3.6-35b-a3b` | **Yes, with a different file** | Strata's `qwen36` path reads Unsloth's **MTP** GGUFs (`unsloth/Qwen3.6-35B-A3B-MTP-GGUF`) and documents only UD-Q4_K_XL, UD-Q6_K_XL and Q8_0, all three in the Strata catalog. The llama.cpp catalog's file is UD-IQ3_S from the plain GGUF repository: not a documented Strata artifact. |
 | `gpt-oss-20b` | No | Not a Strata family. Stays on llama.cpp. |
 | `qwen3.5-9b` | No | Not a Strata family. Stays on llama.cpp. |
 | `qwen3-coder-30b-a3b` | No | Not a Strata family. Stays on llama.cpp. |
@@ -36,13 +36,21 @@ compatibility (upstream `docs/AI_SETUP.md`). Against this repository's llama.cpp
 
 The Strata catalog is `lib.fmf.strataModels` and holds exactly the models verified above:
 
-| Id (what `/v1/models` reports) | File | Size | Context here |
-| --- | --- | ---: | ---: |
-| `qwen3.6-35b-a3b-ud-q4_k_xl` | `Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf` | 22,853,663,008 B | 65,536 |
+| Id (what `/v1/models` reports) | File | Size | RAM upstream plans for | Context here |
+| --- | --- | ---: | ---: | ---: |
+| `qwen3.6-35b-a3b-ud-q4_k_xl` | `Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf` | 22,853,663,008 B | 32 GB | 65,536 |
+| `qwen3.6-35b-a3b-ud-q6_k_xl` | `Qwen3.6-35B-A3B-UD-Q6_K_XL.gguf` | 32,611,711,264 B | 44 GB | 65,536 |
+| `qwen3.6-35b-a3b-q8_0` | `Qwen3.6-35B-A3B-Q8_0.gguf` | 37,801,097,504 B | 52 GB | 65,536 |
 
-Revision `5bc3e238d916f48a861bac2f8a1990a0e9b7e98d`; size and SHA-256 equal those pinned in Strata v0.2.13.1's
-`setup.py`. This is a separate Nix store file from the llama.cpp one: **it is a second 22.9 GB download**, not a reuse,
-because the formats differ.
+Revision `5bc3e238d916f48a861bac2f8a1990a0e9b7e98d` for all three. Size and SHA-256 equal those pinned in Strata
+v0.2.13.1's `setup.py` and the LFS size and oid Hugging Face reports for that revision. These are separate Nix store
+files from the llama.cpp one: **each is its own download** (22.9, 32.6 or 37.8 GB), not a reuse, because the formats
+differ. Only the model an instance selects is built into its closure.
+
+Only UD-Q4_K_XL has been the subject of any sizing work here. Q6_K_XL and Q8_0 use the same engine path and the same
+module code, but nothing has been run: on a 16 GB card more of their experts live in the pinned RAM copy, so expect
+them to be slower than UD-Q4_K_XL, and `memoryMax` (64G on sledge) leaves less headroom for Q8_0. Set one with
+`fmf.services.strata.model = "qwen3.6-35b-a3b-q8_0"` and the same value as the client's `model`.
 
 ### Qwen3.8-Flash-Next (evaluated, not implemented)
 

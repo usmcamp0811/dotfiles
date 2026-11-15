@@ -5,6 +5,8 @@
       (prev.fmf or {})
       // {
         strata-model-qwen36-35b-a3b-ud-q4-k-xl = throw "a client evaluated the Strata model weights";
+        strata-model-qwen36-35b-a3b-ud-q6-k-xl = throw "a client evaluated the Strata model weights";
+        strata-model-qwen36-35b-a3b-q8-0 = throw "a client evaluated the Strata model weights";
       };
   });
 

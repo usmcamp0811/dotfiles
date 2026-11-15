@@ -77,7 +77,14 @@
   disabled = evalWith {fmf.services.strata.enable = lib.mkForce false;};
 in
   # --- catalog: only Strata-supported models, one served id, accurate limits ---
-  assert builtins.attrNames catalog == ["qwen3.6-35b-a3b-ud-q4_k_xl"];
+  assert builtins.attrNames catalog == ["qwen3.6-35b-a3b-q8_0" "qwen3.6-35b-a3b-ud-q4_k_xl" "qwen3.6-35b-a3b-ud-q6_k_xl"];
+  # every entry is on the qwen36 engine path, from the one pinned repository, with its own file size
+  assert lib.all (m: m.family == "qwen36" && m.arch == "qwen35moe" && m.contextSize == 65536) (builtins.attrValues catalog);
+  assert (pt catalog."qwen3.6-35b-a3b-ud-q6_k_xl".package).size == 32611711264;
+  assert (pt catalog."qwen3.6-35b-a3b-ud-q6_k_xl".package).quantization == "UD-Q6_K_XL";
+  assert (pt catalog."qwen3.6-35b-a3b-q8_0".package).size == 37801097504;
+  assert (pt catalog."qwen3.6-35b-a3b-q8_0".package).quantization == "Q8_0";
+  assert lib.all (m: (pt m.package).repository == "unsloth/Qwen3.6-35B-A3B-MTP-GGUF") (builtins.attrValues catalog);
   assert catalog."qwen3.6-35b-a3b-ud-q4_k_xl".contextSize == 65536;
   assert catalog."qwen3.6-35b-a3b-ud-q4_k_xl".maxOutputTokens == 2048;
   assert catalog."qwen3.6-35b-a3b-ud-q4_k_xl".family == "qwen36";

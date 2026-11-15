@@ -1,6 +1,7 @@
 # Update Log
 
 ## 2026-11-14
+* **Strata**: added the Qwen3.6-35B-A3B UD-Q6_K_XL and Q8_0 models to the catalog (same pinned repository and engine path as UD-Q4_K_XL). Not run on the GPU.
 * **Strata**: added `fmf.services.strata` (pinned CUDA engine build), `fmf.services.strata-client`, the Qwen3.6 model package and the OpenCode `strata` provider. The engine has not been built to completion and no inference has run; see the README's known limitations.
 
 ## 2026-11-01

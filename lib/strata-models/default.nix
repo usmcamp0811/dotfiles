@@ -31,5 +31,32 @@
       fileBytes = 22853663008;
       ramGB = 32;
     };
+
+    # The same repository, revision, engine path and limits at 6 and 8 bits (setup.py QWEN36_FILES, docs/MODELS.md).
+    # Only the file and upstream's RAM planning figure differ; the KV cache per token does not depend on the quant.
+    "qwen3.6-35b-a3b-ud-q6_k_xl" = {
+      package = pkgs.fmf.strata-model-qwen36-35b-a3b-ud-q6-k-xl;
+      name = "Qwen3.6 35B A3B (UD-Q6_K_XL, Strata)";
+      family = "qwen36";
+      arch = "qwen35moe";
+      contextSize = 65536;
+      maxOutputTokens = 2048;
+      kvBytesPerToken = 45056;
+      mtp = 2;
+      fileBytes = 32611711264;
+      ramGB = 44;
+    };
+    "qwen3.6-35b-a3b-q8_0" = {
+      package = pkgs.fmf.strata-model-qwen36-35b-a3b-q8-0;
+      name = "Qwen3.6 35B A3B (Q8_0, Strata)";
+      family = "qwen36";
+      arch = "qwen35moe";
+      contextSize = 65536;
+      maxOutputTokens = 2048;
+      kvBytesPerToken = 45056;
+      mtp = 2;
+      fileBytes = 37801097504;
+      ramGB = 52;
+    };
   };
 }
