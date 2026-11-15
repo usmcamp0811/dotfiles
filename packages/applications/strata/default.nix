@@ -110,13 +110,169 @@
     cp ${src}/LICENSE $out/
     chmod -R u+w $out
   '';
+
+  # ---- DeepSeek V4.1: its own engine binary ----
+  # Upstream builds strata-dsv41 as a second CMake target in its own build directory (packaging/build_dsv41_cuda.sh)
+  # and the Python server picks it by the run config's "exe". It is a separate derivation here for the same reason:
+  # one configure that builds `strata`, `strata_kq` and `strata-dsv41` together is not something upstream documents.
+  # The flags are that script's. STRATA_BUILD_ID is what a tarball without .git needs for `--version`.
+  engineDsv41 = stdenv.mkDerivation {
+    pname = "strata-engine-dsv41";
+    inherit version src;
+
+    nativeBuildInputs = [pkgs.cmake pkgs.ninja cuda pkgs.autoAddDriverRunpath];
+    buildInputs = [cuda];
+
+    cmakeFlags = [
+      "-DCMAKE_BUILD_TYPE=Release"
+      "-DSTRATA_ENABLE_CUDA=ON"
+      "-DSTRATA_BUILD_TESTS=OFF"
+      "-DSTRATA_BUILD_DSV41=ON"
+      "-DSTRATA_NATIVE_EXPERTS=ON"
+      "-DSTRATA_PORTABLE=ON"
+      "-DSTRATA_BUILD_ID=${builtins.substring 0 9 rev}"
+      "-DSTRATA_GGML_DIR=${llamaCpp}"
+      "-DCMAKE_CUDA_ARCHITECTURES=${lib.concatStringsSep ";" cudaArchitectures}"
+      "-DCMAKE_CUDA_COMPILER=${cuda}/bin/nvcc"
+      "-DCUDAToolkit_ROOT=${cuda}"
+      "-DCMAKE_CUDA_HOST_COMPILER=${stdenv.cc}/bin/c++"
+    ];
+
+    env = {
+      CUDA_HOME = "${cuda}";
+      CUDA_PATH = "${cuda}";
+    };
+
+    buildPhase = ''
+      runHook preBuild
+      cmake --build . --target strata-dsv41 -j "$NIX_BUILD_CORES"
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/libexec/strata
+      install -m755 strata-dsv41 $out/libexec/strata/strata-dsv41
+      runHook postInstall
+    '';
+
+    dontStrip = true;
+
+    meta = {
+      description = "Strata DeepSeek V4.1 engine (CUDA ${cudaPackages.cudaMajorMinorVersion}) for sm_${lib.concatStringsSep "/" cudaArchitectures}";
+      homepage = "https://github.com/Niko1221/Strata";
+      license = [lib.licenses.mit lib.licenses.unfreeRedistributable];
+      platforms = ["x86_64-linux"];
+    };
+  };
+
+  # ---- model files that are not one GGUF ----
+  # A model with several shards is read by name: the engine and the pack tools look for <name>-0000N-of-0000M.gguf
+  # beside the file they are given, without resolving symlinks. The store names of the shards are content-named (one
+  # store path for a file that several sets share), so each model gets a directory of symlinks under the sibling
+  # names. The farm is what the packs record and the run config points at.
+  farmFor = id: model:
+    pkgs.linkFarm "strata-shards-${id}" (map (f: {
+        inherit (f) name path;
+      })
+      model.files);
+
+  # Qwen3.8-Flash-Next (ISTA-DASLab, Coder, Unsloth): setup.py step 6 runs tools/iq_pack.py on shard 1. It writes the
+  # pack (index, dense weights, expert map, tokenizer) beside nothing: the experts stay in the GGUF shards and the
+  # engine reads them from there. CPU only, no network.
+  packFlashNext = id: model:
+    pkgs.runCommand "strata-pack-${id}" {
+      nativeBuildInputs = [py];
+      STRATA_GGUF_PY = "${llamaCpp}/gguf-py";
+    } ''
+      ${py}/bin/python ${root}/tools/iq_pack.py --gguf ${farmFor id model}/${model.native} --out $out ${lib.escapeShellArgs model.packArgs}
+    '';
+
+  # DeepSeek V4.1: setup.py's dsv41_pack_cmd, "this and nothing else" (another recipe packs without an error and gives
+  # garbage text, upstream's note). Writes the geometry, tensor map, Engram hash tables and tokenizer: no weights are
+  # copied. The shipped hot-expert profile goes in as expert-profile.bin; the engine saves routing counts back to it
+  # unless --profile-readonly, which the module passes because a pack in the store cannot be written.
+  packDeepseek = id: model:
+    pkgs.runCommand "strata-pack-${id}" {
+      nativeBuildInputs = [py];
+      STRATA_GGUF_PY = "${llamaCpp}/gguf-py";
+    } ''
+      ${py}/bin/python ${root}/tools/dsv41/pack_gguf.py --model ${farmFor id model} \
+        --shards ${lib.escapeShellArgs (map (f: f.name) model.files)} \
+        --engram ${model.engram} --engram-meta ${model.meta} --dspark-gguf ${model.dspark} \
+        --dspark-noise-token 128799 --dspark-markov-rank 256 --out $out
+      cp ${root}/data/dsv41/${model.profile} $out/expert-profile.bin
+    '';
+
+  # ---- the MTP draft layer of Qwen3.8-Flash-Next ----
+  # The GSQ-RCO and Unsloth GGUFs ship no MTP head. Upstream's tools/mtp_fetch.py reads its 31 tensors from the BF16
+  # checkpoint with HTTP range requests (5.21 GB of 360 GB) and pins the SHA-256 of every one at one revision of that
+  # repository. The fixed-output derivation below reads the same ranges, in the same order as mtp-tensors.json
+  # (sorted by tensor name), into one file; its hash was computed by streaming those ranges once. Each range is read
+  # in 256 MiB parts that are retried alone, because a retry in the middle of a stream would duplicate bytes.
+  mtpTensors = builtins.fromJSON (builtins.readFile ./mtp-tensors.json);
+  mtpBlob = pkgs.runCommand "strata-mtp-blob" {
+    nativeBuildInputs = [pkgs.curl pkgs.coreutils];
+    SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+    outputHashMode = "flat";
+    outputHashAlgo = "sha256";
+    outputHash = "sha256-FENky+a6xaqIHA2Qczc8ACk+c6aHuiVT8yzON1nxlDk=";
+  } ''
+    fetch() { # shard, first byte, length
+      pos=$2; last=$(( $2 + $3 - 1 ))
+      while [ "$pos" -le "$last" ]; do
+        e=$(( pos + 268435455 )); [ "$e" -gt "$last" ] && e=$last
+        want=$(( e - pos + 1 )); try=0
+        while :; do
+          rm -f chunk
+          if curl -fsSL --connect-timeout 30 --max-time 900 -r "$pos-$e" \
+               "https://huggingface.co/${mtpTensors.repository}/resolve/${mtpTensors.revision}/$1" -o chunk \
+             && [ "$(stat -c %s chunk)" -eq "$want" ]; then break; fi
+          try=$(( try + 1 ))
+          if [ "$try" -ge 8 ]; then echo "range $pos-$e of $1 failed" >&2; exit 1; fi
+          sleep $(( try * 3 ))
+        done
+        cat chunk >> "$out"; rm -f chunk
+        pos=$(( e + 1 ))
+      done
+    }
+    : > "$out"
+    ${lib.concatMapStrings (t: "fetch ${t.shard} ${toString t.start} ${toString t.bytes}\n") mtpTensors.tensors}
+  '';
+
+  # tools/mtp_pack.py (the experts to Q2_0, CPU numpy) then tools/mtp_rt.py (the engine's runtime layout), then the
+  # draft vocabulary setup.py copies into the folder (the default subset, "cjk"). Each tensor is split out of the blob
+  # and checked against mtp_fetch.py's pinned SHA-256 before it is used. The result is the folder `--mtp` names.
+  mtpRt =
+    pkgs.runCommand "strata-mtp-rt" {
+      nativeBuildInputs = [py pkgs.coreutils];
+      STRATA_GGUF_PY = "${llamaCpp}/gguf-py";
+    } ''
+      mkdir -p work/tensors
+      ${lib.concatMapStrings (t: ''
+          dd if=${mtpBlob} of=work/tensors/${t.name}.bin bs=1M iflag=skip_bytes,count_bytes skip=${toString t.offset} count=${toString t.bytes} status=none
+          echo "${t.sha256}  work/tensors/${t.name}.bin" | sha256sum -c --quiet -
+        '')
+        mtpTensors.tensors}
+      cp ${pkgs.writeText "mtp-manifest.json" (builtins.toJSON (map (t: {
+          inherit (t) name shape sha256;
+          file = "tensors/${t.name}.bin";
+        })
+        mtpTensors.tensors))} work/mtp-manifest.json
+      ${py}/bin/python ${root}/tools/mtp_pack.py --src work --experts q2_0 --out work/mtp-q2_0.gguf
+      ${py}/bin/python ${root}/tools/mtp_rt.py --gguf work/mtp-q2_0.gguf --out $out
+      cp ${root}/data/draft_vocab.bin $out/draft_vocab.bin
+    '';
 in
   pkgs.runCommand "strata-${version}" {
     inherit version;
     passthru = {
-      inherit engine root py llamaCpp src rev cudaArchitectures;
+      inherit engine engineDsv41 root py llamaCpp src rev cudaArchitectures;
+      inherit farmFor packFlashNext packDeepseek mtpBlob mtpRt;
       # exe of the engine, as the run config's "exe" wants it
       enginePath = "${engine}/libexec/strata/strata";
+      # the DeepSeek V4.1 engine, a different binary (run config arch "deepseek41")
+      enginePathDsv41 = "${engineDsv41}/libexec/strata/strata-dsv41";
       # Extract the tokenizer (vocab, merges, chat template) from a GGUF's metadata, as setup.py's step 6 does.
       # A pure derivation instead of a conversion at service start. Result: <out>/tokenizer.
       tokenizerFor = gguf:

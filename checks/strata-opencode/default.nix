@@ -77,6 +77,17 @@
       apiKeyFile = "/nix/store/aaaa-key";
     };
   };
+  # a client of the other engine paths: only the id and the limits, and no store path of any shard
+  flashId = "qwen3.8-flash-next-q2_0";
+  dsvId = "deepseek-v4.1-flash-2.00bpw";
+  otherModel = id:
+    homeWith {
+      fmf.tools.agentic-ai.strata = {
+        enable = true;
+        apiKeyFile = "/var/lib/vault/users/tester/strata_api_key";
+        model = id;
+      };
+    };
   badModel = homeWith {
     fmf.tools.agentic-ai.strata = {
       enable = true;
@@ -111,6 +122,13 @@ in
   # a smaller advertised window follows the contextSize option
   assert b.provider.strata.models.${id}.limit.context == 32768;
   assert b.provider.strata.models.${id}.limit.input == 32768 - 2048 - 6144;
+  # --- Qwen3.8 Flash Next and DeepSeek clients: one model under its id, the catalog's limits, nothing from the store ---
+  assert builtins.attrNames (opencodeJson (otherModel flashId)).provider.strata.models == [flashId];
+  assert (opencodeJson (otherModel flashId)).provider.strata.models.${flashId}.limit.context == 32768;
+  assert (opencodeJson (otherModel flashId)).provider.strata.models.${flashId}.limit.input == 32768 - 2048 - 6144;
+  assert builtins.attrNames (opencodeJson (otherModel dsvId)).provider.strata.models == [dsvId];
+  assert (opencodeJson (otherModel dsvId)).provider.strata.models.${dsvId}.limit.context == 65536;
+  assert builtins.getContext (opencodeText (otherModel flashId)) == {} && builtins.getContext (opencodeText (otherModel dsvId)) == {};
   # --- everything that was there stays: Ollama, llama.cpp's five models, cloud default and agents ---
   assert s.provider ? ollama;
   assert !(s.provider ? "llama-cpp");

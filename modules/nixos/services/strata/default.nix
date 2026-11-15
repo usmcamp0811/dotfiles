@@ -15,11 +15,45 @@
     if cfg.contextSize == null
     then model.contextSize
     else cfg.contextSize;
-  tokenizer = cfg.package.tokenizerFor model.package;
 
-  # Engine arguments exactly as Strata v0.2.13.1's setup.py writes them for qwen36 (--native <gguf>
-  # --max-context N --prefill auto --mtp N), plus the optional VRAM/CPU knobs.
-  engineArgs =
+  # Three engine paths, selected by the catalog entry (lib/strata-models). Each one's arguments and run-config keys
+  # are what Strata v0.2.13.1 writes for it: strata_control/setup_config.py (config_for, dsv41_config_for) and
+  # setup.py (install_own_path for qwen36).
+  isQwen36 = model.family == "qwen36";
+  isFlash = model.family == "flashnext";
+  isDeepseek = model.family == "deepseek41";
+
+  # A sharded model is read through a directory of symlinks under the sibling file names (packages/applications/strata).
+  farm = cfg.package.farmFor cfg.model model;
+  # What setup.py's "preparing the model for Strata" step builds, as a pure derivation: Flash-Next's pack
+  # (tools/iq_pack.py), DeepSeek's pack (tools/dsv41/pack_gguf.py). Qwen3.6 only needs a tokenizer, from the GGUF.
+  pack =
+    if isFlash
+    then cfg.package.packFlashNext cfg.model model
+    else if isDeepseek
+    then cfg.package.packDeepseek cfg.model model
+    else null;
+  tokenizerDir =
+    if isQwen36
+    then "${cfg.package.tokenizerFor model.package}/tokenizer"
+    else "${pack}/tokenizer";
+
+  # `mtp` means a count of draft tokens for qwen36 (`--mtp N`). Flash-Next takes a folder with the draft layer's
+  # weights instead, so there it is only on or off: 0 is off (setup.py's `--mtp off`: `"mtp": false` in the run
+  # config, which removes --mtp and --spec-min-p and keeps --spec). DeepSeek has no MTP draft layer.
+  mtpSetting =
+    if cfg.mtp == null
+    then (model.mtp or 1)
+    else cfg.mtp;
+  draftOn = mtpSetting > 0;
+
+  # The knobs that exist in every path's engine.
+  poolWorkersArgs = lib.optionals (cfg.poolWorkers != null) ["--pool-workers" (toString cfg.poolWorkers)];
+
+  # qwen36: `--native <gguf> --max-context N --prefill auto --mtp N`, plus the optional VRAM/CPU knobs. Note that the
+  # Qwen3.6 engine (strata-q36) answers `--vram-reserve-mib` in serve mode with "ignoring ... (not an option of this
+  # engine)": its own knob is --expert-vram. The flag is still passed, as before, so nothing changes for it.
+  qwen36Args =
     [
       "--native"
       "${model.package}"
@@ -28,12 +62,89 @@
       "--prefill"
       "auto"
       "--mtp"
-      (toString (if cfg.mtp == null then model.mtp else cfg.mtp))
+      (toString mtpSetting)
     ]
     ++ lib.optionals (cfg.expertVramGiB != null) ["--expert-vram" (toString cfg.expertVramGiB)]
     ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
-    ++ lib.optionals (cfg.poolWorkers != null) ["--pool-workers" (toString cfg.poolWorkers)]
+    ++ poolWorkersArgs;
+
+  # Flash-Next, in the order setup_config.config_for writes them for a text-only start on one NVIDIA card: the pack
+  # and the first shard (the engine finds the other shards beside it by name), the expert profile from the Strata
+  # tree (read only unless --expert-profile-save is given), the draft layer's folder, the context, and `--kv int8`
+  # above 8192 tokens. KV streaming (--kv-resident) starts at 64K and is not written: pass it in extraEngineArgs.
+  flashArgs =
+    [
+      "--pack"
+      "${pack}"
+      "--native"
+      "${farm}/${model.native}"
+    ]
+    ++ lib.optionals (model.ple != null) ["--ple-gguf" "${farm}/${model.ple}"]
+    ++ [
+      "--expert-profile"
+      "${cfg.package.root}/data/${model.profile}"
+      "--expert-cache"
+      "auto"
+      "--prefill"
+      "auto"
+      "--spec"
+      "4"
+    ]
+    ++ lib.optionals draftOn [
+      "--spec-min-p"
+      "0.5"
+      "--mtp"
+      "${cfg.package.mtpRt}"
+    ]
+    ++ ["--max-context" (toString contextSize)]
+    ++ lib.optionals (contextSize > 8192) ["--kv" "int8"]
+    ++ lib.optionals (cfg.residentBudgetGiB != null) ["--resident-budget-gib" (toString cfg.residentBudgetGiB)]
+    ++ lib.optionals (cfg.vramReserveMiB != null) ["--vram-reserve-mib" (toString cfg.vramReserveMiB)]
+    ++ poolWorkersArgs;
+
+  # DeepSeek (dsv41_config_for): the pack and the context, `--eos 1`, no pictures (the pack is made without the
+  # picture reader), the DSpark drafter chosen by the engine (`--dspark auto`, never `off`: that still loads it) with
+  # upstream's confidence floor for the ISTA-DAS sets, and --profile-readonly because the pack is in the store.
+  # `--reserve-mib` is this engine's name for the VRAM left free.
+  deepseekArgs =
+    [
+      "--pack"
+      "${pack}"
+      "--max-context"
+      (toString contextSize)
+      "--eos"
+      "1"
+      "--vision"
+      "off"
+      "--dspark"
+      "auto"
+      "--dspark-conf"
+      "0.65"
+      "--profile-readonly"
+    ]
+    ++ lib.optionals (cfg.vramReserveMiB != null) ["--reserve-mib" (toString cfg.vramReserveMiB)];
+
+  engineArgs =
+    (
+      if isQwen36
+      then qwen36Args
+      else if isFlash
+      then flashArgs
+      else deepseekArgs
+    )
     ++ cfg.extraEngineArgs;
+
+  # Unsloth files: upstream's unsloth_default_env. The K-quant MMQ prompt kernels for UD-Q5_K_XL and UD-Q6_K_XL, and
+  # STRATA_ROUTE_TAIL_SKIP=0 where every expert is in RAM (the skip costs accuracy there); the RAM-budget mode keeps it.
+  runEnv = lib.optionalAttrs (isFlash && model.recipe == "unsloth") (
+    lib.optionalAttrs model.mmqKq {STRATA_MMQ_KQ = "1";}
+    // lib.optionalAttrs (cfg.residentBudgetGiB == null) {STRATA_ROUTE_TAIL_SKIP = "0";}
+  );
+
+  engineExe =
+    if isDeepseek
+    then cfg.package.enginePathDsv41
+    else cfg.package.enginePath;
 
   # The run config (strata-<model>.json in upstream). The API key is deliberately NOT in it: this file is in the
   # Nix store. The key reaches the server as $STRATA_API_KEY (see the launcher).
@@ -43,17 +154,22 @@
       args = engineArgs;
       cwd = stateDir;
       model_name = cfg.model;
-      inherit (model) arch;
       log = "${stateDir}/engine.log";
       lib_dirs = ["/run/opengl-driver/lib"];
       port = cfg.port;
       host = cfg.host;
     }
+    # qwen36 and DeepSeek write the GGUF architecture; Flash-Next writes none (the server defaults to qwen4exp).
+    // lib.optionalAttrs (model ? arch) {inherit (model) arch;}
+    // lib.optionalAttrs (isFlash && !draftOn) {mtp = false;}
+    // lib.optionalAttrs (runEnv != {}) {env = runEnv;}
+    # 300+ GB are read from the files at the first start: DeepSeek's start can take a long time (upstream: 3600).
+    // lib.optionalAttrs isDeepseek {engine_ready_s = 3600;}
     # The mock engine needs neither the engine binary nor a tokenizer (the server falls back to a byte tokenizer):
     # a VM test then does not have to build or fetch the real ones.
     // lib.optionalAttrs (!isMock) {
-      exe = cfg.package.enginePath;
-      tokenizer = "${tokenizer}/tokenizer";
+      exe = engineExe;
+      tokenizer = tokenizerDir;
     }
     // lib.optionalAttrs cfg.lazyLoad {lazy_load = true;}
     // lib.optionalAttrs (cfg.idleUnloadSeconds != null) {idle_unload_s = cfg.idleUnloadSeconds;}
@@ -85,8 +201,8 @@
         echo "strata: model file ${model.package} is missing" >&2
         exit 1
       fi
-      if [ ! -x ${lib.escapeShellArg cfg.package.enginePath} ]; then
-        echo "strata: engine ${cfg.package.enginePath} is missing" >&2
+      if [ ! -x ${lib.escapeShellArg engineExe} ]; then
+        echo "strata: engine ${engineExe} is missing" >&2
         exit 1
       fi
     ''}
@@ -181,7 +297,23 @@ in {
     mtp = mkOption {
       type = types.nullOr types.ints.unsigned;
       default = null;
-      description = "Draft tokens per step (`--mtp`); null uses the catalog value (2). 0 turns drafting off.";
+      description = ''
+        Qwen3.6: draft tokens per step (`--mtp`); null uses the catalog value (2). 0 turns drafting off.
+        Qwen3.8 Flash Next: the draft layer is a folder of weights, so this is on or off only; 0 turns it off
+        (about 1 GB of VRAM and 5 GB of store saved, slower decoding), anything else leaves it on.
+        DeepSeek: no draft layer; ignored.
+      '';
+    };
+    residentBudgetGiB = mkOption {
+      type = types.nullOr types.ints.positive;
+      default = null;
+      description = ''
+        Qwen3.8 Flash Next from Unsloth only (`--resident-budget-gib`): GiB of experts kept in RAM, the most used
+        first; the rest are read from the GGUF on the SSD. null keeps every expert in RAM, which is what setup.py
+        writes where the experts and 16 GB beside them fit the machine. Upstream's rule for the budget when they do
+        not is the RAM in GiB less 24, which is the case for Q8_0 on 128 GB (its experts are 128.3 GB). Setting it
+        also stops the module writing `STRATA_ROUTE_TAIL_SKIP=0`, as setup.py does for the budget mode.
+      '';
     };
     parallel = mkOption {
       type = types.ints.between 1 8;
@@ -328,6 +460,20 @@ in {
         {
           assertion = builtins.hasAttr cfg.model cfg.models;
           message = "fmf.services.strata.model '${cfg.model}' is not in the Strata catalog (${lib.concatStringsSep ", " (builtins.attrNames cfg.models)}).";
+        }
+        # Options that name a flag only one engine has are refused for the others instead of being dropped silently.
+        # (They are skipped for an unknown model, so the catalog message above is the one that is shown.)
+        {
+          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.expertVramGiB == null || isQwen36;
+          message = "fmf.services.strata.expertVramGiB (--expert-vram) is an option of the Qwen3.6 engine only; model '${cfg.model}' is served by another engine.";
+        }
+        {
+          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.residentBudgetGiB == null || (isFlash && model.recipe == "unsloth");
+          message = "fmf.services.strata.residentBudgetGiB applies to the Unsloth Qwen3.8 Flash Next models only; model '${cfg.model}' is not one.";
+        }
+        {
+          assertion = !(builtins.hasAttr cfg.model cfg.models) || cfg.poolWorkers == null || !isDeepseek;
+          message = "fmf.services.strata.poolWorkers (--pool-workers) is not an option of the DeepSeek engine; model '${cfg.model}' uses it.";
         }
         {
           # CUDA 13 engines need driver 580+ (docs/INSTALL.md). Skipped for the mock engine.
