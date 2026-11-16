@@ -64,41 +64,10 @@ in
             # }
           ];
         };
-        promtail = {
-          enable = true;
-          loki-uri = cfg.loki-uri;
-          additionalScrapeConfigs = [
-            {
-              job_name = "borgbackup-jobs";
-              journal = {
-                max_age = "12h";
-                labels = {
-                  job = "systemd-journal";
-                  host = config.networking.hostName;
-                };
-              };
-              relabel_configs = [
-                # Match specific borgbackup services and count their successful deactivations
-                {
-                  source_labels = [ "__journal__systemd_unit" ];
-                  regex = "borgbackup-job-webb_rsync.service|borgbackup-job-daly_rsync.service|borgbackup-job-fmf.service";
-                  action = "keep";
-                }
-                {
-                  source_labels = [ "__journal_message" ];
-                  regex = "Deactivated successfully";
-                  action = "keep";
-                }
-                {
-                  source_labels = [ "__journal__systemd_unit" ];
-                  target_label = "borgbackup_service";
-                  action = "replace";
-                }
-              ];
-            }
-          ];
-
-        };
+        # NOTE: no log shipper is enabled here. NixOS removed services.promtail (Promtail EOL), so the
+        # fmf.services.promtail shim did nothing but warn. `loki-uri` is kept for the Alloy/fluent-bit
+        # replacement; the old borgbackup journal scrape (job borgbackup-jobs, units
+        # borgbackup-job-{webb_rsync,daly_rsync,fmf}, "Deactivated successfully") is in git history.
       };
     };
   };

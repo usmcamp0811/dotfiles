@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=dev";
+      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-525-deploy-tab-flake-position";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
@@ -111,6 +111,8 @@
     # Snowfall Flake
     flake.url = "github:snowfallorg/flake";
     flake.inputs.nixpkgs.follows = "nixpkgs";
+    # Its own snowfall-lib pin is old and uses the deprecated lib.fold ("fold has been deprecated" warning).
+    flake.inputs.snowfall-lib.follows = "snowfall-lib";
 
     # Comma
     comma.url = "github:nix-community/comma";
@@ -392,6 +394,11 @@
       };
 
       overlays = with inputs; [
+        # Must stay first. snowfall-lib (upstream master too) builds the overlays it generates, including
+        # the `package/*` ones below, with `channel-systems.${prev.system}`, and nixpkgs warns that
+        # `pkgs.system` is renamed to `stdenv.hostPlatform.system`. Defining `system` here makes the later
+        # overlays' `prev.system` a plain string. Drop once snowfall-lib stops using `prev.system`.
+        (final: prev: {system = prev.stdenv.hostPlatform.system;})
         # Must come first - provides nix-unstable for packages
         flake.overlays."package/flake"
         # attic.overlays.default
