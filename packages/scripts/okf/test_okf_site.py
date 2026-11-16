@@ -342,6 +342,14 @@ class SiteTest(unittest.TestCase):
         self.assertIn("fonts/space-grotesk-700.woff2", self.html("assets/style.css"))
         self.assertIn('src="../assets/campground-badge.png" alt="" width="40" height="40"', page)
 
+    def test_footer_links_to_the_source_repository_when_given(self):
+        repo = "https://gitlab.com/usmcamp0811/dotfiles"
+        self.build(repo=repo)
+        for rel in ("index.html", "docs/a.html", "search.html"):
+            self.assertIn(f'<a class="external repo" rel="noopener" href="{repo}">gitlab.com/usmcamp0811/dotfiles</a>', self.html(rel))
+        self.build()
+        self.assertNotIn('class="external repo"', self.html("docs/a.html"))
+
     def test_theme_script_carries_the_theme_between_pages(self):
         self.build()
         script = self.html("assets/theme.js")

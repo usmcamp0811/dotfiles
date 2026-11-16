@@ -74,6 +74,7 @@ with lib.fmf; let
     exclude ? [],
     theme ? "navy-mk2",
     withMermaid ? true,
+    repo ? null,
   }:
     pkgs.stdenvNoCC.mkDerivation {
       pname = name;
@@ -92,6 +93,7 @@ with lib.fmf; let
           --theme ${escapeShellArg theme} \
           ${optionalString withMermaid "--mermaid ${escapeShellArg mermaid}"} \
           ${optionalString (start != null) "--start ${escapeShellArg start}"} \
+          ${optionalString (repo != null) "--repo ${escapeShellArg repo}"} \
           ${concatMapStringsSep " " (pattern: "--exclude ${escapeShellArg pattern}") exclude} \
           ${concatMapStringsSep " " (bundle: escapeShellArg "${src}/${bundle}") bundles}
 

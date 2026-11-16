@@ -144,11 +144,13 @@ class Site:
         start: str | None = None,
         theme: str = DEFAULT_THEME,
         mermaid: str | None = None,
+        repo: str | None = None,
     ):
         if theme not in THEMES:
             raise ValueError(f"unknown theme {theme!r}; choose from {', '.join(THEMES)}")
         self.theme = theme
         self.mermaid = mermaid
+        self.repo = repo  # source repository URL, linked from every page footer
         self.title = title
         self.subtitle = subtitle
         self.start = start  # e.g. "docs/OKF.md": a page the landing page points new readers to
@@ -503,6 +505,11 @@ class Site:
         start = self._start_page()
         cta = f'<a class="cta" href="{up}{quote(start.out.as_posix())}">Get started</a>' if start else ""
         mermaid = f'<script src="{up}assets/mermaid.min.js"></script>' if self.mermaid else ""
+        repo_link = (
+            f' Source: <a class="external repo" rel="noopener" href="{esc(self.repo)}">{esc(self.repo.removeprefix("https://"))}</a>.'
+            if self.repo
+            else ""
+        )
         return f"""<!doctype html>
 <html lang="en" data-theme="{self.theme}" data-themes="{' '.join(THEMES)}">
 <head>
@@ -531,7 +538,7 @@ class Site:
 <aside class="rail">{rail}</aside>
 </div>
 <footer>
-<p>Built from {len(self.pages)} documents in the <a class="external" rel="noopener" href="{SPEC_URL}">Open Knowledge Format</a> v{okf.OKF_VERSION}.</p>
+<p>Built from {len(self.pages)} documents in the <a class="external" rel="noopener" href="{SPEC_URL}">Open Knowledge Format</a> v{okf.OKF_VERSION}.{repo_link}</p>
 <label class="themepick" hidden>Theme <select id="theme">{"".join(f'<option value="{key}">{esc(label)}</option>' for key, label in THEMES.items())}</select></label>
 </footer>
 {scripts}<script src="{up}assets/app.js"></script>

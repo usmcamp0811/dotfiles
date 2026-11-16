@@ -26,6 +26,7 @@ in
     title = "Campground";
     subtitle = "The fmf flake: modules, hosts and runbooks, read from their source files.";
     start = "docs/OKF.md";
+    repo = "https://gitlab.com/usmcamp0811/dotfiles";
     bundles = sourceBundles ++ ["options"];
     src = pkgs.runCommand "campground-documentation" {} ''
       mkdir -p $out

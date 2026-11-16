@@ -671,7 +671,8 @@ def cmd_site_build(args) -> int:
     okf_site = _site_module()
     try:
         site = okf_site.Site(
-            _bundles(args), args.title, args.subtitle, tuple(args.exclude), start=args.start, theme=args.theme, mermaid=args.mermaid
+            _bundles(args), args.title, args.subtitle, tuple(args.exclude), start=args.start, theme=args.theme, mermaid=args.mermaid,
+            repo=args.repo,
         )
         summary = site.build(Path(args.out))
     except ValueError as err:
@@ -728,6 +729,7 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--theme", choices=("navy-mk2", "navy-mk2-light"),
                        default="navy-mk2", help="default colour scheme")
     build.add_argument("--mermaid", metavar="FILE", help="local mermaid.min.js to render mermaid fences offline")
+    build.add_argument("--repo", metavar="URL", help="source repository URL, linked from every page footer")
     build.set_defaults(func=cmd_site_build)
     verify = site_sub.add_parser("verify", help="check every local link in a built site")
     verify.add_argument("site", metavar="DIR")
