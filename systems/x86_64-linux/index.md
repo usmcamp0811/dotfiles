@@ -11,5 +11,6 @@
 * [mattis](mattis/README.md) - NixOS host mattis, named after Marine Jim Mattis.
 * [reckless](reckless/README.md) - NixOS host reckless, named after Sergeant Reckless, a pack horse.
 * [vault](vault/README.md) - This is a lightweight MicroVM that runs on the blue-ridge host.
+* [vm-agent](vm-agent/README.md) - Demo of the sandboxed MicroVM used for agentic coding (opencode on self-hosted models, builds on the farm).
 * [webb](webb/README.md) - NixOS host webb, named after Jim Webb.
 * [websites](websites/README.md) - This is a lightweight MicroVM that runs on the blue-ridge host.
