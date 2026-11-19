@@ -2195,11 +2195,11 @@
         "upgrade-predecessor": "upgrade-predecessor_2"
       },
       "locked": {
-        "lastModified": 1795104158,
-        "narHash": "sha256-V/gd+5HSh46STj4rLzzxXMcOUWlrnfrJ3ETmr/dNX1Q=",
+        "lastModified": 1795110604,
+        "narHash": "sha256-9G7T4srIQkeJkPEL3QIZA8qhhL+IQpCABNaghklROWU=",
         "ref": "TASK-529.2-agent-authorization",
-        "rev": "d0dfcba150f205a7f025abd8611e7308ae5743ea",
-        "revCount": 5768,
+        "rev": "a2a61991b1aa10d0d8c763856cfad2a73e045f87",
+        "revCount": 5769,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
