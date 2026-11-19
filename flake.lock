@@ -2195,11 +2195,11 @@
         "upgrade-predecessor": "upgrade-predecessor_2"
       },
       "locked": {
-        "lastModified": 1795027645,
-        "narHash": "sha256-ACGP24d+Y0uE2n70iU6yy9j2HK6z1sVcmPSK953zzek=",
+        "lastModified": 1795051711,
+        "narHash": "sha256-TPsyJihfspRJBl+WnxF84kEsHLr5JApXn9JzNwCznLA=",
         "ref": "TASK-529-deploy-failure-detail",
-        "rev": "5f8fa3c13c30b0787ba8cb180206ba7ba7e4e3aa",
-        "revCount": 5754,
+        "rev": "c3567649b7bf19d59aba40c80e03048ebe300730",
+        "revCount": 5755,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
