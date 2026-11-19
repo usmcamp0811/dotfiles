@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-529.2-agent-authorization";
+      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-534.3-access-token-lifecycle";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {
