@@ -4,7 +4,7 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     services-flake.url = "github:juspay/services-flake";
     crystal-forge = {
-      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-534.4-read-only-mcp-server";
+      url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-534.5-mcp-write-tools";
       inputs.nixpkgs.follows = "unstable";
     };
     opencode-anthropic-auth = {

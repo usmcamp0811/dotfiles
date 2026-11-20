@@ -2,6 +2,7 @@
 
 * [adguard](adguard/README.md) - A comprehensive NixOS module for AdGuard Home - a network-wide ad blocker and privacy protection tool.
 * [circuit-breaker](circuit-breaker/README.md) - Runs the Circuit Breaker homelab topology server (natively, no container) and agent, and keeps its map in sync with the NixOS flake that declares the infrastructure.
+* [crystal-forge-mcp-client](crystal-forge-mcp-client/README.md) - Adds a Crystal Forge MCP server to a user's OpenCode, with its access token rendered from Vault as a runtime credential.
 * [dnscrypt-proxy](dnscrypt-proxy/README.md) - This NixOS module provides privacy-preserving DNS resolution using dnscrypt-proxy with Oblivious DNS over HTTPS (ODoH).
 * [firefly-plaid-connector](firefly-plaid-connector/README.md) - This guide will walk you through setting up the Plaid Connector 2 for Firefly III, allowing you to link your financial accounts to Firefly III for easy transaction tracking.
 * [glusterfs](glusterfs/README.md) - This module configures a GlusterFS server using a declarative interface under campground.services.glusterfs.

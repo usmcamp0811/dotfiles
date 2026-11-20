@@ -2195,16 +2195,16 @@
         "upgrade-predecessor": "upgrade-predecessor_2"
       },
       "locked": {
-        "lastModified": 1795141765,
-        "narHash": "sha256-fxcK5JHKAxfONK/ZdGaQfnoOWTZJ+yu4Ba1eLnj/dlA=",
-        "ref": "TASK-534.4-read-only-mcp-server",
-        "rev": "b6d46ebdf5fd780ff73591a9fe040cbc6338a279",
-        "revCount": 5789,
+        "lastModified": 1795188948,
+        "narHash": "sha256-CdlYtFkHJFsY/7hUEC/vtoguefY2AacxVGX3F6AzePI=",
+        "ref": "TASK-534.5-mcp-write-tools",
+        "rev": "ce230da0f3ec4d04efe193a69dbe4fffc97f4772",
+        "revCount": 5799,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
       "original": {
-        "ref": "TASK-534.4-read-only-mcp-server",
+        "ref": "TASK-534.5-mcp-write-tools",
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       }
