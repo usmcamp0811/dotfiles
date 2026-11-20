@@ -44,6 +44,7 @@ okf_version: "0.2"
 * [Fleet runbook - day-to-day operations](FLEET-RUNBOOK.md) - Step-by-step procedures for a flake that uses fmf.host records and fleet - the daily loop, adding a host or MicroVM, changing an address, exposing a port, moving, retiring and converting a VM, generated tap rules, a CI drift check, upgrading fmf and rolling back.
 * [Quick Start: Patching CVE-2026-39860](CVE-2026-39860-QUICKSTART.md) - Your fmf-flake has been updated to use Nix 2.34.5 (patched) instead of the vulnerable Nix 2.31.3.
 * [Reformat & Install NixOS](Install.md) - Reformat a drive and install NixOS from a live USB, with BTRFS or ZFS partitioning.
+* [Uptime Kuma runbook - declarative monitors](UPTIME-KUMA-RUNBOOK.md) - First-time setup, adding and removing monitors, previewing a change, credential rotation, recovery, moving to another host and troubleshooting for Uptime Kuma whose monitors are provisioned from Nix and Traefik routes.
 * [Vault runbook - day-to-day operations](VAULT-RUNBOOK.md) - Step-by-step procedures for working with Vault in an fmf flake - the mental model, checking health, adding a host, changing what a host can read, narrowing or removing a policy, replacing and retiring a role, rotating credentials, and recovering when something breaks.
 
 # Test Guide

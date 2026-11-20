@@ -20,6 +20,7 @@
 * [pikvm](pikvm/README.md) - Runs PiKVM (kvmd, KVM over IP) on a Raspberry Pi, with its web UI behind nginx, virtual media, and the OTG, VNC, IPMI and Janus services.
 * [postgresql](postgresql/README.md) - This is a custom NixOS module designed to manage PostgreSQL databases.
 * [strata](strata/) - Strata (GPU VRAM + system RAM MoE inference) as a pinned NixOS service, the remote client module, and the OpenCode provider that uses it.
+* [uptime-kuma](uptime-kuma/README.md) - Runs Uptime Kuma and keeps its monitors in sync with Nix - hand-written monitors plus one per enabled Traefik route, added, updated and deleted on deploy.
 * [user-secrets](user-secrets/README.md) - The User Secrets Service is a NixOS module designed to securely fetch and manage user-specific secrets from HashiCorp's Vault.
 * [vault](vault/README.md) - This module simplifies the configuration and management of HashiCorp Vault on NixOS.
 * [vault-agent](vault-agent/README.md) - This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault.

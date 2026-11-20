@@ -24,7 +24,8 @@ with lib.fmf; let
   # Runtime credentials, exported when OpenCode starts. Each provider that is enabled adds one.
   runtimeKeys =
     lib.optional cfg.llamaCpp.enable {env = "LLAMA_CPP_API_KEY"; file = cfg.llamaCpp.apiKeyFile;}
-    ++ lib.optional cfg.strata.enable {env = "STRATA_API_KEY"; file = cfg.strata.apiKeyFile;};
+    ++ lib.optional cfg.strata.enable {env = "STRATA_API_KEY"; file = cfg.strata.apiKeyFile;}
+    ++ lib.mapAttrsToList (env: file: {inherit env file;}) cfg.runtimeEnvFiles;
   opencodePackage = if runtimeKeys != [] then pkgs.writeShellScriptBin "opencode" ''
     # Read at process startup, not Nix evaluation; GUI and non-zsh launches work.
     # Missing Vault credentials must not break unrelated cloud providers.
@@ -229,6 +230,39 @@ in {
         description = "Tokens kept free below the window when OpenCode compacts; same meaning as for llama.cpp (see llamaCpp.compactionHeadroom). The tool-output limits come from llamaCpp.toolOutput.";
       };
     };
+    mcp = mkOption {
+      type = types.attrsOf (types.attrsOf types.anything);
+      default = {};
+      example = literalExpression ''
+        {
+          crystal-forge = {
+            type = "remote";
+            url = "https://crystal-forge.example.com/mcp";
+            enabled = true;
+            oauth = false;
+            headers.Authorization = "Bearer {env:CF_MCP_TOKEN}";
+          };
+        }
+      '';
+      description = ''
+        MCP servers for OpenCode, written as-is to opencode.json's `mcp` (name -> entry; the
+        OpenCode 1.x layout). Put secrets in `{env:NAME}` and deliver the value with
+        `runtimeEnvFiles`, never inline: opencode.json is in the Nix store.
+      '';
+    };
+
+    runtimeEnvFiles = mkOption {
+      type = types.attrsOf types.str;
+      default = {};
+      example = {CF_MCP_TOKEN = "/var/lib/vault/users/alice/crystal_forge_mcp_pat";};
+      description = ''
+        Environment variable -> runtime file (outside the Nix store) whose content the `opencode`
+        command exports when it starts, if the variable is not already set. A missing file is
+        skipped. For `opencode serve` run by fmf.services.opencode-server, list the same pairs in
+        its `environmentFiles`.
+      '';
+    };
+
     enableMistralVibe = mkBoolOpt true "Enable mistral-vibe CLI coding agent.";
     enableQwenCode =
       mkBoolOpt true "Enable qwen-code CLI for Qwen3-Coder models.";
@@ -284,7 +318,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    assertions = lib.optionals cfg.llamaCpp.enable [{
+    assertions = lib.mapAttrsToList (env: file: {
+      assertion = lib.hasPrefix "/" file && !(lib.hasPrefix "/nix/store/" file);
+      message = "fmf.tools.agentic-ai.runtimeEnvFiles.${env} must be an absolute path outside /nix/store.";
+    }) cfg.runtimeEnvFiles ++ lib.optionals cfg.llamaCpp.enable [{
       assertion = cfg.enableOpencode && cfg.llamaCpp.apiKeyFile != null
         && lib.hasPrefix "/" cfg.llamaCpp.apiKeyFile
         && !(lib.hasPrefix "/nix/store/" cfg.llamaCpp.apiKeyFile);
@@ -639,6 +676,9 @@ in {
             }
             // optAttrs cfg.enableOpencodeAnthropicAuthPlugin {
               plugin = [opencodeAnthropicMaxFixPlugin];
+            }
+            // optAttrs (cfg.mcp != {}) {
+              inherit (cfg) mcp;
             }
             // optAttrs (cfg.llamaCpp.enable || cfg.strata.enable) {
               # Global in OpenCode, so it also applies to cloud models while llama.cpp is enabled.

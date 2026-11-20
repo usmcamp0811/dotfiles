@@ -92,14 +92,19 @@ in {
 
     environmentFiles = mkOption {
       type = attrsOf str;
-      default = optionalAttrs config.fmf.services.llama-cpp-client.enable {
-        LLAMA_CPP_API_KEY = config.fmf.services.llama-cpp-client.apiKeyFile;
-      };
-      defaultText = literalExpression "{ LLAMA_CPP_API_KEY = <llama-cpp-client apiKeyFile>; } when the llama.cpp client is enabled";
+      default = let
+        llama = config.fmf.services.llama-cpp-client;
+        strata = config.fmf.services.strata-client;
+        cf = config.fmf.services.crystal-forge-mcp-client;
+      in
+        optionalAttrs llama.enable {LLAMA_CPP_API_KEY = llama.apiKeyFile;}
+        // optionalAttrs strata.enable {STRATA_API_KEY = strata.apiKeyFile;}
+        // optionalAttrs cf.enable {${cf.envVar} = cf.tokenFile;};
+      defaultText = literalExpression "the credential file of every enabled client: llama-cpp-client (LLAMA_CPP_API_KEY), strata-client (STRATA_API_KEY), crystal-forge-mcp-client (its envVar)";
       description = ''
         Environment variable name -> runtime file whose content becomes its value, read when the
         server starts. Needed because the server, not the attached client, talks to the model
-        providers, so it needs their credentials.
+        providers and MCP servers, so it needs their credentials. Setting it replaces the default.
       '';
     };
 
