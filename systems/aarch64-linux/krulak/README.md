@@ -14,6 +14,11 @@ Fleet Marine Force, Pacific. He helped develop Marine amphibious doctrine and
 advocated for helicopter mobility. He wrote *First to Fight: An Inside View of
 the U.S. Marine Corps*.
 
+![Portrait of General Charles C. Krulak](https://upload.wikimedia.org/wikipedia/commons/0/0f/Charles_C._Krulak.jpg)
+
+*Pictured: General Charles C. Krulak, Victor Krulak’s son. The host is named for
+Victor. [Image source: Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Charles_C._Krulak.jpg).*
+
 ## About this example
 
 This is the public reference for the Orange Pi 6 Plus setup used in Campground.
