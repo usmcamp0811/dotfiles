@@ -80,9 +80,10 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
   if [ -n "$remote_path" ]; then
     # Save to remote machine
     echo "$(tput bold)$(tput setaf 3)Saving secrets to remote machine at $remote_path$(tput sgr0)"
-    echo $role_id | ssh ''${remote_path%:*} "mkdir -p ''${remote_path#*:}/$approle_name && tee ''${remote_path#*:}/$approle_name/role-id" > /dev/null
-    echo $secret_id | ssh ''${remote_path%:*} "tee ''${remote_path#*:}/$approle_name/secret-id" > /dev/null
-    ssh ''${remote_path%:*} "chmod -R 0400 ''${remote_path#*:}/$approle_name"
+    remote_dir="''${remote_path#*:}/$approle_name"
+    echo "$role_id" | ssh "''${remote_path%:*}" "umask 077; mkdir -p '$remote_dir' && chmod 0700 '$remote_dir' && tee '$remote_dir/role-id'" > /dev/null
+    echo "$secret_id" | ssh "''${remote_path%:*}" "umask 077; tee '$remote_dir/secret-id'" > /dev/null
+    ssh "''${remote_path%:*}" "chmod 0400 '$remote_dir/role-id' '$remote_dir/secret-id'"
     echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to $remote_path/$approle_name.$(tput sgr0)"
   else
     # Save locally
@@ -92,7 +93,7 @@ pkgs.writeShellScriptBin "save-approle-secrets" ''
     sudo chmod 700 $local_path
     echo $role_id | sudo tee $local_path/role-id > /dev/null
     echo $secret_id | sudo tee $local_path/secret-id > /dev/null
-    sudo chmod -R 0400 $local_path
+    sudo chmod 0400 "$local_path/role-id" "$local_path/secret-id"
     echo "$(tput bold)$(tput setaf 2)AppRole credentials saved to $local_path.$(tput sgr0)"
   fi
 ''

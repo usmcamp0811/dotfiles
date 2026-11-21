@@ -47,14 +47,22 @@ in
 {
   options.fmf.services.openssh = with types; {
     enable = mkBoolOpt false "Whether or not to configure OpenSSH support.";
-    authorizedKeys =
-      mkOpt (listOf str) [ default-key ] "The public keys to apply.";
+    authorizedKeys = mkOption {
+      type = listOf str;
+      apply = lib.unique;
+      description = ''
+        The public keys to apply. Ordinary host definitions add keys to the
+        fmf default; use lib.mkForce to replace the list intentionally.
+      '';
+    };
     port = mkOpt port 2222 "The port to listen on (in addition to 22).";
     manage-other-hosts = mkOpt bool true
       "Whether or not to add other host configurations to SSH config.";
   };
 
-  config = mkIf cfg.enable {
+  config = mkMerge [
+    { fmf.services.openssh.authorizedKeys = mkBefore [ default-key ]; }
+    (mkIf cfg.enable {
     services.openssh = {
       enable = true;
       settings = {
@@ -91,5 +99,6 @@ in
         value = "ssh ${system} -t tmux a";
       }) (builtins.attrNames other-hosts));
     };
-  };
+    })
+  ];
 }
