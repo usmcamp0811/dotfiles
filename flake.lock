@@ -2195,11 +2195,11 @@
         "upgrade-predecessor": "upgrade-predecessor_2"
       },
       "locked": {
-        "lastModified": 1795235902,
-        "narHash": "sha256-3vvBA+DD4dLQJMoOEDug5fHKaMDhz9taP17WnFtGY9E=",
+        "lastModified": 1795238173,
+        "narHash": "sha256-OwTevO1PjgFDhsBIE7N1eObT5n1eGekXOhVekmtJip8=",
         "ref": "TASK-534.9-mcp-cve-remediation",
-        "rev": "6831cde7113edf184fc12f3b4a83eea6020a0102",
-        "revCount": 5806,
+        "rev": "8314753d59d847e057cc914d0bea460bad1cf2f1",
+        "revCount": 5807,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
