@@ -1,8 +1,23 @@
 # Use this for packages that need custom patches or plugins
 { nixpkgs, ... }:
-final: prev: {
+final: prev: let
+  # Keep the security update and the plugin installation on the same package.
+  # Drop the override once the stable channel includes Traefik 3.7.16 or newer.
+  patchedTraefik =
+    if prev.lib.versionOlder prev.traefik.version "3.7.16"
+    then prev.traefik.overrideAttrs (finalAttrs: _: {
+      version = "3.7.16";
+      src = prev.fetchzip {
+        url = "https://github.com/traefik/traefik/releases/download/v${finalAttrs.version}/traefik-v${finalAttrs.version}.src.tar.gz";
+        hash = "sha256-gEVtpTABX8SN0ffWp9k4LXRm5mftuiDgDEDsFYSKE7U=";
+        stripRoot = false;
+      };
+      vendorHash = "sha256-3Xt2HSx2XfNSnVMi9sNmcFmTO9hZrSQv6Ilh7eRuaE0=";
+    })
+    else prev.traefik;
+in {
   # Traefik with custom plugins
-  traefik = prev.traefik.overrideAttrs (oldAttrs: {
+  traefik = patchedTraefik.overrideAttrs (oldAttrs: {
     postInstall = (oldAttrs.postInstall or "") + ''
       # Add CloudflareWarp plugin
       mkdir -p $out/bin/plugins-local/src/github.com/BilikoX/

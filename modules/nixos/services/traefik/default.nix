@@ -100,24 +100,17 @@ in {
     version = mkOption {
       type = nullOr str;
       default = null;
-      example = "3.7.13";
+      example = "3.7.16";
       description = ''
         Pin an exact Traefik version, resolved via nixpkgs-multiverse
         (`lib.fmf.multiversePackage`) instead of this flake's own
         `pkgs.traefik`. Ignored if `package` is set.
 
-        Defaults to `null` (use `pkgs.traefik`): as of this writing,
-        the nixpkgs this flake pins already ships Traefik 3.7.13, which
-        fixes CVE-2026-85594 (GHSA-m6wx-622r-48r9, a
-        `crossProviderNamespaces` bypass in the Kubernetes Ingress
-        provider, fixed in upstream v3.7.11) plus several
-        High/Critical CVEs disclosed and fixed afterwards
-        (GHSA-qqjf-53cj-pwvv, GHSA-w4v4-9rw7-5326, GHSA-v67p-phpq-fc8x,
-        GHSA-f52w-8j3h-j724, GHSA-8fcf-v89g-xpg6 -- see
-        <https://github.com/traefik/traefik/releases/tag/v3.7.13>), so no
-        override is needed today.
+        Defaults to `null` (use `pkgs.traefik`). fmf's package overlay
+        raises versions below 3.7.16 to include the fix for CVE-2026-114635
+        and preserves the vendored plugins.
 
-        Set this explicitly (e.g. `"3.7.13"`) to pin that version
+        Set this explicitly (e.g. `"3.7.16"`) to pin that version
         regardless of what the coherent nixpkgs channel currently ships --
         for example if it ever regresses to an older Traefik, or a future
         fix lands in Traefik before it reaches nixpkgs. A version set here

@@ -22,6 +22,28 @@
 }:
 final: prev: let
   system = prev.stdenv.hostPlatform.system;
+  # POAM-0035: the legacy PostgreSQL extensions retain their build dependencies
+  # in the system closure. Patch OpenSSL in that package set, not just in prev.
+  legacyPostgresPkgs = channels.old-nixpkgs.extend (_: legacy: {
+    openssl_3_4 =
+      if legacy.stdenv.hostPlatform.isLinux && lib.versionOlder legacy.openssl_3_4.version "3.4.8"
+      then legacy.openssl_3_4.overrideAttrs (finalAttrs: old: {
+        version = "3.4.8";
+        src = prev.fetchurl {
+          url = "https://github.com/openssl/openssl/releases/download/openssl-${finalAttrs.version}/openssl-${finalAttrs.version}.tar.gz";
+          hash = "sha256-nenOLynlhARK4Hq5P8YBY3vgH9yR0QnFplXsdBnmAis=";
+        };
+        # 3.4.8 reformats common.h. Preserve NixOS's default CA bundle path
+        # without applying the old patch against incompatible context.
+        patches = lib.filter (patch: !(lib.hasSuffix "/use-etc-ssl-certs.patch" (toString patch))) old.patches;
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace include/internal/common.h \
+            --replace-fail '#define X509_CERT_FILE OPENSSLDIR "/cert.pem"' \
+                           '#define X509_CERT_FILE "/etc/ssl/certs/ca-certificates.crt"'
+        '';
+      })
+      else legacy.openssl_3_4;
+  });
 in {
   # Services framework
   services-flake = import process-compose-flake.lib {pkgs = final;};
@@ -91,7 +113,8 @@ in {
   comma = comma.packages.${system}.comma;
 
   # Packages from old-nixpkgs
-  inherit (channels.old-nixpkgs) ckb-next postgresql16Packages postgresql14Packages;
+  inherit (channels.old-nixpkgs) ckb-next;
+  inherit (legacyPostgresPkgs) postgresql16Packages postgresql14Packages;
 
   # Server packages from unstable (non-GUI, won't trigger Firefox/Electron rebuilds)
   inherit
