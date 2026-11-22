@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-11-22
+* **More than one user on a host**: fmf's `nix` module now adds every user in `snowfallorg.users` (one per matching `homes/<user>@<host>` folder) to `nix.settings.allowed-users`, so a second user's Home Manager activation can reach the Nix daemon; `trusted-users` is unchanged. New guide MULTI-USER-HOSTS.md. `templates/example-downstream-flake` gains an `admin@example-system` home and its system settings, and now imports `stylix` and `nixos-boot` and pins nixpkgs and Home Manager 26.05 so it evaluates against current fmf (checked with `--override-input fmf`; not built or booted).
+
 ## 2026-11-10
 * **ec2-build**: new command (`packages/scripts/ec2-build`, guide in EC2-BUILD.md) that creates a Graviton NixOS instance on EC2 with terranix and OpenTofu, runs one Nix command with it as the `aarch64-linux` builder, and destroys it. Credentials come from the environment or `--env-file`. Checked without AWS (tofu validate, shellcheck, the preflight, env file and cleanup paths against refused credentials); no real run yet, so the guide is `status: draft`.
 * **Host model spec adopted**: HOST-MODEL.md is now `status: stable`. It was re-read against the code: the status text, the options, the fleet function's outputs (there is no `bootGraph` or `assertions`), the checks and the decisions now match what is built, and a new "Not built" section lists what is designed but has no consumer (Vault roles from records, `topology` into Circuit Breaker hints, `fmf.host.devices`, the router's zones from the catalogue, the network-monitoring VM on the VLANs). No `verified` field was added: nobody has reviewed it.

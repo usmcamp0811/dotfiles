@@ -3,7 +3,7 @@
 
   inputs = {
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs.url = "github:nixos/nixpkgs/release-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs/release-26.05";
 
     fmf.url = "gitlab:usmcamp0811/dotfiles/nixos";
 
@@ -12,7 +12,7 @@
     snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
     # Home Manager
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Disko - Declarative disk partitioning
@@ -86,6 +86,8 @@
           fmfInputs.nixos-router.nixosModules.default
           fmfInputs.impermanence.nixosModules.impermanence
           fmfInputs.microvm.nixosModules.host
+          fmfInputs.stylix.nixosModules.stylix
+          fmfInputs.nixos-boot.nixosModules.default
         ]
         # All Crystal Forge modules, like ATA does with campgroundInputs.crystal-forge
         ++ (lib.attrValues fmfInputs.crystal-forge.nixosModules)

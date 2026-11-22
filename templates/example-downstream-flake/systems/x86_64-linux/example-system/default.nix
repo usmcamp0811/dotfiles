@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   ...
@@ -81,6 +82,15 @@ in {
         ];
       };
     };
+  };
+
+  # Second user. Snowfall-lib creates users.users.admin (normal user, group users, wheel) from
+  # homes/x86_64-linux/admin@example-system and fmf lets it use the Nix daemon; this adds only
+  # what a home cannot set. See fmf docs/MULTI-USER-HOSTS.md.
+  users.users.admin = {
+    uid = 1001;
+    shell = pkgs.zsh;
+    openssh.authorizedKeys.keys = config.fmf.services.openssh.authorizedKeys;
   };
 
   system.stateVersion = "23.05";
