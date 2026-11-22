@@ -70,9 +70,15 @@ backlinks; no graph library or server is required. Fonts and all other assets ar
 so every page works from `file://` and offline.
 
 ```bash
-okf site build --out ./site --title "Campground" --theme navy-mk2-light --start docs/OKF.md docs modules systems
+okf site build --out ./site --title "Campground" --theme navy-mk2-light \
+  --start docs/START-HERE.md --start docs/INSTALL.md --about docs/OKF.md docs modules systems
 okf site verify ./site        # every local href, src and form action must exist
 ```
+
+`--start` may be repeated. The first page is the front door (the **Get started** button in the header and
+the **Start here** button on the landing page); each further page becomes a card under **Where to go
+next**, showing the page's own type, title and description. `--about` names a page about the documentation
+itself, linked from **Browse the library** instead of the front. A name that matches no page is skipped.
 
 The site mirrors the bundles' layout (`site/docs/...`, `site/modules/...`), so a relative
 link that leaves one bundle for another, such as a host README showing `docs/images/x.jpg`,
@@ -106,7 +112,8 @@ pkgs.fmf.okf.mkSite {
   src = ./.;                          # a tree that contains the bundles
   bundles = ["docs" "modules"];
   title = "My knowledge";
-  start = "docs/OKF.md";              # optional: the landing page points here
+  start = ["docs/START-HERE.md" "docs/INSTALL.md"];  # optional: a page or a list; the first is the front door
+  about = "docs/OKF.md";              # optional: linked from "Browse the library"
   theme = "navy-mk2-light";           # optional (default navy-mk2): navy-mk2 or navy-mk2-light
 }
 ```

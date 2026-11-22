@@ -24,17 +24,22 @@ okf_version: "0.2"
 * [Vault AppRoles - one role per host, least-privilege policies](VAULT-APPROLES.md) - How AppRoles are declared in Nix next to policies, the one-role-per-host naming rule, how to audit live roles against the flake, and the phased plan for replacing the broad campground policy with generated per-service policies.
 * [Video Lock Screen Configuration (fmf module)](VIDEO-LOCK-SCREEN-FMF.md) - This document describes the video lock screen feature in the fmf flake.
 * [Wazuh in fmf-flake](wazuh.md) - Downstream flakes can pin your historical Wazuh behavior by pinning your flake revision in inputs.
+* [Welcome to fmf - what it is and where to begin](START-HERE.md) - What the fmf flake is and who it is for, four ways to use it (install NixOS, build your own flake on it, add a system, learn Nix), what to check before you copy anything, and a map for people and agents.
 
 # Note
 
 * [AWS EC2 instance from a local VHD](ec2-notes.md) - Steps to create an AWS EC2 instance from a local VHD image, uploaded through an S3 bucket.
 * [How Nix Works](nix-sequence-diagram.md) - This diagram provides a high-level overview of how a Nix script is processed.
-* [LevelUp Your Nix](LevelUp.md) - Installing Nix and enabling flakes, then starting from a template.
 * [Loops in Nix: A Comprehensive Guide](nix-loops.md) - Nix is a functional programming language, meaning it does not have traditional imperative loops like Python or Julia.
+
+# Overview
+
+* [How fmf is put together](HOW-FMF-WORKS.md) - The layers (nixpkgs, modules, suites, archetypes, hosts, homes), the Snowfall directory layout, the one pattern every module follows, and how a host is assembled from files. Read this before changing anything.
 
 # Reference
 
 * [Circuit Breaker inventory format (schema v1)](CIRCUIT-BREAKER-INVENTORY.md) - The versioned, Circuit-Breaker-independent document the flake exporter produces and the reconciler consumes.
+* [Common tasks](COMMON-TASKS.md) - One place to look up the command and the files for a job - build or check a host, read an option, find a module, deploy, roll back, update inputs, add a host, a user or a module, and check the documentation - with the rules that stop mistakes.
 * [How to Use Hashicorp Vault for Managing Secrets on NixOS](SECRETS.md) - This guide will walk you through the process of securely providing secrets to a NixOS system using Hashicorp Vault.
 * [Service Dependency Map](SERVICE-DEPENDENCY-MAP.md) - Complete mapping of all services across the infrastructure with dependency relationships.
 
@@ -60,6 +65,10 @@ okf_version: "0.2"
 
 # Tutorial
 
+* [Add a system to your flake](NEW-SYSTEM.md) - Create a new host in a flake that uses fmf - the three files, the user and its home, how to build it without changing anything, and how to switch to it - using a laptop called "laptop" as the example.
 * [Getting started with the fleet (fmf.host records and fleet)](FLEET-GETTING-STARTED.md) - A first-time walk-through for a downstream flake - what a host record is, the one-time flake wiring, your first record, running fleet, and which of the two follow-on tutorials (MicroVMs, networking, or both) to read next.
+* [Install NixOS on a new machine](INSTALL-NIXOS.md) - Put NixOS on a blank machine from a flake that uses fmf, with the disks described in code by disko - either from the installer USB on the machine, or remotely with nixos-anywhere - and what to do on first boot.
 * [Leases, DNS and port forwards from records](FLEET-TUTORIAL-NETWORK.md) - Describe machines once in host records and let fleet generate the DHCP reservations, DNS names and router port forwards, then wire those files into a plain NixOS gateway, fmf's router module, or AdGuard - written for someone who has not used the host model before.
+* [LevelUp Your Nix](LevelUp.md) - Installing Nix and enabling flakes, then starting from a template.
 * [MicroVMs from records](FLEET-TUTORIAL-VMS.md) - Describe a hypervisor and two MicroVMs with host records, let fleet derive the VM list, shared directories, start order and network rules, and bring the VMs up - written for someone who has not used the host model before.
+* [Use fmf from your own flake](DOWNSTREAM-FLAKE.md) - Start a flake of your own that uses fmf as its upstream - from the template, what each part of its flake.nix does, what to change before you deploy anything, how to follow or pin fmf, and how to add your own modules.

@@ -373,6 +373,57 @@ class SiteTest(unittest.TestCase):
         self.assertIn("Start here", landing)
         self.assertIn('href="docs/b.html"', landing)
 
+    def test_start_pages_become_a_button_and_cards(self):
+        # docs/a.md is the front door; b, sub/c and the missing name follow it.
+        self.build(start=["docs/a.md", "docs/b.md", "docs/sub/c.md", "docs/does-not-exist.md"])
+        landing = self.html("index.html")
+        # The first page is the button, and the header's "Get started" goes there too.
+        self.assertIn('<a class="hero-cta" href="docs/a.html"><span class="k">Start here</span><span class="v">Alpha</span></a>', landing)
+        self.assertIn('<a class="cta" href="docs/a.html">Get started</a>', landing)
+        # The others are cards carrying the page's own type and title (and description when it has one).
+        self.assertIn('<a class="path" href="docs/b.html"><span class="kind">Reference</span><span class="k">Beta</span></a>', landing)
+        self.assertIn('<a class="path" href="docs/sub/c.html"><span class="kind">Guide</span><span class="k">Gamma</span></a>', landing)
+        self.assertIn("Where to go next", landing)
+        # The front door is not repeated as a card, and a name matching no page is skipped.
+        self.assertNotIn('class="path" href="docs/a.html"', landing)
+        self.assertNotIn("does-not-exist", landing)
+
+    def test_a_card_shows_the_description_of_its_page(self):
+        write(self.docs, "d.md", "---\ntype: Tutorial\ntitle: Install it\ndescription: Put it on a machine.\n---\n# Install it\n")
+        self.build(start=["docs/a.md", "docs/d.md"])
+        self.assertIn(
+            '<span class="kind">Tutorial</span><span class="k">Install it</span><span class="v">Put it on a machine.</span>',
+            self.html("index.html"),
+        )
+
+    def test_one_start_page_gives_a_button_and_no_cards(self):
+        self.build(start="docs/b.md")  # a plain string still works
+        landing = self.html("index.html")
+        self.assertIn('class="hero-cta" href="docs/b.html"', landing)
+        self.assertNotIn("Where to go next", landing)
+        self.assertNotIn('class="path"', landing)
+
+    def test_no_start_pages_gives_no_front_door(self):
+        self.build()
+        landing = self.html("index.html")
+        self.assertNotIn("hero-cta", landing)
+        self.assertNotIn("Where to go next", landing)
+        self.assertIn("Browse the library", landing)
+
+    def test_about_page_is_linked_from_the_library_not_the_front(self):
+        self.build(start=["docs/a.md", "docs/b.md"], about="docs/sub/c.md")
+        landing = self.html("index.html")
+        front, library = landing.split("Browse the library", 1)
+        self.assertIn('<a href="docs/sub/c.html"><span class="k">About these docs</span><span class="v">Gamma</span></a>', library)
+        self.assertNotIn("About these docs", front)
+        # The trust summary and the tags are in the library part too, below the front.
+        self.assertIn("unverified", library)
+        self.assertIn('class="chip"', library)
+
+    def test_about_is_left_out_when_the_page_does_not_exist(self):
+        self.build(about="docs/nope.md")
+        self.assertNotIn("About these docs", self.html("index.html"))
+
     def test_verify_reports_a_missing_target(self):
         self.build()
         (self.out / "assets" / "style.css").unlink()

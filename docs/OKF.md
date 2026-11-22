@@ -160,6 +160,12 @@ Authored pages are built from Markdown and images; the options reference is gene
 from module schemas. Links to code files (for example `default.nix`) show as plain text,
 since the site does not contain them.
 
+The landing page is built for a first-time reader. A **Start here** button leads to the front door, the
+cards under **Where to go next** lead to the other guides, and the OKF material (search, the graph, each
+bundle's trust summary and document types, the tag list, and a link to this page) sits under **Browse the
+library**. You choose the start pages; each card shows the page's own `type`, `title` and `description`, so
+there is no landing-page copy to maintain.
+
 A downstream flake can publish its own bundles the same way:
 
 ```nix
@@ -169,8 +175,15 @@ pkgs.fmf.okf.mkSite {
   bundles = ["docs" "systems"];
   title = "Campground";
   theme = "navy-mk2-light";
+  # Optional. The first page is the front door (the "Start here" and "Get started" buttons); the
+  # others become cards. A single string works too. A name that matches no page is skipped.
+  start = ["docs/START-HERE.md" "docs/INSTALL.md"];
+  about = "docs/OKF.md";           # optional: linked from "Browse the library", not the front
 }
 ```
+
+With the command line, repeat `--start` and add `--about`:
+`okf site build --out ./site --start docs/START-HERE.md --start docs/INSTALL.md --about docs/OKF.md docs modules`.
 
 - **New document:** write the frontmatter yourself (`type` at minimum), then run
   `okf index --write <bundle>` so the parent index lists it.

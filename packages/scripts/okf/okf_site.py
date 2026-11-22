@@ -141,10 +141,11 @@ class Site:
         title: str,
         subtitle: str,
         exclude: tuple[str, ...] = (),
-        start: str | None = None,
+        start: str | list[str] | tuple[str, ...] | None = None,
         theme: str = DEFAULT_THEME,
         mermaid: str | None = None,
         repo: str | None = None,
+        about: str | None = None,
     ):
         if theme not in THEMES:
             raise ValueError(f"unknown theme {theme!r}; choose from {', '.join(THEMES)}")
@@ -153,7 +154,12 @@ class Site:
         self.repo = repo  # source repository URL, linked from every page footer
         self.title = title
         self.subtitle = subtitle
-        self.start = start  # e.g. "docs/OKF.md": a page the landing page points new readers to
+        # Pages the landing page points new readers to, e.g. ["docs/START-HERE.md", "docs/INSTALL.md"].
+        # The first is the front door (the header button and the hero button); the rest become cards.
+        self.starts: list[str] = [start] if isinstance(start, str) else list(start or [])
+        # A page about the documentation itself (for fmf, how the OKF bundles work), linked from the
+        # "Browse the library" area rather than shown on the front.
+        self.about = about
         self.roots: dict[str, str] = {}
         for bundle in bundles:
             root = os.path.normpath(Path(bundle).absolute())
@@ -478,8 +484,20 @@ class Site:
             lines.append(f"<ul><li><details><summary>{esc(name)}</summary><ul>{head}{''.join(entries)}</ul></details></li></ul>")
         return "\n".join(lines)
 
+    def _page_at(self, path: str | None) -> Page | None:
+        """The concept page for a "bundle/path.md" name, or None if there is no such page."""
+        if not path:
+            return None
+        return next((p for p in self.pages if p.kind == "concept" and p.out.with_suffix(".md").as_posix() == path), None)
+
+    def _start_pages(self) -> list[Page]:
+        """The start pages that exist, in the order given. A name that matches no page is skipped."""
+        return [page for page in (self._page_at(name) for name in self.starts) if page]
+
     def _start_page(self) -> Page | None:
-        return next((p for p in self.pages if p.out.with_suffix(".md").as_posix() == self.start), None)
+        """The front door: the first start page."""
+        pages = self._start_pages()
+        return pages[0] if pages else None
 
     def _crumbs(self, page: Page, up: str) -> str:
         parts = [f'<a href="{up}index.html">{esc(self.title)}</a>']
@@ -608,17 +626,40 @@ class Site:
                 f'<section class="bundle"><h2><a href="{href}">{esc(name)}</a></h2>'
                 f"<p>{len(members)} documents. {esc(trust)}.</p><p class=\"types\">{type_links}</p></section>"
             )
-        start = self._start_page()
+        home = PurePosixPath("index.html")
+        starts = self._start_pages()
         concepts, edges = self.graph_model()
+
+        # The front: the first start page as a button, the others as cards that carry each page's own
+        # type, title and description, so the landing page needs no hand-written copy.
+        hero = ""
+        paths = ""
+        if starts:
+            door = starts[0]
+            hero = (
+                f'<p class="hero-actions"><a class="hero-cta" href="{relurl(home, door.out)}">'
+                f'<span class="k">Start here</span><span class="v">{esc(door.title)}</span></a></p>'
+            )
+            cards = "".join(
+                f'<a class="path" href="{relurl(home, page.out)}"><span class="kind">{esc(page.type)}</span>'
+                f'<span class="k">{esc(page.title)}</span>'
+                + (f'<span class="v">{esc(page.description)}</span>' if page.description else "")
+                + "</a>"
+                for page in starts[1:]
+            )
+            if cards:
+                paths = f'<section class="paths"><h2 class="section">Where to go next</h2><div class="path-grid">{cards}</div></section>'
+
         tiles = [
             '<a href="search.html"><span class="k">Search</span><span class="v">Find a document by word, type or tag</span></a>',
             f'<a href="graph.html"><span class="k">Knowledge graph</span>'
             f'<span class="v">{len(concepts)} documents, {len(edges)} links between them</span></a>',
         ]
-        if start:
+        about = self._page_at(self.about)
+        if about:
             tiles.append(
-                f'<a href="{relurl(PurePosixPath("index.html"), start.out)}"><span class="k">Start here</span>'
-                f'<span class="v">{esc(start.title)}</span></a>'
+                f'<a href="{relurl(home, about.out)}"><span class="k">About these docs</span>'
+                f'<span class="v">{esc(about.title)}</span></a>'
             )
         counts: dict[str, int] = {}
         for page in concepts:
@@ -636,10 +677,11 @@ class Site:
             else ""
         )
         main = (
-            f"<article class=\"doc landing\"><p class=\"docid\">HOME // {len(self.roots)} sections</p>"
-            f'<h1>{esc(self.title)}</h1><p class="lede">{esc(self.subtitle)}</p>'
-            f'<nav class="quick" aria-label="Entry points">{"".join(tiles)}</nav>'
-            f'<div class="bundles-grid">{"".join(sections)}</div>{tag_row}</article>'
+            f'<article class="doc landing">'
+            f'<h1>{esc(self.title)}</h1><p class="lede">{esc(self.subtitle)}</p>{hero}{paths}'
+            f'<section class="library"><h2 class="section">Browse the library</h2>'
+            f'<nav class="quick" aria-label="Ways to browse">{"".join(tiles)}</nav>'
+            f'<div class="bundles-grid">{"".join(sections)}</div>{tag_row}</section></article>'
         )
         return self._shell(None, "", main, self._sections("home"), "", self.title)
 

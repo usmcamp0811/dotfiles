@@ -70,12 +70,23 @@ with lib.fmf; let
     bundles,
     title ? "Knowledge",
     subtitle ? "Notes, runbooks and reference, read from their source files.",
+    # One page name ("docs/START-HERE.md") or a list of them. The first is the front door (the "Start here"
+    # button), the rest are cards on the landing page.
     start ? null,
+    # A page about the documentation itself, linked from the landing page's "Browse the library" area.
+    about ? null,
     exclude ? [],
     theme ? "navy-mk2",
     withMermaid ? true,
     repo ? null,
-  }:
+  }: let
+    startPages =
+      if start == null
+      then []
+      else if isList start
+      then start
+      else [start];
+  in
     pkgs.stdenvNoCC.mkDerivation {
       pname = name;
       version = "0";
@@ -92,7 +103,8 @@ with lib.fmf; let
           --subtitle ${escapeShellArg subtitle} \
           --theme ${escapeShellArg theme} \
           ${optionalString withMermaid "--mermaid ${escapeShellArg mermaid}"} \
-          ${optionalString (start != null) "--start ${escapeShellArg start}"} \
+          ${concatMapStringsSep " " (page: "--start ${escapeShellArg page}") startPages} \
+          ${optionalString (about != null) "--about ${escapeShellArg about}"} \
           ${optionalString (repo != null) "--repo ${escapeShellArg repo}"} \
           ${concatMapStringsSep " " (pattern: "--exclude ${escapeShellArg pattern}") exclude} \
           ${concatMapStringsSep " " (bundle: escapeShellArg "${src}/${bundle}") bundles}

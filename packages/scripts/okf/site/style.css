@@ -258,6 +258,20 @@ html[data-theme^="navy-mk2"] .bundle:hover { border-color: color-mix(in srgb, va
 html[data-theme^="navy-mk2"] .bundle h2 { margin: 0 0 0.3rem; font-family: var(--display); font-size: 1.3rem; font-weight: 700; letter-spacing: -0.015em; }
 html[data-theme^="navy-mk2"] .bundle p { margin: 0.2rem 0; }
 html[data-theme^="navy-mk2"] .bundle .types { color: var(--soft); font-size: 0.92rem; }
+/* The front of the landing page: one button for the front door, then cards for where to go next. */
+html[data-theme^="navy-mk2"] .hero-actions { margin: 1.75rem 0 0.5rem; }
+html[data-theme^="navy-mk2"] .hero-cta { display: inline-flex; flex-direction: column; gap: 0.15rem; padding: 0.95rem 1.6rem; color: var(--paper); background: var(--accent); border-radius: 12px; }
+html[data-theme^="navy-mk2"] .hero-cta:hover { text-decoration: none; filter: brightness(1.08); }
+html[data-theme^="navy-mk2"] .hero-cta .k { font-family: var(--mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
+html[data-theme^="navy-mk2"] .hero-cta .v { font-family: var(--display); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; }
+html[data-theme^="navy-mk2"] .hero-cta .v::after { content: " \2192"; }
+html[data-theme^="navy-mk2"] .landing h2.section { margin: 2.75rem 0 0.9rem; font-family: var(--display); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.015em; }
+html[data-theme^="navy-mk2"] .path-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.9rem; }
+html[data-theme^="navy-mk2"] .path { display: flex; flex-direction: column; gap: 0.3rem; padding: 1.1rem 1.25rem; color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; }
+html[data-theme^="navy-mk2"] .path:hover { text-decoration: none; background: var(--raised); border-color: var(--accent); }
+html[data-theme^="navy-mk2"] .path .kind { font-family: var(--mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+html[data-theme^="navy-mk2"] .path .k { font-family: var(--display); font-size: 1.1rem; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+html[data-theme^="navy-mk2"] .path .v { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; color: var(--soft); font-size: 0.9rem; line-height: 1.5; }
 html[data-theme^="navy-mk2"] .count { color: var(--soft); font-family: var(--mono); font-size: 0.8em; }
 html[data-theme^="navy-mk2"] .hint { max-width: 40rem; margin: 0 0 1.25rem; color: var(--soft); font-size: 0.95rem; }
 html[data-theme^="navy-mk2"] form.big input[type="search"] { width: 100%; max-width: 34rem; margin-bottom: 0.9rem; font: inherit; font-size: 1.05rem; color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
@@ -341,6 +355,7 @@ html[data-theme^="navy-mk2"] .graph-list .deg { margin-left: 0.4rem; font-family
 }
 @media (max-width: 40rem) {
   html[data-theme^="navy-mk2"] .cta { display: none; }
+  html[data-theme^="navy-mk2"] .hero-cta { display: flex; }
   html[data-theme^="navy-mk2"] .graph-stage { height: auto; display: flex; flex-direction: column; }
   html[data-theme^="navy-mk2"] .graph-stage canvas { height: 62vh; min-height: 22rem; }
   html[data-theme^="navy-mk2"] .graph-legend { position: static; order: 2; flex-direction: row; flex-wrap: wrap; max-height: none; border-width: 1px 0 0; border-radius: 0; }

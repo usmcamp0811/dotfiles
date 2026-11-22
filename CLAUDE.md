@@ -178,9 +178,12 @@ spec:
 ## Knowledge Bundles (OKF)
 
 `docs/`, `modules/` and `systems/` are [Open Knowledge Format](https://github.com/GoogleCloudPlatform/open-knowledge-format)
-v0.2 bundles: markdown with YAML frontmatter, in place. To find something, read the bundle's
-`index.md` (entries grouped by `type`, each with a one-line description) and follow the links down
-instead of grepping. Conventions are in `docs/OKF.md`.
+v0.2 bundles: markdown with YAML frontmatter, in place. **Start at `docs/START-HERE.md`** (what fmf is, the
+paths for installing, using it downstream and adding a system, and the defaults to check before copying
+anything), then `docs/COMMON-TASKS.md` for the command behind a job and `docs/HOW-FMF-WORKS.md` for the
+layout and the module pattern. To find a module or host, read the bundle's `index.md` (entries grouped by
+`type`, each with a one-line description) and follow the links down instead of grepping. OKF conventions
+are in `docs/OKF.md`.
 
 - A new or edited document needs frontmatter with at least `type`, then `okf index --write <bundle>`.
 - Never add `verified: { by: human:... }` unless a person actually reviewed the document, and do not

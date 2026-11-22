@@ -1,5 +1,5 @@
 ---
-type: Note
+type: Tutorial
 title: LevelUp Your Nix
 description: Installing Nix and enabling flakes, then starting from a template.
 ---

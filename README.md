@@ -32,24 +32,42 @@ Browse the rendered [Campground documentation](https://usmcamp0811.gitlab.io/dot
 
 ## Getting Started
 
-Before diving in, ensure that you have Nix installed on your system. If not, you can download and install it from the official [Nix website](https://nixos.org/download.html).
+fmf is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
+whole fleet you can read and copy. Start at the
+[documentation site](https://usmcamp0811.gitlab.io/dotfiles/campground/); its front page sends you to the
+right guide. The same guides are in [`docs/`](./docs/index.md) and read fine here.
 
-### Clone this repository to your local machine:
+| I want to... | Read |
+| --- | --- |
+| Understand what this is, and what to check first | [Start here](./docs/START-HERE.md) |
+| Install NixOS on a new machine from a flake | [Install NixOS on a new machine](./docs/INSTALL-NIXOS.md) |
+| Build my own flake on top of fmf | [Use fmf from your own flake](./docs/DOWNSTREAM-FLAKE.md) |
+| Add another machine or another user | [Add a system](./docs/NEW-SYSTEM.md), [more than one user](./docs/MULTI-USER-HOSTS.md) |
+| See how the pieces fit | [How fmf is put together](./docs/HOW-FMF-WORKS.md) |
+| Look up a command or a file | [Common tasks](./docs/COMMON-TASKS.md) |
+| Learn Nix first | [LevelUp Your Nix](./docs/LevelUp.md) |
+
+> **Before you copy anything:** fmf is one person's configuration, published as an example. Its defaults
+> accept the author's SSH keys and give the main user the password `password`, and its archetypes switch on
+> services that are configured to connect to the author's servers.
+> [Start here](./docs/START-HERE.md#before-you-copy-anything) lists what to change, and the tutorials do it
+> for you.
+
+You need [Nix with flakes enabled](./docs/LevelUp.md) and git. To start a flake of your own:
+
+```bash
+mkdir my-flake && cd my-flake
+nix flake init -t gitlab:usmcamp0811/dotfiles/nixos#example-downstream-flake
+git init && git add -A
+```
+
+To read or change fmf itself:
 
 ```bash
 git clone https://gitlab.com/usmcamp0811/dotfiles.git
+cd dotfiles
+nix run .#campground      # the documentation site, offline, in your browser
 ```
-
-#### Create a LIVE USB
-
-```bash
-nix build gitlab:usmcamp0811/dotfiles#isoConfigurations.base-iso
-dd if=./result/iso/nixos.iso of=/dev/usb_drive status=progress
-```
-
-#### [New System Install](./docs/Install.md)
-
-**TODO: Show how to install with disko**
 
 ## Features
 

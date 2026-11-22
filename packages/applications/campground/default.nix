@@ -24,8 +24,19 @@ in
   pkgs.fmf.okf.mkSite {
     name = "campground";
     title = "Campground";
-    subtitle = "The fmf flake: modules, hosts and runbooks, read from their source files.";
-    start = "docs/OKF.md";
+    subtitle = "A NixOS flake you can install from, build on or learn from: modules, hosts, templates and runbooks.";
+    # The first page is the front door; the others are the cards under "Where to go next".
+    start = [
+      "docs/START-HERE.md"
+      "docs/INSTALL-NIXOS.md"
+      "docs/DOWNSTREAM-FLAKE.md"
+      "docs/NEW-SYSTEM.md"
+      "docs/HOW-FMF-WORKS.md"
+      "docs/COMMON-TASKS.md"
+      "docs/LevelUp.md"
+    ];
+    # How the documentation itself is built and checked; linked from "Browse the library".
+    about = "docs/OKF.md";
     repo = "https://gitlab.com/usmcamp0811/dotfiles";
     bundles = sourceBundles ++ ["options"];
     src = pkgs.runCommand "campground-documentation" {} ''

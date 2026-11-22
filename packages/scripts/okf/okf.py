@@ -672,7 +672,7 @@ def cmd_site_build(args) -> int:
     try:
         site = okf_site.Site(
             _bundles(args), args.title, args.subtitle, tuple(args.exclude), start=args.start, theme=args.theme, mermaid=args.mermaid,
-            repo=args.repo,
+            repo=args.repo, about=args.about,
         )
         summary = site.build(Path(args.out))
     except ValueError as err:
@@ -724,8 +724,12 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--title", default="Knowledge", help="site title")
     build.add_argument("--subtitle", default="Notes, runbooks and reference, read from their source files.",
                        help="one line under the title on the landing page")
-    build.add_argument("--start", metavar="BUNDLE/PATH.md",
-                        help="a document the landing page points new readers to, e.g. docs/OKF.md")
+    build.add_argument("--start", action="append", default=[], metavar="BUNDLE/PATH.md",
+                       help="a document the landing page points new readers to, e.g. docs/START-HERE.md; "
+                            "repeat it: the first is the front door (the Start here button), the rest are "
+                            "cards under 'Where to go next'")
+    build.add_argument("--about", metavar="BUNDLE/PATH.md",
+                       help="a document about the documentation itself, linked from 'Browse the library'")
     build.add_argument("--theme", choices=("navy-mk2", "navy-mk2-light"),
                        default="navy-mk2", help="default colour scheme")
     build.add_argument("--mermaid", metavar="FILE", help="local mermaid.min.js to render mermaid fences offline")
