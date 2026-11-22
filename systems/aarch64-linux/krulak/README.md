@@ -11,13 +11,13 @@ tags: [krulak, arm64, disko, impermanence, example]
 Victor Harold Krulak (1913–2008) was a United States Marine Corps lieutenant
 general. He served in World War II, Korea, and Vietnam and later commanded
 Fleet Marine Force, Pacific. He helped develop Marine amphibious doctrine and
-advocated for helicopter mobility. He wrote *First to Fight: An Inside View of
-the U.S. Marine Corps*.
+advocated for helicopter mobility. He wrote _First to Fight: An Inside View of
+the U.S. Marine Corps_.
 
-![Portrait of General Charles C. Krulak](https://upload.wikimedia.org/wikipedia/commons/0/0f/Charles_C._Krulak.jpg)
+![Portrait of General Charles C. Krulak](../../../docs/images/krulak.jpg)
 
-*Pictured: General Charles C. Krulak, Victor Krulak’s son. The host is named for
-Victor. [Image source: Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Charles_C._Krulak.jpg).*
+_Pictured: General Charles C. Krulak, Victor Krulak’s son. The host is named for
+Victor. [Image source: Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Charles_C._Krulak.jpg)._
 
 ## About this example
 

@@ -30,6 +30,12 @@
   patch,
   python314Packages,
 }:
+let
+  # nixpkgs builds avrdude's PDF/HTML manual by default (docSupport), which pulls texliveMedium, asymptote
+  # and ImageMagick: none of them is in the public aarch64 cache, so a first build compiles them. kvmd only
+  # runs the binary.
+  avrdudeNoDocs = avrdude.override { docSupport = false; };
+in
 python314.pkgs.buildPythonApplication rec {
   pname = "kvmd";
   version = "4.234";
@@ -145,7 +151,7 @@ python314.pkgs.buildPythonApplication rec {
       --replace-fail "/usr/bin/sudo" "/run/wrappers/bin/sudo" \
       --replace-fail "/usr/bin/kvmd-helper-otgmsd-remount" "${placeholder "out"}/bin/kvmd-helper-otgmsd-remount"
     substituteInPlace hid/arduino/avrdude.py \
-      --replace-fail "/usr/bin/avrdude" "${avrdude}/bin/avrdude"
+      --replace-fail "/usr/bin/avrdude" "${avrdudeNoDocs}/bin/avrdude"
 
     substituteInPlace kvmd/apps/otg/__init__.py \
       --replace-fail "os.mkdir(path)" "os.makedirs(path, exist_ok=True)"

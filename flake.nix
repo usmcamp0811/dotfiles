@@ -121,6 +121,11 @@
     # Hardware Configuration
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
+    # Raspberry Pi kernel/firmware package set (systems/aarch64-linux/pikvm). Deliberately WITHOUT
+    # `inputs.nixpkgs.follows`: its binary cache only holds outputs built against its own nixpkgs, so
+    # following ours changes the kernel derivation and forces a source build.
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
+
     # Impermanence
     impermanence.url = "github:nix-community/impermanence";
 
