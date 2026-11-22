@@ -104,7 +104,10 @@ in {
         sandbox = "relaxed";
         auto-optimise-store = true;
         trusted-users = users;
-        allowed-users = users;
+        # Every user created from a homes/<user>@<host> folder needs the daemon for its
+        # home-manager activation; only the users above are trusted.
+        allowed-users = users
+          ++ builtins.attrNames (config.snowfallorg.users or { });
       } // (lib.optionalAttrs (builtins.pathExists "/var/lib/nixos/netrc") {
         # Only reference the netrc file if it actually exists on this
         # machine. `extra-sandbox-paths` in particular is not tolerant of
