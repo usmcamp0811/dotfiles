@@ -31,6 +31,11 @@ in {
             key = "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=";
           };
 
+          # Raspberry Pi cache
+          "https://nixos-raspberrypi.cachix.org" = {
+            key = "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI=";
+          };
+
           # CUDA maintainers cache
           "https://cuda-maintainers.cachix.org" = {
             key = "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E=";
