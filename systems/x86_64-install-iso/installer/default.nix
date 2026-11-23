@@ -6,10 +6,10 @@
 # Docs: docs/INSTALL-NIXOS.md. It is built and published monthly by CI.
 #
 # This image is public, so it must not carry anything personal or open a way in:
-#   * no SSH keys are baked in (fmf's defaults are the maintainer's keys), and the live user has no
+#   * no SSH keys are baked in (fmf's defaults are my keys), and the live user has no
 #     password, so SSH works only after you run `passwd` or add a key;
 #   * it does not use an archetype, because `fmf.suites.common` enables a Crystal Forge agent and
-#     caches that belong to the maintainer's fleet.
+#     caches that belong to my fleet.
 {
   pkgs,
   lib,
@@ -28,15 +28,20 @@ with lib.fmf; {
   # `nmtui` in a terminal.
   networking.wireless.enable = mkForce false;
 
+  # Text-to-speech is on by default with a desktop and adds hundreds of MB of voices to the image.
+  services.speechd.enable = mkForce false;
+
   fmf = {
     nix = enabled;
     cli-apps = {flake = enabled;};
-    tools = {
-      git = enabled;
-      misc = enabled;
-    };
+    tools = {git = enabled;};
     hardware = {
-      audio = enabled;
+      audio = {
+        enable = true;
+        # EasyEffects pulls in LV2 plugin packs; a live USB does not need an equalizer.
+        include-easyeffects = false;
+        extra-packages = [];
+      };
       networking = enabled;
     };
     system = {
@@ -44,7 +49,7 @@ with lib.fmf; {
       locale = enabled;
       time = enabled;
       xkb = enabled;
-      # No `zfs = enabled` here: that is the maintainer's Tang/Clevis network-unlock setup for his
+      # No `zfs = enabled` here: that is my Tang/Clevis network-unlock setup for my
       # servers. It pins an old kernel and turns on an NFS server and initrd networking. The
       # installer's base profile already provides ZFS support on the default kernel.
     };
@@ -55,7 +60,7 @@ with lib.fmf; {
 
     services.openssh = {
       enable = true;
-      # fmf adds the maintainer's keys to the user and to root. A public image must not.
+      # fmf adds my keys to the user and to root. A public image must not.
       authorizedKeys = mkForce [];
       manage-other-hosts = false;
     };
@@ -116,7 +121,7 @@ with lib.fmf; {
     tcpdump
 
     # Everyday tools
-    neovim
+    vim # not `neovim`: in this flake that is my full distribution (rustc, a JDK, LSPs)
     tmux
     htop
     curl
@@ -130,9 +135,22 @@ with lib.fmf; {
     openssl
     age
 
-    # The desktop's browser. The Vault CLI (and VAULT_ADDR) come from the live user's home
-    # configuration, homes/x86_64-install-iso/nixos@installer.
+    # Light replacements for what fmf.tools.misc would bring (it also installs gcc, clang, zig, deno)
+    fzf
+    bat
+    lsd
+    btop
+    fastfetch
+    killall
+    file
+    lsof
+
+    # The desktop's browser
     brave
+
+    # The Vault CLI. The prebuilt binary, so nothing is compiled. VAULT_ADDR is deliberately not
+    # set: this image is public, so point it at your own server: `export VAULT_ADDR=https://...`.
+    vault-bin
   ];
 
   # This value determines the NixOS release from which the default

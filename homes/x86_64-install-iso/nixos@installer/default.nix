@@ -20,9 +20,7 @@ with lib.fmf; {
     cli = {
       zsh = enabled;
       bash = enabled;
-      env = enabled;
       home-manager = enabled;
-      misc = enabled;
     };
 
     desktop = {
@@ -56,11 +54,22 @@ with lib.fmf; {
       };
     };
 
-    tools = {
-      git = enabled;
-      # The Vault CLI (and consul) with VAULT_ADDR set.
-      vault = enabled;
-    };
+    tools = {git = enabled;};
+  };
+
+  # Not `fmf.cli.env`: that is my personal environment (my paths, KUBECONFIG, Julia settings, and my
+  # full Neovim as EDITOR, which would add rustc and a JDK to the image).
+  home.sessionVariables = {
+    EDITOR = mkForce "${pkgs.vim}/bin/vim";
+    TERMINAL = "kitty";
+    BROWSER = "brave";
+  };
+
+  # The Hyprland module defines `$music` (Spotify, 370 MB) and `$editor` (my full Neovim, with rustc and a
+  # JDK behind it). Nothing binds either, so point them at something that is already on the image.
+  wayland.windowManager.hyprland.settings = {
+    "$music" = mkForce "${getExe pkgs.kitty}";
+    "$editor" = mkForce "${getExe pkgs.vim}";
   };
 
   home.stateVersion = "23.05";

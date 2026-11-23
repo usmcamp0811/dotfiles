@@ -11,9 +11,11 @@
 # Optional:
 #   GITLAB_TOKEN   a token with the `api` scope. Needed only to delete old images; without it the
 #                  old ones are kept and a warning is printed.
-#   KEEP           how many images to keep (default 2). A 3 GB image every month fills a free
-#                  project's storage quota in a few months.
+#   KEEP           how many images to keep (default 1). An image is about 3 GB, a free namespace has
+#                  10 GiB of storage in total, and the newest one is the only one anyone needs.
 #   VERSION        the version to publish (default: today's UTC date, YYYY.MM.DD)
+#   MAX_BYTES      refuse to upload a larger image (default 5000000000: GitLab.com rejects package
+#                  files over 5 GB, so fail now instead of after a long upload)
 #   DRY_RUN=1      print what would be sent instead of calling the API
 #   PACKAGES_FILE  (testing) read the package list from this JSON file instead of the API
 set -euo pipefail
@@ -24,7 +26,7 @@ iso="${1:?usage: publish-iso.sh path/to/image.iso}"
 package="fmf-installer"
 asset="fmf-installer-x86_64.iso" # a fixed name, so the "latest" download link never changes
 version="${VERSION:-$(date -u +%Y.%m.%d)}"
-keep="${KEEP:-2}"
+keep="${KEEP:-1}"
 dry="${DRY_RUN:-}"
 
 api="${CI_API_V4_URL:?CI_API_V4_URL is not set}/projects/${CI_PROJECT_ID:?CI_PROJECT_ID is not set}"
@@ -48,6 +50,12 @@ cp --reflink=auto "$iso" "$work/$asset" 2>/dev/null || ln -s "$(realpath "$iso")
 (cd "$work" && sha256sum "$asset" > SHA256SUMS)
 sum="$(cut -d' ' -f1 "$work/SHA256SUMS")"
 size="$(du -h --apparent-size -L "$work/$asset" | cut -f1)"
+bytes="$(stat -L -c %s "$work/$asset")"
+max="${MAX_BYTES:-5000000000}"
+if [ "$bytes" -gt "$max" ]; then
+  say "$asset is $bytes bytes, over the $max byte limit for a package file. Slim the image (see docs/LIVE-ISO.md)."
+  exit 1
+fi
 say "version $version, $asset ($size), sha256 $sum"
 
 # 1. Upload to the generic package registry.

@@ -322,7 +322,7 @@ campground-pages-preview:
 # variable BUILD_ISO=true. To publish one now, press play on this job in any default-branch pipeline.
 #
 # The image goes to the generic package registry, not to git (a multi-GB file in git stays in the
-# history forever), and .gitlab/publish-iso.sh keeps only the newest KEEP images (default 2).
+# history forever), and .gitlab/publish-iso.sh keeps only the newest KEEP images (default 1).
 # Pruning needs a GITLAB_TOKEN variable with the `api` scope, the same one the renovate job uses.
 build_iso:
   stage: build
