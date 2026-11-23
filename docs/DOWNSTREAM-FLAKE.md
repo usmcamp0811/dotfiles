@@ -9,7 +9,7 @@ tags: [downstream, flake, template, tutorial, getting-started]
 
 A **downstream flake** is your own repository that takes fmf's modules, overlays and Home Manager
 configuration as an input and adds its own hosts on top. You keep your machines, secrets and settings in
-your repository; fmf stays a library you follow or pin. The author's homelab, Campground, is built this
+your repository; fmf stays a library you follow or pin. My homelab, Campground, is built this
 way.
 
 You need [Nix with flakes enabled](LevelUp.md) and git.
@@ -119,12 +119,12 @@ The template is an example, so it contains someone else's details. Change these 
    Generate yours on the machine, see [Add a system to your flake](NEW-SYSTEM.md#2-the-hardware-file).
 2. **Put your SSH key in.** In `systems/.../example-system/default.nix`, replace the placeholder under
    `fmf.services.openssh.authorizedKeys`. Keep `lib.mkForce`: without it fmf *adds* its defaults, which
-   are the author's keys, and they are accepted for your user **and for root**.
+   are my keys, and they are accepted for your user **and for root**.
 3. **Rename the user and host.** The directory names `example@example-system` and `example-system`
    *are* the user and host names; the same names appear in `fmf.user.name`.
 4. **Check the defaults that are not yours.** The template does not use an archetype for a reason, and
    sets `crystal-forge.stig-presets.off.enable = true`. Read
-   [Start here](START-HERE.md#before-you-copy-anything) for the list: the author's keys, the initial password
+   [Start here](START-HERE.md#before-you-copy-anything) for the list: my keys, the initial password
    `password`, the Crystal Forge agent and caches that `fmf.suites.common` switches on.
 5. **Change the example network and names** (`example.com`, `192.168.50.0/24`) if you use any.
 

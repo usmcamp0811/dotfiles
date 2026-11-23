@@ -88,15 +88,15 @@ generated **options** section of this site; do not guess an option name.
 * An **archetype** is a machine role that switches on suites and some services: `barebones`,
   `basic-pi`, `server`, `workstation`, `laptop` and `gaming-platform` (`modules/nixos/archetypes`).
 
-The name `barebones` is misleading: it turns on `suites.common`, and `common` is the author's own baseline
-for his machines. It enables, among other things:
+The name `barebones` is misleading: it turns on `suites.common`, and `common` is my own baseline
+for my machines. It enables, among other things:
 
-* the **Crystal Forge** agent, configured to connect to the author's server;
+* the **Crystal Forge** agent, configured to connect to my server;
 * the **build-farm** client (`nix-grpc-store`);
-* the author's **binary caches** (`campground`, `niks3`) alongside the public ones;
-* OpenSSH with **the author's public keys**, git, audio, networking, fonts, locale and the boot module.
+* my **binary caches** (`campground`, `niks3`) alongside the public ones;
+* OpenSSH with **my public keys**, git, audio, networking, fonts, locale and the boot module.
 
-`server`, `workstation`, `laptop` and `gaming-platform` include `common` too. That suits the author, and
+`server`, `workstation`, `laptop` and `gaming-platform` include `common` too. That suits me, and
 nobody else. **For a host of your own, enable the individual modules you want**, as the template's
 `example-system` and the tutorials do, and read an archetype's file before using it. See
 [Start here](START-HERE.md#before-you-copy-anything) for the full list of defaults to check.

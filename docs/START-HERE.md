@@ -10,19 +10,19 @@ tags: [start, getting-started, overview]
 **fmf** is a NixOS flake that does two jobs at once.
 
 1. **A module library.** More than a hundred service modules, plus desktop, user, network and security
-   modules, all under one option namespace, `fmf.*`. Other flakes use it as an *upstream*: Campground, the
-   author's own homelab, is a downstream of fmf.
+   modules, all under one option namespace, `fmf.*`. Other flakes use it as an *upstream*: Campground, my
+   own homelab, is a downstream of fmf.
 2. **A worked example.** Real hosts, user homes, templates and runbooks that you can read, copy and
    change. Nothing here is hidden behind a private build.
 
-It is maintained by Matt Camp. The source is at
+I'm Matt Camp, and I maintain it. The source is at
 [gitlab.com/usmcamp0811/dotfiles](https://gitlab.com/usmcamp0811/dotfiles) (branch `nixos`). It is
 organised with [Snowfall Lib](https://snowfall.org/guides/lib/), which turns a directory layout into flake
 outputs.
 
-*On the name:* FMF is the Fleet Marine Force, a nod to the author's Marine Corps background. This
-project manages a fleet of computers, and the machines in it are named for Marines (`krulak`, for one, is
-named for General Victor "Brute" Krulak), so `fmf` became the namespace.
+*On the name:* FMF is the Fleet Marine Force, a nod to my Marine Corps background. I manage a fleet of
+computers with it, and I name the machines for Marines (`krulak`, for one, is named for General Victor
+"Brute" Krulak), so `fmf` became the namespace.
 
 ## Pick your path
 
@@ -41,22 +41,20 @@ If you have never used Nix, read [New to Nix?](#new-to-nix) first.
 
 ## Before you copy anything
 
-fmf is one person's configuration, published as an example, and some of its defaults reflect that.
-Check these before you deploy a host that uses it. [Use fmf from your own flake](DOWNSTREAM-FLAKE.md)
-shows the fixes.
+fmf is my own configuration, published as an example, and some of its defaults reflect that. Check these
+before you deploy a host that uses it. [Use fmf from your own flake](DOWNSTREAM-FLAKE.md) shows the fixes.
 
-* **The author's SSH keys are accepted by default.** Enabling `fmf.services.openssh` adds the author's
-  public keys to the main user **and to `root`**. Replace the list with `lib.mkForce`, as the guides do.
+* **My SSH keys are accepted by default.** Enabling `fmf.services.openssh` adds my public keys to the
+  main user **and to `root`**. Replace the list with `lib.mkForce`, as the guides do.
 * **The main user starts with the password `password`.** `fmf.user.initialPassword` defaults to it, and
   SSH accepts passwords unless you turn that off. Change it with `passwd` at first login and disable SSH
   password login.
-* **Archetypes are the author's own machines, not neutral defaults.** `barebones`, `server`,
-  `workstation`, `laptop` and `gaming-platform` all switch on `fmf.suites.common`. On a downstream host
-  that enables a Crystal Forge agent configured to connect to the author's server
-  (`crystal-forge.aicampground.com`), a build-farm client, and the author's binary caches
-  (`attic.aicampground.com`, `niks3.lan.aicampground.com`) as substituters, and it adds more of the
-  author's SSH keys. **Do not use an archetype as it is.** The guides enable the individual modules
-  they need, as the template does, and
+* **Archetypes describe my own machines, not neutral defaults.** `barebones`, `server`, `workstation`,
+  `laptop` and `gaming-platform` all switch on `fmf.suites.common`. On a downstream host that enables a
+  Crystal Forge agent configured to connect to my server (`crystal-forge.aicampground.com`), a build-farm
+  client, and my binary caches (`attic.aicampground.com`, `niks3.lan.aicampground.com`) as
+  substituters, and it adds more of my SSH keys. **Do not use an archetype as it is.** The guides enable
+  the individual modules they need, as the template does, and
   [How fmf is put together](HOW-FMF-WORKS.md#modules-suites-and-archetypes) lists what `common` turns on.
 * **STIG hardening presets are on by default** for any host that imports the Crystal Forge modules
   (the downstream template imports them all). The pinned SSH preset currently fails evaluation, so the

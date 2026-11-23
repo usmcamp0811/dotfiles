@@ -32,7 +32,7 @@ Browse the rendered [Campground documentation](https://usmcamp0811.gitlab.io/dot
 
 ## Getting Started
 
-fmf (the Fleet Marine Force, after the author's Marine Corps background) is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
+fmf (the Fleet Marine Force, after my Marine Corps background) is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
 whole fleet you can read and copy. Start at the
 [documentation site](https://usmcamp0811.gitlab.io/dotfiles/campground/); its front page sends you to the
 right guide. The same guides are in [`docs/`](./docs/index.md) and read fine here.
@@ -48,8 +48,8 @@ right guide. The same guides are in [`docs/`](./docs/index.md) and read fine her
 | Learn Nix first | [LevelUp Your Nix](./docs/LevelUp.md) |
 
 > **Before you copy anything:** fmf is one person's configuration, published as an example. Its defaults
-> accept the author's SSH keys and give the main user the password `password`, and its archetypes switch on
-> services that are configured to connect to the author's servers.
+> accept my SSH keys and give the main user the password `password`, and its archetypes switch on
+> services that are configured to connect to my servers.
 > [Start here](./docs/START-HERE.md#before-you-copy-anything) lists what to change, and the tutorials do it
 > for you.
 

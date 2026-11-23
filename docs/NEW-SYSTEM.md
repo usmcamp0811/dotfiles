@@ -83,7 +83,7 @@ with lib.fmf; {
     services.openssh = {
       enable = true;
       # Replace fmf's default list instead of adding to it: the defaults are the
-      # author's keys, and they would otherwise be accepted for you and for root.
+      # my keys, and they would otherwise be accepted for you and for root.
       authorizedKeys = lib.mkForce [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExampleExamp alice@example.com"
       ];
@@ -106,13 +106,13 @@ For a machine that is **not** using disko, drop the `inputs.disko...` and `./dis
 | `crystal-forge.stig-presets.off.enable` | the downstream flake imports Crystal Forge's modules, whose STIG hardening presets are on by default and currently fail evaluation. See [Start here](START-HERE.md#before-you-copy-anything). |
 | `fmf.system.boot` | the bootloader (systemd-boot, so the machine must be UEFI) |
 | `fmf.user` | the **main user**: name, groups, UID. Other users are separate homes, see below. |
-| `fmf.services.openssh` | the SSH server, with **your** key. `lib.mkForce` is what stops the author's keys being added; leave it in. |
+| `fmf.services.openssh` | the SSH server, with **your** key. `lib.mkForce` is what stops my keys being added; leave it in. |
 | `PasswordAuthentication = false` | no password logins over SSH |
 | `system.stateVersion` | the NixOS release this machine was **first installed** with (`26.05` here; use the release you actually install). Set it once and do not raise it to upgrade. |
 
 **This host does not use an archetype**, on purpose. `barebones`, `server`, `workstation` and `laptop` all
 switch on `fmf.suites.common`, which enables a Crystal Forge agent, a build-farm client and caches that
-belong to the author. See [How fmf is put together](HOW-FMF-WORKS.md#modules-suites-and-archetypes).
+belong to me. See [How fmf is put together](HOW-FMF-WORKS.md#modules-suites-and-archetypes).
 Enable the modules you want instead.
 
 ### Adding a feature

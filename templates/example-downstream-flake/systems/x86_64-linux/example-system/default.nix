@@ -83,7 +83,7 @@ in {
       openssh = {
         enable = true;
         # REPLACE with your own public key (`cat ~/.ssh/id_ed25519.pub`). lib.mkForce replaces
-        # fmf's default list, which holds the author's keys and would otherwise be accepted for
+        # fmf's default list, which holds my keys and would otherwise be accepted for
         # this user and for root. This placeholder matches no real key, so you cannot log in
         # over SSH until you change it.
         authorizedKeys = lib.mkForce [
