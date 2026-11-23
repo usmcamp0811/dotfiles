@@ -102,10 +102,30 @@ in {
     # ── Vault Agent: render the cache encryption key ─────────────────────
     # This template was removed on 2026-07-28 (1e1920aa8) and not replaced, so the setup service
     # below only worked while a file left behind in /tmp/detsys-vault survived; it broke the
-    # first time /tmp was cleared. It has no `settings` block, so it uses the host's global
-    # fmf.services.vault-agent.settings (role-id and secret-id), like every other service.
+    # first time /tmp was cleared.
+    #
+    # `settings` is required. A per-service agent does NOT inherit the host's global
+    # fmf.services.vault-agent.settings: without it the generated agent config has an empty
+    # auto_auth and no vault address, and the agent exits 1 straight away (this is what broke the
+    # first attempt, the day before it was removed). Every other service passes its own, built from
+    # the same three values (see services/crowdsec, cache/niks3).
     fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf
       (config.fmf.services.vault-agent.enable or false) {
+      settings = let
+        vault = config.fmf.services.vault-agent.settings.vault;
+      in {
+        vault.address = vault.address;
+        auto_auth.method = [
+          {
+            type = "approle";
+            config = {
+              role_id_file_path = vault."role-id";
+              secret_id_file_path = vault."secret-id";
+              remove_secret_id_file_after_reading = false;
+            };
+          }
+        ];
+      };
       secrets.file.files."cache-encryption-key" = {
         text = ''
           {{ with secret "${vCfg.vault_path_cache}" }}{{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}{{ end }}'';
