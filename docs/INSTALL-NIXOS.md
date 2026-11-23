@@ -167,6 +167,10 @@ SSH, boots a NixOS installer in its memory (kexec), runs disko, installs your ho
 target needs SSH access as `root` (or a user with passwordless sudo) and enough RAM to hold the
 installer; see its README for the details.
 
+The target can be a machine booted from [the fmf live ISO](LIVE-ISO.md#log-in-over-ssh): it already runs
+an installer, so there is nothing to boot into first (`--force-kexec` in `nixos-anywhere --help` is for
+forcing it anyway). The published image accepts only my key, so build your own image with yours.
+
 ```bash
 # On your own computer, in your flake. 192.168.50.50 is an example address.
 nix run github:nix-community/nixos-anywhere -- \

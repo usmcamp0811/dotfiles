@@ -5,9 +5,12 @@
 #
 # Docs: docs/INSTALL-NIXOS.md. It is built and published monthly by CI.
 #
-# This image is public, so it must not carry anything personal or open a way in:
-#   * no SSH keys are baked in (fmf's defaults are my keys), and the live user has no
-#     password, so SSH works only after you run `passwd` or add a key;
+# The intent: boot the USB on a new machine, then SSH in from a working computer and drive the install
+# from there, with the tools already on the image.
+#
+# This image is public, so it is deliberately narrow about who can get in and what it carries:
+#   * one SSH key is baked in, mine (below), for the live user and for root, and nothing else can log
+#     in: neither account has a password;
 #   * it does not use an archetype, because `fmf.suites.common` enables a Crystal Forge agent and
 #     caches that belong to my fleet.
 {
@@ -60,8 +63,12 @@ with lib.fmf; {
 
     services.openssh = {
       enable = true;
-      # fmf adds my keys to the user and to root. A public image must not.
-      authorizedKeys = mkForce [];
+      # The only key accepted, for the live user and for root: boot the USB, then `ssh nixos@<ip>`
+      # from a working computer. This replaces fmf's defaults (more of my keys) with just this one.
+      # To use your own image, put your key here.
+      authorizedKeys = mkForce [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAclfREva2i4LsnBQPY3ZSsZzeuS5DGn11u0abBR8cFv mcamp@butler"
+      ];
       manage-other-hosts = false;
     };
 

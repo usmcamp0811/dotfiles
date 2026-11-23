@@ -60,20 +60,31 @@ sudo nixos-install --flake .#<host> --no-root-passwd
 
 [Install NixOS on a new machine](INSTALL-NIXOS.md) walks through it, including the hardware file.
 
-## Who can log in
+## Log in over SSH
 
-The image is public, so it is built to be safe to boot on a network. This was read from the built
-system, not just from the configuration:
+The intent is to boot the stick on a new machine and drive the install from a working computer, with the
+tools already on the image:
 
-* **No SSH keys are baked in.** fmf's defaults would add my keys; the image replaces them with none, and
-  it has no `authorized_keys` files at all.
-* **Neither `nixos` nor `root` has a password**, as on the official installer. You are logged in on the
-  console automatically, and `sudo` does not ask for a password.
-* **The SSH server does run from boot**, on ports 22 and 2222, and allows password logins, including for
-  `root`, again as on the official installer. Nobody can log in remotely because no account has a password
-  or a key, and the server refuses empty passwords. That changes the moment you run `passwd` or add a key
-  to `~/.ssh/authorized_keys`, so set a strong password and do not leave the machine on an untrusted network
-  after that.
+```bash
+# On the live system (the desktop's kitty, or the console): find its address
+ip -br a
+# From your own computer
+ssh nixos@<address>        # or root@<address>; sudo needs no password
+```
+
+**One key is baked in: mine** (`mcamp@butler`), for both `nixos` and `root`. Nothing else can log in,
+because neither account has a password. That has a consequence you should know before you use this image:
+**whoever holds that private key can log in to any machine booted from this image that is reachable on the
+network.** That is me, by design. If you are not me, build your own image with your own key (below) instead
+of using the published one, or treat any machine you boot from it as open to me.
+
+The SSH server runs from boot, on ports 22 and 2222, and also allows password logins (including for `root`),
+as on the official installer. No password exists, and the server refuses empty ones, so that only changes
+if you run `passwd`. If you do, set a strong one.
+
+With that key on the image, you can also hand the whole install to
+[nixos-anywhere](INSTALL-NIXOS.md#method-b-remotely-with-nixos-anywhere) from your own computer, aimed at
+the live system as it is: `--target-host root@<address>`.
 
 ## Build it yourself
 
@@ -90,9 +101,8 @@ nix shell nixpkgs#qemu --command qemu-system-x86_64 -enable-kvm -m 6G -smp 4 \
 ```
 
 The configuration is two files: `systems/x86_64-install-iso/installer/default.nix` (what is installed
-and who can log in) and `homes/x86_64-install-iso/nixos@installer/default.nix` (the desktop). To bake in
-your own SSH key, set `fmf.services.openssh.authorizedKeys = lib.mkForce [ "ssh-ed25519 AAAA..." ];` in the
-first.
+and who can log in) and `homes/x86_64-install-iso/nixos@installer/default.nix` (the desktop). To use
+your own SSH key instead of mine, replace the one in `fmf.services.openssh.authorizedKeys` in the first.
 
 It deliberately uses no archetype and not `fmf.system.zfs`: they carry my fleet settings
 (see [Start here](START-HERE.md#before-you-copy-anything)), which do not belong on an image that boots on
@@ -132,8 +142,9 @@ default branch as it is, so keep `flake.lock` current if you want fresh kernels 
 * **In the built system** (read from the store, not booted): `kitty`, `brave`, `vault`, `Hyprland`,
   `nixos-install`, `disko`, `git`, `vim`, `nmtui`, `clevis` and the disk and network tools are present;
   `waybar`, `rofi`, `wofi`, `swaync` and `nm-applet` are in the live user's profile; none of my
-  development tools (`nvim`, `rustc`, `gcc`, `clang`, `zig`, `deno`, `spotify`, `consul`) are; there are no
-  SSH key files; SDDM logs `nixos` in to `hyprland.desktop`; and `nixos` and `root` have no password.
+  development tools (`nvim`, `rustc`, `gcc`, `clang`, `zig`, `deno`, `spotify`, `consul`) are;
+  SDDM logs `nixos` in to `hyprland.desktop`; `nixos` and `root` have no password; and the only SSH key on
+  the image is `mcamp@butler`, for both accounts, which I compared byte for byte with the key in the config.
 * **Size.** A first version of this image was 7.6 GB. It carried my full Neovim (with a Rust toolchain and a
   JDK), Spotify, clang, zig, deno, a second Vault and EasyEffects, because `fmf.tools.misc`, `fmf.cli.misc`,
   `fmf.cli.env`, the audio module and the Hyprland module pull them in. Removing those cut the system from
