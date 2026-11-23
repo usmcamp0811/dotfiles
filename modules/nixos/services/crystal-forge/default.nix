@@ -36,6 +36,18 @@ in {
   # per-host config -- this only forwards option values to upstream.
 
   options.fmf.services.crystal-forge = {
+    # ── Vault options (used by the cache-encryption-key template below) ───
+    vault_path_cache = lib.mkOption {
+      type = lib.types.str;
+      default = "secret/campground/crystal-forge";
+      description = "Vault KV path whose `value` field is the Attic cache encryption key.";
+    };
+    kvVersion = lib.mkOption {
+      type = lib.types.enum ["v1" "v2"];
+      default = "v2";
+      description = "Vault KV engine version of `vault_path_cache`.";
+    };
+
     # ── Options forwarded to upstream services.crystal-forge.* ────────────
     enable = lib.mkEnableOption "Crystal Forge service(s)";
     log_level = lib.mkOption {
@@ -87,19 +99,30 @@ in {
       hardening = lib.mkDefault vCfg.hardening;
     };
 
+    # ── Vault Agent: render the cache encryption key ─────────────────────
+    # This template was removed on 2026-07-28 (1e1920aa8) and not replaced, so the setup service
+    # below only worked while a file left behind in /tmp/detsys-vault survived; it broke the
+    # first time /tmp was cleared. It has no `settings` block, so it uses the host's global
+    # fmf.services.vault-agent.settings (role-id and secret-id), like every other service.
+    fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf
+      (config.fmf.services.vault-agent.enable or false) {
+      secrets.file.files."cache-encryption-key" = {
+        text = ''
+          {{ with secret "${vCfg.vault_path_cache}" }}{{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}{{ end }}'';
+        permissions = "0400";
+        change-action = "restart";
+      };
+    };
+
     # ── Setup service: copy vault-rendered files to expected paths ────────
-    # Relies on the globally-configured fmf.services.vault-agent having already
-    # rendered secrets to /tmp/detsys-vault/.  Does NOT create its own vault-
-    # agent instance because the global vault-agent config format conflicts
-    # with per-service settings inheritance.
+    # Ordered after the Vault Agent instance above, which renders the key into /tmp/detsys-vault/.
     systemd.services.crystal-forge-setup = lib.mkIf
       (config.fmf.services.vault-agent.enable or false) {
       description = "Copy vault-rendered Crystal Forge secrets to service paths";
-      after = ["postgresql.service" "network-online.target"];
-      # `after` only orders; without `wants` nothing pulls the target in, which is
-      # what NixOS warns about ("ordered after network-online.target but doesn't
-      # depend on it").
-      wants = ["network-online.target"];
+      after = ["detsys-vaultAgent-crystal-forge-setup.service" "postgresql.service" "network-online.target"];
+      # `after` only orders; without `wants` nothing pulls a unit in. network-online.target is here
+      # because NixOS warns about ordering after it without depending on it.
+      wants = ["detsys-vaultAgent-crystal-forge-setup.service" "network-online.target"];
       before = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       wantedBy = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       serviceConfig = {
