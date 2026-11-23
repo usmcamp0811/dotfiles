@@ -72,6 +72,11 @@ in {
 
   config = let
     vCfg = config.fmf.services.crystal-forge;
+    # Only the host that runs the Crystal Forge server needs the cache encryption key. Every host with
+    # a Crystal Forge client has `fmf.services.crystal-forge.enable` (suites.common sets it), so the
+    # key must not be keyed on that: it would grant every such host read access to the secret.
+    isServer = config.services.crystal-forge.server.enable or false;
+    vaultAgentOn = config.fmf.services.vault-agent.enable or false;
   in lib.mkIf vCfg.enable {
     services.crystal-forge = {
       inherit (vCfg) log_level;
@@ -110,7 +115,7 @@ in {
     # first attempt, the day before it was removed). Every other service passes its own, built from
     # the same three values (see services/crowdsec, cache/niks3).
     fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf
-      (config.fmf.services.vault-agent.enable or false) {
+      (vaultAgentOn && isServer) {
       settings = let
         vault = config.fmf.services.vault-agent.settings.vault;
       in {
@@ -139,10 +144,10 @@ in {
     systemd.services.crystal-forge-setup = lib.mkIf
       (config.fmf.services.vault-agent.enable or false) {
       description = "Copy vault-rendered Crystal Forge secrets to service paths";
-      after = ["detsys-vaultAgent-crystal-forge-setup.service" "postgresql.service" "network-online.target"];
+      after = lib.optional isServer "detsys-vaultAgent-crystal-forge-setup.service" ++ ["postgresql.service" "network-online.target"];
       # `after` only orders; without `wants` nothing pulls a unit in. network-online.target is here
       # because NixOS warns about ordering after it without depending on it.
-      wants = ["detsys-vaultAgent-crystal-forge-setup.service" "network-online.target"];
+      wants = lib.optional isServer "detsys-vaultAgent-crystal-forge-setup.service" ++ ["network-online.target"];
       before = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       wantedBy = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       serviceConfig = {
