@@ -32,7 +32,7 @@ Browse the rendered [Campground documentation](https://usmcamp0811.gitlab.io/dot
 
 ## Getting Started
 
-fmf (the Fleet Marine Force, after my Marine Corps background) is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
+fmf is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
 whole fleet you can read and copy. Start at the
 [documentation site](https://usmcamp0811.gitlab.io/dotfiles/campground/); its front page sends you to the
 right guide. The same guides are in [`docs/`](./docs/index.md) and read fine here.
@@ -41,6 +41,7 @@ right guide. The same guides are in [`docs/`](./docs/index.md) and read fine her
 | --- | --- |
 | Understand what this is, and what to check first | [Start here](./docs/START-HERE.md) |
 | Install NixOS on a new machine from a flake | [Install NixOS on a new machine](./docs/INSTALL-NIXOS.md) |
+| Boot a live USB with a desktop and the install tools | [The fmf live ISO](./docs/LIVE-ISO.md) ([download latest](https://gitlab.com/usmcamp0811/dotfiles/-/releases/permalink/latest/downloads/fmf-installer-x86_64.iso)) |
 | Build my own flake on top of fmf | [Use fmf from your own flake](./docs/DOWNSTREAM-FLAKE.md) |
 | Add another machine or another user | [Add a system](./docs/NEW-SYSTEM.md), [more than one user](./docs/MULTI-USER-HOSTS.md) |
 | See how the pieces fit | [How fmf is put together](./docs/HOW-FMF-WORKS.md) |

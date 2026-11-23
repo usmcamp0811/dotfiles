@@ -111,11 +111,13 @@ UUID that belong to nobody's machine.
 
 ## Method A: from the installer USB
 
-**1. Make the installer.** Download the minimal ISO from [nixos.org](https://nixos.org/download/#nixos-iso)
-and write it to a USB stick. Check the device name with `lsblk` first; `dd` overwrites whatever you name.
+**1. Make the installer.** Use [the fmf live ISO](LIVE-ISO.md), which boots into a desktop with a
+terminal, a browser, the Vault CLI and these install tools, or the official minimal ISO from
+[nixos.org](https://nixos.org/download/#nixos-iso). Write it to a USB stick. Check the device name with
+`lsblk` first; `dd` overwrites whatever you name.
 
 ```bash
-sudo dd if=nixos-minimal-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
+sudo dd if=<the-image>.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
 **2. Boot it** in UEFI mode and get a network connection. A cable just works. For Wi-Fi follow the

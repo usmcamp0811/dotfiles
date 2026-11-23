@@ -316,6 +316,28 @@ campground-pages-preview:
   rules:
     - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
 
+# Build the fmf live ISO and publish it as a GitLab release (docs/LIVE-ISO.md).
+#
+# Monthly: CI/CD -> Schedules -> New schedule, on the default branch, cron `0 3 1 * *`, with the
+# variable BUILD_ISO=true. To publish one now, press play on this job in any default-branch pipeline.
+#
+# The image goes to the generic package registry, not to git (a multi-GB file in git stays in the
+# history forever), and .gitlab/publish-iso.sh keeps only the newest KEEP images (default 2).
+# Pruning needs a GITLAB_TOKEN variable with the `api` scope, the same one the renovate job uses.
+build_iso:
+  stage: build
+  tags:
+    - nix
+  timeout: 3h
+  script:
+    - nix build .#install-isoConfigurations.installer --out-link iso-result -L
+    - nix shell nixpkgs#curl nixpkgs#jq --command bash .gitlab/publish-iso.sh iso-result/iso/*.iso
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $BUILD_ISO == "true"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
+      allow_failure: true
+
 crystal_forge_update:
   stage: updates
   script: |

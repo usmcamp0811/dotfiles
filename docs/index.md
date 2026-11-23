@@ -21,10 +21,11 @@ okf_version: "0.2"
 * [Nix Build Farm (fmf.services.nix-grpc-store)](BUILD-FARM.md) - A generic guide to the build farm module in this flake: what it does, how to wire it into a host configuration, and what has to exist in Vault before it will run.
 * [nixpkgs-multiverse: pinning one package version without a new flake input](NIXPKGS-MULTIVERSE.md) - This flake now has nixpkgs-multiverse as an input, and a small library helper, lib.fmf.multiversePackage, that resolves it.
 * [Open Knowledge Format in fmf](OKF.md) - How fmf's docs, modules and systems directories are OKF v0.2 bundles, and how to keep them conformant.
+* [The fmf live ISO](LIVE-ISO.md) - A live USB image with a Hyprland desktop, kitty, Brave, the Vault CLI and the tools to partition, install and bootstrap a host from a flake - where to download it, what is on it, how it is built every month, and how to build or change it yourself.
 * [Vault AppRoles - one role per host, least-privilege policies](VAULT-APPROLES.md) - How AppRoles are declared in Nix next to policies, the one-role-per-host naming rule, how to audit live roles against the flake, and the phased plan for replacing the broad campground policy with generated per-service policies.
 * [Video Lock Screen Configuration (fmf module)](VIDEO-LOCK-SCREEN-FMF.md) - This document describes the video lock screen feature in the fmf flake.
 * [Wazuh in fmf-flake](wazuh.md) - Downstream flakes can pin your historical Wazuh behavior by pinning your flake revision in inputs.
-* [Welcome to fmf - what it is and where to begin](START-HERE.md) - What the fmf flake is and who it is for, four ways to use it (install NixOS, build your own flake on it, add a system, learn Nix), what to check before you copy anything, and a map for people and agents.
+* [Welcome to the Campground - what it is and where to begin](START-HERE.md) - What the fmf flake is and who it is for, four ways to use it (install NixOS, build your own flake on it, add a system, learn Nix), what to check before you copy anything, and a map for people and agents.
 
 # Note
 

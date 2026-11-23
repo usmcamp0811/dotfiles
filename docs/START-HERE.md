@@ -1,11 +1,11 @@
 ---
 type: Guide
-title: Welcome to fmf - what it is and where to begin
+title: Welcome to the Campground - what it is and where to begin
 description: What the fmf flake is and who it is for, four ways to use it (install NixOS, build your own flake on it, add a system, learn Nix), what to check before you copy anything, and a map for people and agents.
 tags: [start, getting-started, overview]
 ---
 
-# Welcome to fmf
+# Welcome to the Campground
 
 **fmf** is a NixOS flake that does two jobs at once.
 
@@ -19,10 +19,6 @@ I'm Matt Camp, and I maintain it. The source is at
 [gitlab.com/usmcamp0811/dotfiles](https://gitlab.com/usmcamp0811/dotfiles) (branch `nixos`). It is
 organised with [Snowfall Lib](https://snowfall.org/guides/lib/), which turns a directory layout into flake
 outputs.
-
-*On the name:* FMF is the Fleet Marine Force, a nod to my Marine Corps background. I manage a fleet of
-computers with it, and I name the machines for Marines (`krulak`, for one, is named for General Victor
-"Brute" Krulak), so `fmf` became the namespace.
 
 ## Pick your path
 
