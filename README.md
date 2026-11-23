@@ -32,7 +32,7 @@ Browse the rendered [Campground documentation](https://usmcamp0811.gitlab.io/dot
 
 ## Getting Started
 
-fmf is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
+fmf (the Fleet Marine Force, after the author's Marine Corps background) is two things: a **library of NixOS modules** that other flakes build on, and a **worked example** of a
 whole fleet you can read and copy. Start at the
 [documentation site](https://usmcamp0811.gitlab.io/dotfiles/campground/); its front page sends you to the
 right guide. The same guides are in [`docs/`](./docs/index.md) and read fine here.

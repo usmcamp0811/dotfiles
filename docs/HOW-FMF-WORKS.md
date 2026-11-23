@@ -42,8 +42,8 @@ produces the flake outputs from it. You never write `nixosConfigurations.myhost 
 | `templates/` | Starting points (declared in `flake.nix`) | `nix flake init -t` |
 | `checks/` | Tests | `checks.<system>.<name>` |
 
-Two names matter. The **namespace** is `fmf`: it is the prefix of every option (`fmf.services.openssh`)
-and of the helper library (`lib.fmf`). A downstream flake picks its own namespace for its own modules and
+Two names matter. The **namespace** is `fmf` (the Fleet Marine Force; see [Start here](START-HERE.md)): it
+is the prefix of every option (`fmf.services.openssh`) and of the helper library (`lib.fmf`). A downstream flake picks its own namespace for its own modules and
 still uses fmf's. The **architecture directory** decides the system type, so a host that exists for two
 architectures needs two directories.
 

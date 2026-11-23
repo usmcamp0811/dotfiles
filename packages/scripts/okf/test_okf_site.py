@@ -396,7 +396,7 @@ class SiteTest(unittest.TestCase):
         self.build(start=["docs/a.md", "docs/b.md", "docs/sub/c.md", "docs/does-not-exist.md"])
         landing = self.html("index.html")
         # The first page is the button, and the header's "Get started" goes there too.
-        self.assertIn('<a class="hero-cta" href="docs/a.html"><span class="k">Start here</span><span class="v">Alpha</span></a>', landing)
+        self.assertIn('<a class="hero-cta" href="docs/a.html" title="Alpha">Start here <span aria-hidden="true">&rarr;</span></a>', landing)
         self.assertIn('<a class="cta" href="docs/a.html">Get started</a>', landing)
         # The others are cards carrying the page's own type and title (and description when it has one).
         self.assertIn('<a class="path" href="docs/b.html"><span class="kind">Reference</span><span class="k">Beta</span></a>', landing)

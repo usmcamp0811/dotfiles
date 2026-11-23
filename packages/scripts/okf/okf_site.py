@@ -658,8 +658,8 @@ class Site:
         if starts:
             door = starts[0]
             hero = (
-                f'<p class="hero-actions"><a class="hero-cta" href="{relurl(home, door.out)}">'
-                f'<span class="k">Start here</span><span class="v">{esc(door.title)}</span></a></p>'
+                f'<p class="hero-actions"><a class="hero-cta" href="{relurl(home, door.out)}" title="{esc(door.title)}">'
+                f'Start here <span aria-hidden="true">&rarr;</span></a></p>'
             )
             cards = "".join(
                 f'<a class="path" href="{relurl(home, page.out)}"><span class="kind">{esc(page.type)}</span>'

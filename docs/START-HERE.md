@@ -20,6 +20,10 @@ It is maintained by Matt Camp. The source is at
 organised with [Snowfall Lib](https://snowfall.org/guides/lib/), which turns a directory layout into flake
 outputs.
 
+*On the name:* FMF is the Fleet Marine Force, a nod to the author's Marine Corps background. This
+project manages a fleet of computers, and the machines in it are named for Marines (`krulak`, for one, is
+named for General Victor "Brute" Krulak), so `fmf` became the namespace.
+
 ## Pick your path
 
 | I want to... | Read | Time |
