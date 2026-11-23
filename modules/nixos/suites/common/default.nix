@@ -36,11 +36,6 @@ in {
             key = "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI=";
           };
 
-          # CUDA maintainers cache
-          "https://cuda-maintainers.cachix.org" = {
-            key = "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E=";
-          };
-
           # Nixpkgs Wayland cache
           "https://nixpkgs-wayland.cachix.org" = {
             key = "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA=";

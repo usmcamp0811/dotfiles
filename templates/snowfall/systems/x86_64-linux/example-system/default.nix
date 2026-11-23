@@ -35,12 +35,6 @@ in {
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=";
         };
 
-        # CUDA maintainers cache
-        "https://cuda-maintainers.cachix.org" = {
-          key =
-            "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E=";
-        };
-
         # Nixpkgs Wayland cache
         "https://nixpkgs-wayland.cachix.org" = {
           key =
