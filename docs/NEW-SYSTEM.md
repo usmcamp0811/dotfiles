@@ -108,7 +108,7 @@ For a machine that is **not** using disko, drop the `inputs.disko...` and `./dis
 | `fmf.user` | the **main user**: name, groups, UID. Other users are separate homes, see below. |
 | `fmf.services.openssh` | the SSH server, with **your** key. `lib.mkForce` is what stops the author's keys being added; leave it in. |
 | `PasswordAuthentication = false` | no password logins over SSH |
-| `system.stateVersion` | the NixOS release this machine was **first installed** with. Set it once and do not raise it to upgrade. |
+| `system.stateVersion` | the NixOS release this machine was **first installed** with (`26.05` here; use the release you actually install). Set it once and do not raise it to upgrade. |
 
 **This host does not use an archetype**, on purpose. `barebones`, `server`, `workstation` and `laptop` all
 switch on `fmf.suites.common`, which enables a Crystal Forge agent, a build-farm client and caches that

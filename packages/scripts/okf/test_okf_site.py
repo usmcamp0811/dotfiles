@@ -373,6 +373,24 @@ class SiteTest(unittest.TestCase):
         self.assertIn("Start here", landing)
         self.assertIn('href="docs/b.html"', landing)
 
+    def test_only_short_first_column_cells_are_kept_on_one_line(self):
+        long_cell = "`couldn't find 'diskoConfigurations.laptop' or 'nixosConfigurations.laptop.config.disko.devices'`"
+        write(
+            self.docs,
+            "t.md",
+            "---\ntype: Guide\ntitle: Table\n---\n# Table\n\n"
+            "| Option | Meaning |\n| --- | --- |\n"
+            "| `fmf.services.openssh` | short name |\n"
+            f"| {long_cell} | a long symptom |\n",
+        )
+        self.build()
+        page = self.html("docs/t.html")
+        self.assertIn('<td class="nw"><code>fmf.services.openssh</code></td>', page)  # kept on one line
+        self.assertIn("<td><code>couldn", page)  # a long one may wrap
+        self.assertNotIn('<th class="nw"', page)  # headers are never marked
+        self.assertIn(".prose td.nw{white-space:nowrap}", self.html("assets/style.css"))
+        self.assertNotIn("td:first-child{white-space:nowrap}", self.html("assets/style.css"))
+
     def test_start_pages_become_a_button_and_cards(self):
         # docs/a.md is the front door; b, sub/c and the missing name follow it.
         self.build(start=["docs/a.md", "docs/b.md", "docs/sub/c.md", "docs/does-not-exist.md"])

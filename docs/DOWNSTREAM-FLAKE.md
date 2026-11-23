@@ -45,14 +45,14 @@ It is short, and every line has a reason.
 ```nix
 inputs = {
   unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-  nixpkgs.url = "github:nixos/nixpkgs/release-26.05";
+  nixpkgs.url = "github:nixos/nixpkgs/release-YY.MM";        # the release the template names
 
   fmf.url = "gitlab:usmcamp0811/dotfiles/nixos";
 
   snowfall-lib.url = "github:snowfallorg/lib";
   snowfall-lib.inputs.nixpkgs.follows = "nixpkgs";
 
-  home-manager.url = "github:nix-community/home-manager/release-26.05";
+  home-manager.url = "github:nix-community/home-manager/release-YY.MM";   # the same release
   home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
   disko.url = "github:nix-community/disko";
@@ -60,7 +60,8 @@ inputs = {
 };
 ```
 
-* `nixpkgs` and `home-manager` should be on the same release as fmf (26.05 today).
+* `nixpkgs` and `home-manager` should be on the same release as each other and as fmf. Keep the
+  `release-YY.MM` the template names; fmf's own `flake.nix` shows what fmf currently uses.
 * `fmf` is the upstream. The `nixos` branch is where it moves.
 * `snowfall-lib` reads your directory layout and produces the outputs
   (see [How fmf is put together](HOW-FMF-WORKS.md)).

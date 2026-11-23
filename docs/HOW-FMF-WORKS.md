@@ -137,7 +137,7 @@ for every host, named after it and connected as `root`. See [Common tasks](COMMO
 
 ## What is in `flake.nix`
 
-The inputs worth knowing: `nixpkgs` (release 26.05) and `unstable`, `home-manager`, `snowfall-lib`,
+The inputs worth knowing: `nixpkgs` (a stable release) and `unstable`, `home-manager`, `snowfall-lib`,
 `disko` (disk layouts), `impermanence` (a wiped root), `microvm` (MicroVMs), `stylix` (theming),
 `vault-service` (secrets), `deploy-rs` and `crystal-forge` (STIG presets and CVE tracking). A downstream
 flake reuses fmf's overlays, Home Manager modules and NixOS modules; the

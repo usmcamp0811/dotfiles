@@ -94,10 +94,31 @@ def _highlight(code: str, lang: str, attrs) -> str:
     return pyg_highlight(code, lexer, HtmlFormatter(nowrap=True))
 
 
+SHORT_CELL = 36  # characters: a first-column label up to this long is kept on one line
+
+
+def _mark_short_first_cells(state) -> None:
+    """Keep a short first-column label (an option name, a flag) on one line, but let a long one wrap.
+
+    The style sheet used to forbid wrapping in every first column, which squeezed the other columns
+    to a few characters whenever the first held a long command or sentence."""
+    tokens = state.tokens
+    col = 0
+    for i, token in enumerate(tokens):
+        if token.type == "tr_open":
+            col = 0
+        elif token.type in ("td_open", "th_open"):
+            if col == 0 and token.type == "td_open" and i + 1 < len(tokens) and tokens[i + 1].type == "inline":
+                if len(okf.strip_inline(tokens[i + 1].content)) <= SHORT_CELL:
+                    token.attrSet("class", "nw")
+            col += 1
+
+
 def make_markdown() -> MarkdownIt:
     md = MarkdownIt("commonmark", {"highlight": _highlight}).enable(["table", "strikethrough"])
     md.use(footnote_plugin)
     md.use(anchors_plugin, min_level=1, max_level=4)
+    md.core.ruler.push("short_first_cells", _mark_short_first_cells)
     return md
 
 

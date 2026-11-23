@@ -16,9 +16,9 @@ tags: [start, getting-started, overview]
    change. Nothing here is hidden behind a private build.
 
 It is maintained by Matt Camp. The source is at
-[gitlab.com/usmcamp0811/dotfiles](https://gitlab.com/usmcamp0811/dotfiles) (branch `nixos`). It tracks
-NixOS 26.05 and Home Manager 26.05, and is organised with
-[Snowfall Lib](https://snowfall.org/guides/lib/), which turns a directory layout into flake outputs.
+[gitlab.com/usmcamp0811/dotfiles](https://gitlab.com/usmcamp0811/dotfiles) (branch `nixos`). It is
+organised with [Snowfall Lib](https://snowfall.org/guides/lib/), which turns a directory layout into flake
+outputs.
 
 ## Pick your path
 
