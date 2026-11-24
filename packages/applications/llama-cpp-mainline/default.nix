@@ -31,6 +31,10 @@
     hash = "sha256-GNdA6CFxrkFNSocjHhZT2ML53WkdvTSQBMieitPR1ts=";
   };
   nativeBuildInputs = lib.filter (p: !(lib.hasPrefix "npm-config-hook" (p.name or ""))) old.nativeBuildInputs;
+  # b12651's ggml-cuda.cu includes <nvml.h> (it reads the GPU brand through NVML to pick the FP16 accumulator).
+  # Header only: the library is dlopen()ed at runtime, so nothing is linked. nixpkgs' b9190 build predates this
+  # and does not list the header package.
+  buildInputs = old.buildInputs ++ lib.optional cudaSupport pkgs.cudaPackages.cuda_nvml_dev;
   npmDeps = null;
   # nixpkgs derives COMMIT from .git (and runs the UI build); the tarball has no .git.
   preConfigure = ''
