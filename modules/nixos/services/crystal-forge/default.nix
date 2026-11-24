@@ -47,7 +47,7 @@ in {
       "Absolute path to the Vault secret-id";
     vault-path =
       lib.fmf.mkOpt lib.types.str "secret/campground/crystal-forge"
-      "The Vault path to the KV whose `<hostname>-builder` field is the cache encryption key";
+      "The Vault path to the KV whose `cache_encryption_key` field is the cache encryption key";
     kvVersion = lib.mkOption {
       type = lib.types.enum ["v1" "v2"];
       default = "v2";
@@ -88,8 +88,9 @@ in {
     # key must not be keyed on that: it would grant every such host read access to the secret.
     isServer = config.services.crystal-forge.server.enable or false;
     vaultAgentOn = config.fmf.services.vault-agent.enable or false;
-    # KV field holding this host's key, e.g. `reckless-builder`. The `-` needs `index` in the template.
-    vaultKey = "${config.networking.hostName}-builder";
+    # KV field holding the cache encryption key. The `<host>-builder` and `<host>` fields are
+    # builder and agent keys, not this key.
+    vaultKey = "cache_encryption_key";
   in lib.mkIf vCfg.enable {
     services.crystal-forge = {
       inherit (vCfg) log_level;
