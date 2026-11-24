@@ -36,16 +36,27 @@ in {
   # per-host config -- this only forwards option values to upstream.
 
   options.fmf.services.crystal-forge = {
-    # ── Vault options (used by the cache-encryption-key template below) ───
-    vault_path_cache = lib.mkOption {
-      type = lib.types.str;
-      default = "secret/campground/crystal-forge";
-      description = "Vault KV path whose `value` field is the Attic cache encryption key.";
-    };
+    # ── Vault options (used by the crystal-forge-setup vault-agent below) ─
+    role-id =
+      lib.fmf.mkOpt lib.types.str
+      config.fmf.services.vault-agent.settings.vault.role-id
+      "Absolute path to the Vault role-id";
+    secret-id =
+      lib.fmf.mkOpt lib.types.str
+      config.fmf.services.vault-agent.settings.vault.secret-id
+      "Absolute path to the Vault secret-id";
+    vault-path =
+      lib.fmf.mkOpt lib.types.str "secret/campground/crystal-forge"
+      "The Vault path to the KV whose `<hostname>-builder` field is the cache encryption key";
     kvVersion = lib.mkOption {
       type = lib.types.enum ["v1" "v2"];
       default = "v2";
-      description = "Vault KV engine version of `vault_path_cache`.";
+      description = "KV store version";
+    };
+    vault-address = lib.mkOption {
+      type = lib.types.str;
+      default = config.fmf.services.vault-agent.settings.vault.address;
+      description = "The address of your Vault";
     };
 
     # ── Options forwarded to upstream services.crystal-forge.* ────────────
@@ -77,6 +88,8 @@ in {
     # key must not be keyed on that: it would grant every such host read access to the secret.
     isServer = config.services.crystal-forge.server.enable or false;
     vaultAgentOn = config.fmf.services.vault-agent.enable or false;
+    # KV field holding this host's key, e.g. `reckless-builder`. The `-` needs `index` in the template.
+    vaultKey = "${config.networking.hostName}-builder";
   in lib.mkIf vCfg.enable {
     services.crystal-forge = {
       inherit (vCfg) log_level;
@@ -104,50 +117,43 @@ in {
       hardening = lib.mkDefault vCfg.hardening;
     };
 
-    # ── Vault Agent: render the cache encryption key ─────────────────────
-    # This template was removed on 2026-07-28 (1e1920aa8) and not replaced, so the setup service
-    # below only worked while a file left behind in /tmp/detsys-vault survived; it broke the
-    # first time /tmp was cleared.
-    #
-    # `settings` is required. A per-service agent does NOT inherit the host's global
-    # fmf.services.vault-agent.settings: without it the generated agent config has an empty
-    # auto_auth and no vault address, and the agent exits 1 straight away (this is what broke the
-    # first attempt, the day before it was removed). Every other service passes its own, built from
-    # the same three values (see services/crowdsec, cache/niks3).
     fmf.services.vault-agent.services."crystal-forge-setup" = lib.mkIf
       (vaultAgentOn && isServer) {
-      settings = let
-        vault = config.fmf.services.vault-agent.settings.vault;
-      in {
-        vault.address = vault.address;
-        auto_auth.method = [
-          {
-            type = "approle";
-            config = {
-              role_id_file_path = vault."role-id";
-              secret_id_file_path = vault."secret-id";
-              remove_secret_id_file_after_reading = false;
-            };
-          }
-        ];
+      settings = {
+        vault.address = vCfg.vault-address;
+        auto_auth = {
+          method = [
+            {
+              type = "approle";
+              config = {
+                role_id_file_path = vCfg.role-id;
+                secret_id_file_path = vCfg.secret-id;
+                remove_secret_id_file_after_reading = false;
+              };
+            }
+          ];
+        };
       };
-      secrets.file.files."cache-encryption-key" = {
-        text = ''
-          {{ with secret "${vCfg.vault_path_cache}" }}{{ if eq "${vCfg.kvVersion}" "v1" }}{{ .Data.value }}{{ else }}{{ .Data.data.value }}{{ end }}{{ end }}'';
-        permissions = "0400";
-        change-action = "restart";
+      secrets = {
+        file = {
+          files = {
+            "cache-encryption-key" = {
+              text = ''
+                {{ with secret "${vCfg.vault-path}" }}{{ if eq "${vCfg.kvVersion}" "v1" }}{{ index .Data "${vaultKey}" }}{{ else }}{{ index .Data.data "${vaultKey}" }}{{ end }}{{ end }}'';
+              permissions = "0400";
+              change-action = "restart";
+            };
+          };
+        };
       };
     };
 
     # ── Setup service: copy vault-rendered files to expected paths ────────
-    # Ordered after the Vault Agent instance above, which renders the key into /tmp/detsys-vault/.
     systemd.services.crystal-forge-setup = lib.mkIf
       (config.fmf.services.vault-agent.enable or false) {
       description = "Copy vault-rendered Crystal Forge secrets to service paths";
-      after = lib.optional isServer "detsys-vaultAgent-crystal-forge-setup.service" ++ ["postgresql.service" "network-online.target"];
-      # `after` only orders; without `wants` nothing pulls a unit in. network-online.target is here
-      # because NixOS warns about ordering after it without depending on it.
-      wants = lib.optional isServer "detsys-vaultAgent-crystal-forge-setup.service" ++ ["network-online.target"];
+      after = ["postgresql.service" "network-online.target"];
+      wants = ["network-online.target"];
       before = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       wantedBy = ["crystal-forge-server.service" "crystal-forge-hardening.service"];
       serviceConfig = {
