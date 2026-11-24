@@ -6,16 +6,22 @@
 #   * Inkling 2 Mini (`inkling2_loop`) landed upstream after b12600; ggml-org's own GGUFs are reported
 #     against b12600 to b12620 in ggml-org/llama.cpp#32710 and #32778 (known bugs, see the llama-cpp module
 #     README). Do not go below b12619.
-# Overrides the nixpkgs derivation (same build flags; `cudaSupport` follows the caller) so only the source
-# differs. The embedded web UI is not built: an API server does not need it, and it would add a second,
+# Overrides the nixpkgs derivation (same build flags; `cudaSupport` is this package's own argument, off by
+# default) so only the source differs. The embedded web UI is not built: an API server does not need it, and it would add a second,
 # separately hashed npm closure that b12651's tree no longer has (tools/ui is gone).
 # Bump: `nix flake prefetch --json github:ggml-org/llama.cpp/b<version>` gives the hash.
 {
   pkgs,
   lib,
+  # Off unless the caller turns it on: nixpkgs' `cudaSupport` defaults to config.cudaSupport, which the fmf
+  # package set does not set, so a plain `pkgs.fmf.llama-cpp-mainline` is a CPU-only build. The llama-cpp module
+  # applies its own `cudaSupport` to every runtime package (as it does for its main package).
+  cudaSupport ? false,
+  # Used only with cudaSupport. Pinned to Ada (8.9), the only GPU here, instead of nixpkgs' nine-architecture list.
+  cudaArchitectures ? "89-real",
   ...
 }:
-pkgs.llama-cpp.overrideAttrs (final: old: {
+(pkgs.llama-cpp.override {inherit cudaSupport;}).overrideAttrs (final: old: {
   pname = "llama-cpp-mainline";
   version = "12651";
   src = pkgs.fetchFromGitHub {
@@ -30,6 +36,8 @@ pkgs.llama-cpp.overrideAttrs (final: old: {
   preConfigure = ''
     prependToVar cmakeFlags "-DLLAMA_BUILD_COMMIT:STRING=f5e6915"
   '';
+  # Later -D wins in CMake: replaces the architecture list nixpkgs adds when cudaSupport is on (harmless otherwise).
+  cmakeFlags = (old.cmakeFlags or []) ++ ["-DCMAKE_CUDA_ARCHITECTURES=${cudaArchitectures}"];
   meta = old.meta // {
     description = "llama.cpp b12651 (second upstream runtime for Inkling 2 and Bonsai Q2_0)";
     homepage = "https://github.com/ggml-org/llama.cpp/releases/tag/b12651";

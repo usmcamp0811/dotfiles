@@ -19,11 +19,15 @@
   pkgs,
   lib,
   cudaArchitectures ? "89-real",
+  # Off unless the caller turns it on: nixpkgs' `cudaSupport` defaults to config.cudaSupport, which the fmf
+  # package set does not set, so a plain `pkgs.fmf.llama-cpp-prism` is a CPU-only build. The llama-cpp module
+  # applies its own `cudaSupport` to every runtime package (as it does for its main package).
+  cudaSupport ? false,
   ...
 }: let
   rev = "d7b28968306207fd176e7ff10796ccb6be607865";
 in
-  pkgs.llama-cpp.overrideAttrs (final: old: {
+  (pkgs.llama-cpp.override {inherit cudaSupport;}).overrideAttrs (final: old: {
     pname = "llama-cpp-prism";
     version = "12128";
     src = pkgs.fetchFromGitHub {

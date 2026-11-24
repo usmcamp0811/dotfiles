@@ -188,7 +188,9 @@ in {
           CacheDirectory = "llama-cpp-${name}";
           WorkingDirectory = "/var/lib/llama-cpp-${name}";
           Environment = ["LLAMA_CACHE=/var/cache/llama-cpp-${name}"];
-          ExecStart = "${rt.package}/bin/llama-server " + utils.escapeSystemdExecArgs (
+          # The runtime package follows this service's cudaSupport, like the default `package` above; without
+          # it a runtime is a CPU-only build next to a CUDA main service. The package must accept `cudaSupport`.
+          ExecStart = "${rt.package.override {inherit (cfg) cudaSupport;}}/bin/llama-server " + utils.escapeSystemdExecArgs (
             ["--host" cfg.host "--port" (toString rt.port)
              "--models-preset" (pkgs.writeText "llama-models-${name}.ini" (lib.generators.toINI {} (presetOf (modelsOf name))))]
             ++ cfg.extraFlags
