@@ -11,6 +11,30 @@ with lib.fmf; let
   system = pkgs.stdenv.hostPlatform.system;
   remoteSkillsToInstall = cfg.remoteSkills;
   llamaModels = lib.fmf.llamaCppModels {inherit pkgs;};
+  llamaRuntimeOf = model: model.runtime or null;
+  llamaMainModels = lib.filterAttrs (_: model: llamaRuntimeOf model == null) llamaModels;
+  llamaRuntimes = lib.unique (lib.filter (r: r != null) (lib.mapAttrsToList (_: llamaRuntimeOf) llamaModels));
+  # One OpenCode provider over an OpenAI-compatible llama.cpp endpoint.
+  llamaProvider = {name, baseURL, models}: {
+    npm = "@ai-sdk/openai-compatible";
+    inherit name;
+    env = ["LLAMA_CPP_API_KEY"];
+    options = {
+      inherit baseURL;
+      apiKey = "{env:LLAMA_CPP_API_KEY}";
+      timeout = 600000;
+    };
+    models = lib.mapAttrs (_: model: {
+      name = model.name;
+      tool_call = true;
+      limit = {
+        context = model.contextSize;
+        output = model.maxOutputTokens;
+        input = model.contextSize - model.maxOutputTokens - cfg.llamaCpp.compactionHeadroom;
+      };
+      modalities = {input = ["text"] ++ lib.optional (model.vision or false) "image"; output = ["text"];};
+    }) models;
+  };
   # Names, limits and ids only are read from this catalog: `package` stays unevaluated, so a client never
   # acquires model weights.
   strataModels = lib.fmf.strataModels {inherit pkgs;};
@@ -562,28 +586,19 @@ in {
                     };
                   };
                 };
-              } // lib.optionalAttrs cfg.llamaCpp.enable {
-                "llama-cpp" = {
-                  npm = "@ai-sdk/openai-compatible";
+              } // lib.optionalAttrs cfg.llamaCpp.enable ({
+                "llama-cpp" = llamaProvider {
                   name = "llama.cpp";
-                  env = ["LLAMA_CPP_API_KEY"];
-                  options = {
-                    baseURL = cfg.llamaCpp.baseURL;
-                    apiKey = "{env:LLAMA_CPP_API_KEY}";
-                    timeout = 600000;
-                  };
-                  models = lib.mapAttrs (_: model: {
-                    name = model.name;
-                    tool_call = true;
-                     limit = {
-                       context = model.contextSize;
-                       output = model.maxOutputTokens;
-                       input = model.contextSize - model.maxOutputTokens - cfg.llamaCpp.compactionHeadroom;
-                     };
-                    modalities = {input = ["text"]; output = ["text"];};
-                  }) llamaModels;
+                  baseURL = cfg.llamaCpp.baseURL;
+                  models = llamaMainModels;
                 };
-              } // lib.optionalAttrs cfg.strata.enable {
+                # Models that need another llama.cpp build are served by that build's own router at
+                # <host>/<runtime>/v1 (same key): one provider each, listed next to the main one in `/models`.
+              } // lib.listToAttrs (map (runtime: lib.nameValuePair "llama-cpp-${runtime}" (llamaProvider {
+                name = "llama.cpp (${runtime})";
+                baseURL = "${lib.removeSuffix "/v1" cfg.llamaCpp.baseURL}/${runtime}/v1";
+                models = lib.filterAttrs (_: model: llamaRuntimeOf model == runtime) llamaModels;
+              })) llamaRuntimes)) // lib.optionalAttrs cfg.strata.enable {
                 strata = {
                   npm = "@ai-sdk/openai-compatible";
                   name = "Strata";

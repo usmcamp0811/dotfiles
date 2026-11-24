@@ -168,6 +168,20 @@ in
   assert b.provider ? ollama && b.provider ? "llama-cpp" && b.provider ? strata;
   assert builtins.attrNames b.provider."llama-cpp".models == ["devstral-small-2" "gpt-oss-20b" "qwen3-coder-30b-a3b" "qwen3.5-9b" "qwen3.6-35b-a3b"];
   assert b.provider."llama-cpp".options.apiKey == "{env:LLAMA_CPP_API_KEY}";
+  assert b.provider."llama-cpp".options.baseURL == "https://llama.example.invalid/v1";
+  # --- models that need another llama.cpp build: one provider per runtime, same key, <host>/<runtime>/v1 ---
+  assert builtins.attrNames b.provider."llama-cpp-prism".models == ["ternary-bonsai-2-27b"];
+  assert builtins.attrNames b.provider."llama-cpp-mainline".models == ["inkling-2-mini" "ternary-bonsai-2-27b-q2_0"];
+  assert b.provider."llama-cpp-prism".options.baseURL == "https://llama.example.invalid/prism/v1";
+  assert b.provider."llama-cpp-mainline".options.baseURL == "https://llama.example.invalid/mainline/v1";
+  assert b.provider."llama-cpp-prism".options.apiKey == "{env:LLAMA_CPP_API_KEY}" && b.provider."llama-cpp-mainline".options.apiKey == "{env:LLAMA_CPP_API_KEY}";
+  assert b.provider."llama-cpp-mainline".models.inkling-2-mini.limit == {context = 32768; output = 8192; input = 32768 - 8192 - 6144;};
+  # only Inkling takes images, only the models that say so
+  assert b.provider."llama-cpp-mainline".models.inkling-2-mini.modalities.input == ["text" "image"];
+  assert b.provider."llama-cpp-prism".models.ternary-bonsai-2-27b.modalities.input == ["text"];
+  assert lib.all (m: m.modalities.input == ["text"]) (builtins.attrValues b.provider."llama-cpp".models);
+  # the new providers exist only when llama.cpp is enabled, and disturb no other provider
+  assert !(s.provider ? "llama-cpp-prism") && !(s.provider ? "llama-cpp-mainline");
   assert s.model == base.model && b.model == base.model;
   assert s.agent == base.agent && b.agent == base.agent;
   assert (base.plugin or null) == (s.plugin or null);
