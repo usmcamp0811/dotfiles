@@ -3,8 +3,6 @@
 final: prev: let
   system = prev.stdenv.hostPlatform.system;
   upstreamLlmAgents = llm-agents.packages.${system};
-  sharedLlmAgents =
-    (llm-agents.overlays.shared-nixpkgs final prev).llm-agents;
 in {
   # Python & ML development
   python3-11 = unstable.legacyPackages.${system}.python311;
@@ -24,11 +22,12 @@ in {
   poetry = nixpkgs.legacyPackages.${system}.poetry;
 
   # LLM Things
-  llm-agents = upstreamLlmAgents // {
-    # Build mistral-vibe against this flake's Python package set so local
-    # compatibility fixes apply to its dependencies.
-    mistral-vibe = sharedLlmAgents.mistral-vibe;
-  };
+  # mistral-vibe is deliberately NOT built through
+  # llm-agents.overlays.shared-nixpkgs: it needs python3Packages.mcp-types
+  # (mcp 2.x), which this flake's `nixpkgs` does not have (it exists in the
+  # `unstable` input llm-agents follows). Building it against our package set
+  # failed every host with "undefined variable 'mcp-types'".
+  llm-agents = upstreamLlmAgents;
 
   # Python package building
   nix-python = channels.nixpkgs-python.packages.${system};
