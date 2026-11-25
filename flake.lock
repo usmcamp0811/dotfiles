@@ -2211,16 +2211,16 @@
         "upgrade-predecessor": "upgrade-predecessor_2"
       },
       "locked": {
-        "lastModified": 1795407188,
-        "narHash": "sha256-9NpMA1AqJ+z+Zx6Yd9c+rb2usTbx2Y/9sApNC2PP62g=",
-        "ref": "dev",
-        "rev": "f86ff39f046d6ee8eba14e582d3bcd5b401dc879",
-        "revCount": 5766,
+        "lastModified": 1795547508,
+        "narHash": "sha256-bl4I87cFyzxpk+sELg+ZAcDtzDvrF3531Z/4WJQHRdg=",
+        "ref": "TASK-542.1-mcp-list-system-scans",
+        "rev": "fb11f971232d9089158fd7397a8228253b195988",
+        "revCount": 5775,
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       },
       "original": {
-        "ref": "dev",
+        "ref": "TASK-542.1-mcp-list-system-scans",
         "type": "git",
         "url": "https://gitlab.com/crystal-forge/crystal-forge.git"
       }
