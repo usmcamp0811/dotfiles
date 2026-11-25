@@ -28,7 +28,15 @@ with lib.fmf; let
       fi
     '';
 in {
-  options.fmf.cli.yazi = {enable = mkEnableOption "Yazi";};
+  options.fmf.cli.yazi = {
+    enable = mkEnableOption "Yazi";
+    duckdbPreviews = mkOption {
+      type = types.bool;
+      default = !config.fmf.archetypes.headless.enable;
+      defaultText = literalExpression "!config.fmf.archetypes.headless.enable";
+      description = "Install DuckDB and enable Yazi's DuckDB-based file previews and preloaders.";
+    };
+  };
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
@@ -40,8 +48,7 @@ in {
       antiprism
       fzf
       eza
-      duckdb
-    ];
+    ] ++ optional cfg.duckdbPreviews pkgs.duckdb;
     programs.yazi = {
       enable = true;
       initLua = ./init.lua;
@@ -78,8 +85,9 @@ in {
         # yatline-catppuccin = "${pkgs.yaziPlugins.yatline-catppuccin}";
         lazygit = "${pkgs.yaziPlugins.lazygit}";
         # githead = "${inputs.githead-yazi}";
-        duckdb = "${pkgs.yaziPlugins.duckdb}";
         # bunny = "${inputs.bunny-yazi}";
+      } // optionalAttrs cfg.duckdbPreviews {
+        duckdb = "${pkgs.yaziPlugins.duckdb}";
       };
       keymap = {
         mgr = {
@@ -247,6 +255,7 @@ in {
             #   name = "*.docx";
             #   run = "office";
             # }
+          ] ++ optionals cfg.duckdbPreviews [
             {
               url = "*.tsv";
               run = "duckdb";
@@ -281,6 +290,7 @@ in {
               mime = "application/subrip";
               run = "mediainfo";
             }
+          ] ++ optionals cfg.duckdbPreviews [
             {
               url = "*.tsv";
               run = "duckdb";
@@ -289,6 +299,7 @@ in {
               url = "*.parquet";
               run = "duckdb";
             }
+          ] ++ [
             {
               url = "*.csv";
               run = "rich-preview";
