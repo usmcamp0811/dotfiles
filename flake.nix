@@ -229,6 +229,11 @@
 
     nix-ai.url = "github:nixified-ai/flake";
     nix-ai.inputs.nixpkgs.follows = "unstable";
+    # nix-ai declares this input as `path:./flags/container-tests/disabled`. A relative path input
+    # is resolved against the consuming flake's source, so downstream flakes (Campground) fail with
+    # "flags/container-tests/disabled/flake.nix does not exist". Point it at the same files by
+    # absolute reference. Keep the rev in step with the locked nix-ai.
+    nix-ai.inputs.enable-container-tests.url = "github:nixified-ai/flake/7d73ee2fdadc716d7f961b3e466443cf04961cc4?dir=flags/container-tests/disabled";
     neorg-overlay = {
       url = "github:nvim-neorg/nixpkgs-neorg-overlay";
       inputs.nixpkgs.follows = "unstable";

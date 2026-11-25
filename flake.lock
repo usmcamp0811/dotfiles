@@ -3204,16 +3204,21 @@
     },
     "enable-container-tests": {
       "locked": {
-        "path": "./flags/container-tests/disabled",
-        "type": "path"
+        "dir": "flags/container-tests/disabled",
+        "lastModified": 1795540388,
+        "narHash": "sha256-FixdJLLa+OTjKjLTbxzAL5ucEzrnxEcRNEkyFMoG3IU=",
+        "owner": "nixified-ai",
+        "repo": "flake",
+        "rev": "7d73ee2fdadc716d7f961b3e466443cf04961cc4",
+        "type": "github"
       },
       "original": {
-        "path": "./flags/container-tests/disabled",
-        "type": "path"
-      },
-      "parent": [
-        "nix-ai"
-      ]
+        "dir": "flags/container-tests/disabled",
+        "owner": "nixified-ai",
+        "repo": "flake",
+        "rev": "7d73ee2fdadc716d7f961b3e466443cf04961cc4",
+        "type": "github"
+      }
     },
     "eza-preview-yazi": {
       "flake": false,
