@@ -22,7 +22,8 @@
 
   outputs = inputs: let
     # Short alias like `campgroundInputs` in the ATA flake
-    fmfInputs = inputs.fmf.inputs or {};
+    # fmf pins with tack and exposes its pins as `fmf.pins`; older fmf revs use flake inputs.
+    fmfInputs = inputs.fmf.pins or inputs.fmf.inputs or {};
 
     lib = inputs.snowfall-lib.mkLib {
       inherit inputs;

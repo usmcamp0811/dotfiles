@@ -1,0 +1,589 @@
+# tack pins
+# edit by hand or with tack add / rm / alias
+# nix reads pins.lock.json
+# this file drives tack update
+
+# Downstream tack projects (Campground) override pins here (e.g. fmf.follows mcp-nixos / authentik-nix).
+[tack]
+recomposable = true
+
+# shorturl schemes
+# scheme rest expands rest into {path}
+[shorturls]
+# gh = "github:{path}"
+
+# all_follow maps input names at every depth to the top-level pin they follow
+# opt out per-input with exclude_follow, scope with flake: or tack:
+[all_follow]
+# nixpkgs = "nixpkgs"
+# nixpkgs = ["nixpkgs-stable", "nixpkgs-unstable"]
+
+# recursively omit selected upstream inputs from every top-level pin
+[omit_inputs]
+# names = ["flake-compat", "tack:cachix"]
+
+# signers name the public keys pins can require, as an ssh key line, an
+# armored pgp key, a file under .tack holding either, or an array of those.
+# `tack signer add <name> --github <user>` fills one in from GitHub
+[signers]
+# alice = "ssh-ed25519 AAAA..."
+
+# default fetch_mode for fetch pins ("eval" or "build")
+# [tack]
+# fetch_mode = "build"
+# type = "fetch"
+
+# inputs.<name> fields
+#   url             required, shorturl ok, ?rev=<sha> pins an exact commit
+#   type            flake (default), fetch, or fixed, overrides [tack] type
+#   flake           legacy false means type = "fetch"
+#   follows         { child = "pin" } immediate-input override map, or a
+#                   "pin/input" string in place of every other field to make
+#                   this pin that input
+#   exclude_follow  all_follow names to skip, flake:/tack: scoped or *
+#   omit_inputs     upstream input names to omit recursively for this pin
+#   keep_inputs     omitted input names to allow recursively for this pin
+#   dir             subdir holding flake.nix
+#   submodules      fetch git submodules
+#   unpack          fixed-only tarball or file
+#   fetch_mode      fetch-only "eval" (default) or "build" to defer fetching to build time
+#   signers         names from [signers], one of whom must have signed the locked commit
+#   patches         patch urls or files relative to this dir, applied in order
+#   tag             follow the newest tag like "v{version}", where {version} is numbers
+#                   joined by `.` `-` or `_`, so non-numeric tags like "v2.1-rc1" are
+#                   skipped, needs a github, gitlab or network git url with
+#                   no ref or rev, not file://, or for a fixed pin a release
+#                   download url naming the asset with {tag} or {version}. a trailing
+#                   * matches anything after, like a build hash in "b{version}-*". a
+#                   named placeholder like {commit} matches letters and digits and can
+#                   also be used in the url
+#   tags_from       fixed-only repo url or http(s) page to read tag's tags from, for an
+#                   asset that isn't a release download
+
+# groups: a pin joins one with `group = "<name>"`. Use a group name anywhere a pin name works
+# (`tack update yazi`, `tack look desktop`, `tack freeze channels`, `--exclude ai`). Groups do not
+# change how pins are named in `inputs`. [groups.<name>] sets defaults for its members.
+#   channels    nixpkgs revisions          desktop     hyprland, theming, boot splash
+#   yazi        yazi plugins and themes    python      python packaging
+#   kubernetes  k8s / container tooling    ai          AI agents and tools
+#   campground  my own repos               nix-tools   nix itself and nix CLI tools
+#   sbom        SBOM generators            snowfall    snowfall lib and flake
+
+# yazi plugins and themes are plain source trees, not flakes
+[groups.yazi]
+type = "fetch"
+
+[inputs]
+
+[inputs.ai-jail]
+url = "github:akitaonrails/ai-jail"
+group = "ai"
+
+[inputs.ai-jail.follows]
+nixpkgs = "unstable"
+
+# Latest stable Authentik; upgrade existing databases through each release series.
+[inputs.authentik-nix]
+url = "github:nix-community/authentik-nix?ref=version/2026.8.3"
+
+[inputs.backlog]
+url = "github:MrLesk/Backlog.md"
+group = "ai"
+
+[inputs.bibata-cursors]
+url = "github:suchipi/Bibata_Cursor"
+group = "desktop"
+type = "fetch"
+
+[inputs.bunny-yazi]
+url = "github:stelcodes/bunny.yazi"
+group = "yazi"
+
+[inputs.campground-nvim]
+url = "gitlab:usmcamp0811/campground-nvim"
+group = "campground"
+
+[inputs.catppuccin]
+url = "github:catppuccin/nix/release-25.11"
+group = "desktop"
+
+[inputs.catppuccin.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.comma]
+url = "github:nix-community/comma"
+group = "nix-tools"
+
+[inputs.comma.follows]
+nixpkgs = "unstable"
+
+[inputs.compose2nix]
+url = "github:aksiksi/compose2nix"
+
+[inputs.compose2nix.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.crystal-forge]
+url = "git+https://gitlab.com/crystal-forge/crystal-forge.git?ref=TASK-542.1-mcp-list-system-scans"
+group = "campground"
+
+[inputs.crystal-forge.follows]
+nixpkgs = "unstable"
+
+[inputs.darwin]
+url = "github:lnl7/nix-darwin"
+
+[inputs.darwin.follows]
+nixpkgs = "unstable"
+
+[inputs.deploy-rs]
+url = "github:serokell/deploy-rs"
+group = "nix-tools"
+
+[inputs.deploy-rs.follows]
+nixpkgs = "unstable"
+
+[inputs.devshell]
+url = "github:numtide/devshell"
+
+[inputs.devshell.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.disko]
+url = "github:nix-community/disko"
+
+[inputs.disko.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.dream2nix]
+url = "github:nix-community/dream2nix"
+group = "python"
+
+[inputs.eza-preview-yazi]
+url = "github:ahkohd/eza-preview.yazi"
+group = "yazi"
+
+[inputs.flake]
+url = "github:snowfallorg/flake"
+group = "snowfall"
+
+[inputs.flake.follows]
+nixpkgs = "nixpkgs"
+# Its own snowfall-lib pin is old and uses the deprecated lib.fold ("fold has been deprecated" warning).
+snowfall-lib = "snowfall-lib"
+
+[inputs.flakeforge]
+url = "github:usmcamp0811/flakeforge"
+group = "campground"
+
+[inputs.flakeforge.follows]
+nixpkgs = "unstable"
+
+[inputs.funkwhale]
+url = "github:usmcamp0811/funkwhale-flake"
+group = "campground"
+
+[inputs.fzf-yazi]
+url = "github:DreamMaoMao/fg.yazi"
+group = "yazi"
+
+[inputs.gBar]
+url = "github:scorpion-26/gBar"
+group = "desktop"
+
+[inputs.gBar.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.githead-yazi]
+url = "github:llanosrocas/githead.yazi"
+group = "yazi"
+
+[inputs.gpg-base-conf]
+url = "github:drduh/config"
+type = "fetch"
+
+[inputs.hexyl-yazi]
+url = "github:Reledia/hexyl.yazi"
+group = "yazi"
+
+[inputs.home-manager]
+url = "github:nix-community/home-manager/release-26.05"
+
+[inputs.home-manager.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.hyprland]
+url = "github:hyprwm/Hyprland"
+group = "desktop"
+
+[inputs.hyprland.follows]
+nixpkgs = "unstable"
+
+[inputs.hyprland-contrib]
+url = "github:hyprwm/contrib"
+group = "desktop"
+
+[inputs.hyprland-contrib.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.hyprpaper]
+url = "github:hyprwm/hyprpaper"
+group = "desktop"
+
+[inputs.hyprpaper.follows]
+nixpkgs = "unstable"
+
+[inputs.impermanence]
+url = "github:nix-community/impermanence"
+
+[inputs.jupyenv]
+url = "github:malikwirin/jupyenv/25.05"
+group = "python"
+
+[inputs.jupyenv.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.k0s-nix]
+url = "github:nix-community/k0s-nix"
+group = "kubernetes"
+
+[inputs.kanagawa-yazi]
+url = "github:dangooddd/kanagawa.yazi"
+group = "yazi"
+
+[inputs.kube-gen]
+url = "github:farcaller/nix-kube-generators"
+group = "kubernetes"
+
+# follows unstable for newer Python deps (anyio 4.12+ for mistral-vibe)
+[inputs.llm-agents]
+url = "github:numtide/llm-agents.nix"
+group = "ai"
+
+[inputs.llm-agents.follows]
+nixpkgs = "unstable"
+
+[inputs.material-ocean-yazi]
+url = "github:myamusashi/material-ocean.yazi"
+group = "yazi"
+
+[inputs.mcp-nixos]
+url = "github:utensils/mcp-nixos"
+group = "ai"
+
+[inputs.microvm]
+url = "github:astro/microvm.nix"
+
+[inputs.microvm.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.mime-preview-yazi]
+url = "github:DreamMaoMao/mime-preview.yazi"
+group = "yazi"
+
+[inputs.neorg-overlay]
+url = "github:nvim-neorg/nixpkgs-neorg-overlay"
+
+[inputs.neorg-overlay.follows]
+nixpkgs = "unstable"
+
+[inputs.niks3]
+url = "github:Mic92/niks3"
+group = "nix-tools"
+
+[inputs.niks3.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix-ai]
+url = "github:nixified-ai/flake"
+group = "ai"
+
+[inputs.nix-ai.follows]
+nixpkgs = "unstable"
+# nix-ai declares this input as `path:./flags/container-tests/disabled`. A relative path input is
+# resolved against the consuming flake's source, so downstream flakes (Campground) fail with
+# "flags/container-tests/disabled/flake.nix does not exist". Point it at the same files by absolute
+# reference. Keep the rev in step with the locked nix-ai.
+enable-container-tests = "nix-ai-enable-container-tests"
+
+[inputs.nix-ai-enable-container-tests]
+url = "github:nixified-ai/flake?rev=7d73ee2fdadc716d7f961b3e466443cf04961cc4"
+group = "ai"
+dir = "flags/container-tests/disabled"
+
+# tack itself (the pin manager for this repo); used by the flake-update alias. No nixpkgs follow,
+# so the build matches what cache.manic.systems holds.
+[inputs.tack]
+url = "github:manic-systems/tack"
+group = "nix-tools"
+frozen = "673997981720feebb3870645932b6cfe6657db9f"
+
+# Nixery
+[inputs.nixery-flake]
+url = "github:tazjin/nixery"
+type = "fetch"
+
+[inputs.nix-grpc-store]
+url = "github:Mic92/nix-grpc-store"
+group = "nix-tools"
+
+[inputs.nix-grpc-store.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix-ld]
+url = "github:nix-community/nix-ld/"
+group = "nix-tools"
+
+[inputs.nix-ld.follows]
+nixpkgs = "unstable"
+
+[inputs.nix-ld-rs]
+url = "github:nix-community/nix-ld-rs/8af5fc9add315c251edea8f659b56fc7836a163f"
+group = "nix-tools"
+
+[inputs.nix-ld-rs.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix-output-monitor]
+url = "github:maralorn/nix-output-monitor"
+group = "nix-tools"
+
+[inputs.nix-output-monitor.follows]
+nixpkgs = "nixpkgs"
+
+# Patched Nix for CVE-2026-39860
+[inputs.nix-patched]
+url = "github:NixOS/nix/2.34.5"
+group = "nix-tools"
+
+[inputs.nix-patched.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix-snapshotter]
+url = "github:yu-re-ka/nix-snapshotter"
+
+[inputs.nix-snapshotter.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix-topology]
+url = "github:oddlama/nix-topology"
+
+[inputs.nix-topology.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nix2container]
+url = "github:nlewo/nix2container"
+group = "kubernetes"
+
+[inputs.nix2sbom]
+url = "github:louib/nix2sbom"
+group = "sbom"
+
+[inputs.nix2sbom.follows]
+nixpkgs = "unstable"
+
+[inputs.nixhelm]
+url = "github:nix-community/nixhelm"
+group = "kubernetes"
+
+[inputs.nixhelm.follows]
+nixpkgs = "unstable"
+
+[inputs.nixidy]
+url = "github:arnarg/nixidy"
+group = "kubernetes"
+
+[inputs.nixos-boot]
+url = "github:Melkor333/nixos-boot"
+group = "desktop"
+
+[inputs.nixos-cli]
+url = "github:water-sucks/nixos"
+group = "nix-tools"
+
+[inputs.nixos-cli.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nixos-generators]
+url = "github:nix-community/nixos-generators"
+
+[inputs.nixos-generators.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nixos-hardware]
+url = "github:nixos/nixos-hardware"
+
+# Raspberry Pi kernel/firmware package set (systems/aarch64-linux/pikvm). Deliberately WITHOUT a
+# nixpkgs follow: its binary cache only holds outputs built against its own nixpkgs, so following
+# ours changes the kernel derivation and forces a source build.
+[inputs.nixos-raspberrypi]
+url = "github:nvmd/nixos-raspberrypi/main"
+
+[inputs.nixos-router]
+url = "github:chayleaf/nixos-router"
+
+[inputs.nixos-router.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nixpkgs]
+url = "github:nixos/nixpkgs/release-26.05"
+group = "channels"
+
+# Every nixpkgs revision that ever existed, reachable from one input, fetched lazily. Use
+# `lib.fmf.multiversePackage` to pull an exact package version out of it instead of adding a
+# dedicated pinned nixpkgs. It deliberately has no inputs of its own, so it must NOT follow anything.
+# See: https://github.com/fzakaria/nixpkgs-multiverse
+[inputs.nixpkgs-multiverse]
+url = "github:fzakaria/nixpkgs-multiverse"
+group = "channels"
+
+[inputs.nixpkgs-python]
+url = "github:cachix/nixpkgs-python"
+group = "python"
+
+[inputs.nixpkgs-python.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nixpkgs-wayland]
+url = "github:nix-community/nixpkgs-wayland"
+group = "desktop"
+
+[inputs.nixpkgs-wayland.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nixtheplanet]
+url = "github:MatthewCroughan/NixThePlanet"
+
+[inputs.npmlock2nix]
+url = "github:nix-community/npmlock2nix"
+type = "fetch"
+
+[inputs.nuenv]
+url = "github:DeterminateSystems/nuenv"
+
+[inputs.nuenv.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.nur]
+url = "github:nix-community/NUR"
+
+[inputs.nur.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.office-yazi]
+url = "github:macydnah/office.yazi"
+group = "yazi"
+
+[inputs.official-plugins-yazi]
+url = "github:yazi-rs/plugins"
+group = "yazi"
+
+[inputs.old-nixpkgs]
+url = "github:nixos/nixpkgs/nixos-25.05"
+group = "channels"
+
+[inputs.onedark-yazi]
+url = "github:BennyOe/onedark.yazi"
+group = "yazi"
+
+[inputs.opencode-anthropic-auth]
+url = "github:ex-machina-co/opencode-anthropic-auth"
+group = "ai"
+type = "fetch"
+
+[inputs.poetry2nix]
+url = "github:TyberiusPrime/poetry2nix/pyarrow_fix"
+group = "python"
+
+[inputs.poetry2nix.follows]
+nixpkgs = "unstable"
+
+[inputs.pre-commit-hooks]
+url = "github:cachix/pre-commit-hooks.nix"
+
+[inputs.pre-commit-hooks.follows]
+nixpkgs = "unstable"
+
+[inputs.process-compose-flake]
+url = "github:Platonic-Systems/process-compose-flake"
+
+[inputs.pyarrow]
+url = "github:nixos/nixpkgs/e8b4c13b8d206f4b01e95499aa7425765a79513e"
+group = "channels"
+
+[inputs.pyproject-build-systems]
+url = "github:pyproject-nix/build-system-pkgs"
+group = "python"
+
+[inputs.pyproject-build-systems.follows]
+nixpkgs = "nixpkgs"
+pyproject-nix = "pyproject-nix"
+uv2nix = "uv2nix"
+
+[inputs.pyproject-nix]
+url = "github:pyproject-nix/pyproject.nix"
+group = "python"
+
+[inputs.sbomnix]
+url = "github:tiiuae/sbomnix/c0a07db80c1173c4f6a7957c5ea6ec416698fc3e"
+group = "sbom"
+
+[inputs.sbomnix.follows]
+nixpkgs = "unstable"
+
+[inputs.scientific-fhs]
+url = "github:usmcamp0811/scientific-fhs/pass-python-env-in"
+group = "campground"
+
+[inputs.scientific-fhs.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.services-flake]
+url = "github:juspay/services-flake"
+
+[inputs.snowfall-lib]
+url = "github:snowfallorg/lib"
+group = "snowfall"
+
+[inputs.snowfall-lib.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.stylix]
+url = "github:danth/stylix/release-25.11"
+group = "desktop"
+
+[inputs.stylix.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.technofab]
+url = "gitlab:TECHNOFAB/nix-packages"
+
+[inputs.technofab.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.terranix]
+url = "github:terranix/terranix"
+
+[inputs.terranix.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.unstable]
+url = "github:nixos/nixpkgs/nixos-unstable"
+group = "channels"
+
+[inputs.uv2nix]
+url = "github:pyproject-nix/uv2nix"
+group = "python"
+
+[inputs.vault-service]
+url = "github:DeterminateSystems/nixos-vault-service"
+
+[inputs.vault-service.follows]
+nixpkgs = "nixpkgs"
+
+[inputs.yaziline-yazi]
+url = "github:llanosrocas/yaziline.yazi"
+group = "yazi"
+
+[inputs.zig2nix]
+url = "github:Cloudef/zig2nix"

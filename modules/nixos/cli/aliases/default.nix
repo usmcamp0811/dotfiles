@@ -37,7 +37,8 @@ with lib.fmf; let
     disable = "sudo systemctl disable";
     enable = "sudo systemctl enable";
     deploy-sys = "${pkgs.deploy-rs}/bin/deploy --hostname $1 --skip-checks .#$1";
-    flake-update = ''${pkgs.nix}/bin/nix flake update --option access-tokens "github.com=$GITHUB_TOKEN"'';
+    # Inputs are tack pins (.tack/pins.toml); tack reads GITHUB_TOKEN to avoid the github rate limit.
+    flake-update = ''GITHUB_TOKEN="$GITHUB_TOKEN" ${inputs.tack.packages.${pkgs.stdenv.hostPlatform.system}.tack}/bin/tack update'';
     kill = ''
       [ $# -eq 0 ] && echo 'You need to specify whom to kill.' && return
             /usr/bin/kill $@'';

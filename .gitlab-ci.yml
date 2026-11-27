@@ -1,3 +1,9 @@
+variables:
+  # Inputs are pinned with tack (.tack/pins.toml, lock in .tack/pins.lock.json). Pinned to the
+  # revision the migration was tested with. tack needs a GITHUB_TOKEN CI variable for more than
+  # ~60 github pins per hour (unauthenticated API rate limit).
+  TACK: "nix run github:manic-systems/tack/673997981720feebb3870645932b6cfe6657db9f --"
+
 stages:
   - updates
   - renovate
@@ -41,19 +47,26 @@ update_fmf_in_gitea:
       git clone --depth 1 "${GITEA_REPO_URL}" Campground
       cd Campground
 
-      echo "Copying flake.lock from GitLab repo to align inputs (e.g. nixpkgs)..."
-      cp ../flake.lock .
+      echo "Aligning pins shared with fmf (e.g. nixpkgs) to fmf's locked revisions..."
+      # Every pin both projects declare with the same URL takes fmf's lock entry
+      # (the tack equivalent of copying flake.lock over and re-locking).
+      nix run nixpkgs#jq -- -s '
+        .[0] as $c | .[1] as $f
+        | $c + ($f | with_entries(select(
+            .key != "$declared"
+            and $c[.key] != null
+            and $c["$declared"][.key] == $f["$declared"][.key])))
+      ' .tack/pins.lock.json ../.tack/pins.lock.json > pins.lock.json.tmp
+      mv pins.lock.json.tmp .tack/pins.lock.json
 
-      echo "Re-locking flake to tidy lockfile for this config..."
-      nix flake lock
-
-      echo "Updating flake input 'fmf'..."
-      nix flake update fmf
+      echo "Updating pin 'fmf'..."
+      $TACK update fmf
 
       echo "Regenerating the per-service Vault policies from the updated fmf..."
       # Not fatal on purpose: a failure here must not stall the fmf bump. Campground's
       # checks/vault-access fails on stale policies, so a missed regeneration is still caught.
-      if nix run --inputs-from . fmf#vault-access; then
+      # Campground has no flake inputs any more (no --inputs-from); run it from this fmf checkout.
+      if nix run ..#vault-access; then
         git add systems/x86_64-linux/vm-vault/vault
       else
         echo "WARNING: vault-access failed; Vault policies were not regenerated"
@@ -67,8 +80,8 @@ update_fmf_in_gitea:
       git config user.email 'ci-bot@gitlab.com'
       git config user.name 'CI Bot'
 
-      git add flake.lock flake.nix || git add flake.lock || true
-      git commit -m "CI: sync flake.lock with GitLab repo and update fmf"
+      git add .tack/pins.lock.json
+      git commit -m "CI: sync shared tack pins with GitLab repo and update fmf"
       git push origin HEAD:main
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"'
@@ -81,10 +94,10 @@ update-flake:
     - nix
   script:
     - |
-      git rm flake.lock && nix flake update
+      $TACK update
   artifacts:
     paths:
-      - flake.lock
+      - .tack/pins.lock.json
     expire_in: 1 hour
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $FLAKE_UPDATE == "true"'
@@ -223,11 +236,11 @@ nvim_update:
   stage: updates
   script:
     # - "nix flake check gitlab:usmcamp0811/campground-nvim"
-    - "nix flake lock --update-input campground-nvim"
+    - "$TACK update campground-nvim"
     - "git config --global user.email 'ci-bot@gitlab.com'"
     - "git config --global user.name 'CI Bot'"
     - "git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git"
-    - "git add flake.lock"
+    - "git add .tack/pins.lock.json"
     - "git commit -m 'CI: Update campground-nvim'"
     - "git push origin HEAD:${CI_DEFAULT_BRANCH}"
   rules:
@@ -349,12 +362,12 @@ crystal_forge_update:
     eval "$(ssh-agent -s)"
     echo "$sshkey" | ssh-add -
     ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    nix flake lock --update-input crystal-forge
+    $TACK update crystal-forge
     ssh-agent -k
     git config --global user.email 'ci-bot@gitlab.com'
     git config --global user.name 'CI Bot'
     git remote set-url origin https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/usmcamp0811/dotfiles.git
-    git add flake.lock
+    git add .tack/pins.lock.json
     git commit -m 'CI: Update crystal-forge update'
     git push origin HEAD:${CI_DEFAULT_BRANCH}
   rules:

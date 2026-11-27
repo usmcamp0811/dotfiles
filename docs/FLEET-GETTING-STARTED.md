@@ -113,7 +113,7 @@ marked **new**.
   };
 
   outputs = inputs: let
-    fmfInputs = inputs.fmf.inputs or {};
+    fmfInputs = inputs.fmf.pins or inputs.fmf.inputs or {};
 
     lib = inputs.snowfall-lib.mkLib {
       inherit inputs;

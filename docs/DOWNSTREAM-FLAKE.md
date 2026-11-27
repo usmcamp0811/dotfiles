@@ -68,7 +68,7 @@ inputs = {
 * `disko` is only used if you let it manage disks, see [Install NixOS](INSTALL-NIXOS.md).
 
 ```nix
-fmfInputs = inputs.fmf.inputs or {};
+fmfInputs = inputs.fmf.pins or inputs.fmf.inputs or {};
 
 lib = inputs.snowfall-lib.mkLib {
   inherit inputs;
@@ -81,7 +81,8 @@ lib = inputs.snowfall-lib.mkLib {
 ```
 
 `fmfInputs` is shorthand for fmf's own inputs: fmf's modules need modules from several of them, so you
-import those too (below). The **namespace** is the prefix of options *you* write: a module of yours at
+import those too (below). fmf pins its inputs with [tack](https://docs.manic.systems/tack), so it has no
+flake inputs and exposes them as `fmf.pins`; `fmf.inputs` is the fallback for older fmf revisions. The **namespace** is the prefix of options *you* write: a module of yours at
 `modules/nixos/motd` would declare `config.campground.motd`. Change `campground` to your own name, here and
 in `meta.name`. fmf's own options stay `fmf.*` and its helpers stay `lib.fmf`.
 
