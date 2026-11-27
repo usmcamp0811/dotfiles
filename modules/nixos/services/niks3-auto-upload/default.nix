@@ -121,6 +121,52 @@ in {
       serviceConfig.TimeoutStartSec = "60s";
     };
 
+    # The Vault token lives in the PrivateTmp shared with the vault-agent sidecar. systemd resolves
+    # LoadCredential= in the host namespace, where that file does not exist (243/CREDENTIALS), so
+    # read it in place instead of through LoadCredential.
+    # Mirrors the upstream niks3 module's LoadCredential/ExecStart (nix/nixosModules/niks3-auto-upload.nix)
+    # with only the auth token changed; recheck this when bumping niks3.
+    systemd.services.niks3-auto-upload.serviceConfig = let
+      up = config.services.niks3-auto-upload;
+      idleStr =
+        if up.idleExitTimeout == 0
+        then "0"
+        else "${toString up.idleExitTimeout}s";
+    in
+      mkIf usesVault {
+        LoadCredential = mkForce (
+          lib.optionals up.mtls.enable [
+            "client-cert:${up.mtls.clientCert}"
+            "client-key:${up.mtls.clientKey}"
+          ]
+          ++ lib.optional (up.mtls.enable && up.mtls.caCert != null) "ca-cert:${up.mtls.caCert}"
+        );
+        ExecStart = mkForce (lib.concatStringsSep " " (
+          [
+            (lib.getExe' up.package "niks3-hook")
+            "serve"
+            "--server-url"
+            (lib.escapeShellArg up.serverUrl)
+            "--auth-token-path"
+            vaultTokenFilePath
+            "--socket"
+            (lib.escapeShellArg up.socketPath)
+            "--batch-size"
+            (toString up.batchSize)
+            "--idle-exit-timeout"
+            idleStr
+            "--max-concurrent-uploads"
+            (toString up.maxConcurrentUploads)
+            "--db-path"
+            "/var/lib/niks3-hook/upload-queue.db"
+          ]
+          ++ lib.optional up.verifyS3Integrity "--verify-s3-integrity"
+          ++ lib.optional up.debug "--debug"
+          ++ lib.optionals up.mtls.enable ["--client-cert" "%d/client-cert" "--client-key" "%d/client-key"]
+          ++ lib.optionals (up.mtls.enable && up.mtls.caCert != null) ["--ca-cert" "%d/ca-cert"]
+        ));
+      };
+
     fmf.services.vault-agent.services.${vaultAgentName} = mkIf usesVault {
       settings = {
         vault.address = cfg.vault-address;
@@ -148,6 +194,8 @@ in {
       secrets.file = {
         change-action = "none";
 
+        # Only niks3-auto-upload and its sidecar share this PrivateTmp; its DynamicUser must read it.
+        files."auth-token".permissions = "0444";
         files."auth-token".text =
           vaultSecretTemplate cfg.vault-path cfg.kvVersion cfg.vault-field;
       };
