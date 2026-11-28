@@ -15,10 +15,119 @@ recomposable = true
 # all_follow maps input names at every depth to the top-level pin they follow
 # opt out per-input with exclude_follow, scope with flake: or tack:
 [all_follow]
-# nixpkgs = "nixpkgs"
-# nixpkgs = ["nixpkgs-stable", "nixpkgs-unstable"]
+# Generated from `tack dedup` (Nov 2026), keeping only names where every occurrence in the tree is
+# the same repo (and, for our own pins, the same repo as our pin). Deliberately NOT here:
+#   nixpkgs*/unstable/old-nixpkgs/pyarrow (intentional versions), systems (4 different repos),
+#   flake-compat (3 forks), poetry2nix (our pin is a fork), nixpkgs-lib, pyproject-nix, bun2nix,
+#   nix-ld, nix-snapshotter, nixtheplanet, k0s-nix (name shared by different repos),
+#   crystal-forge/upgrade-predecessor and nix-ai/enable-container-tests (intentional).
+# campground-nvim = "campground-nvim" also breaks the campground-nvim -> dotfiles -> campground-nvim
+# cycle that nested four old copies of this repo (and all their inputs).
+ai-jail                 = "ai-jail"
+backlog                 = "backlog"
+bunny-yazi              = "bunny-yazi"
+campground-nvim         = "campground-nvim"
+catppuccin              = "catppuccin"
+comma                   = "comma"
+compose2nix             = "compose2nix"
+darwin                  = ["nix-darwin"]
+deploy-rs               = "deploy-rs"
+devshell                = "devshell"
+disko                   = "disko"
+dream2nix               = "dream2nix"
+eza-preview-yazi        = "eza-preview-yazi"
+flake                   = "flake"
+flakeforge              = "flakeforge"
+fzf-yazi                = "fzf-yazi"
+gBar                    = "gBar"
+githead-yazi            = "githead-yazi"
+gpg-base-conf           = "gpg-base-conf"
+home-manager            = "home-manager"
+hyprland                = "hyprland"
+hyprland-contrib        = "hyprland-contrib"
+hyprpaper               = "hyprpaper"
+impermanence            = "impermanence"
+kanagawa-yazi           = "kanagawa-yazi"
+kube-gen                = ["nix-kube-generators"]
+llm-agents              = "llm-agents"
+mcp-nixos               = "mcp-nixos"
+microvm                 = "microvm"
+neorg-overlay           = "neorg-overlay"
+niks3                   = "niks3"
+nix-grpc-store          = "nix-grpc-store"
+nix-ld-rs               = "nix-ld-rs"
+nix-output-monitor      = "nix-output-monitor"
+nix-topology            = "nix-topology"
+nix2container           = "nix2container"
+nix2sbom                = "nix2sbom"
+nixery-flake            = "nixery-flake"
+nixhelm                 = "nixhelm"
+nixidy                  = "nixidy"
+nixos-cli               = "nixos-cli"
+nixos-generators        = "nixos-generators"
+nixos-hardware          = "nixos-hardware"
+nixos-router            = "nixos-router"
+nixpkgs-multiverse      = "nixpkgs-multiverse"
+nixpkgs-python          = "nixpkgs-python"
+nixpkgs-wayland         = "nixpkgs-wayland"
+npmlock2nix             = "npmlock2nix"
+nuenv                   = "nuenv"
+nur                     = "nur"
+office-yazi             = "office-yazi"
+official-plugins-yazi   = "official-plugins-yazi"
+process-compose-flake   = "process-compose-flake"
+pyproject-build-systems = "pyproject-build-systems"
+sbomnix                 = "sbomnix"
+scientific-fhs          = "scientific-fhs"
+services-flake          = "services-flake"
+snowfall-lib            = "snowfall-lib"
+technofab               = "technofab"
+terranix                = "terranix"
+uv2nix                  = "uv2nix"
+vault-service           = "vault-service"
+yaziline-yazi           = "yaziline-yazi"
+zig2nix                 = "zig2nix"
+aquamarine              = "aquamarine"
+authentik-src           = "authentik"
+call-flake              = "call-flake"
+campground-packages     = "campground-packages"
+crane                   = "crane"
+fenix                   = "fenix"
+flake-parts             = "flake-parts"
+flake-utils             = ["utils"]
+git-hooks               = ["git-hooks-nix"]
+gitignore               = "gitignore"
+haumea                  = "haumea"
+hercules-ci-effects     = "hercules-ci-effects"
+hyprcursor              = "hyprcursor"
+hyprgraphics            = "hyprgraphics"
+hyprland-guiutils       = "hyprland-guiutils"
+hyprland-protocols      = "hyprland-protocols"
+hyprlang                = "hyprlang"
+hyprtoolkit             = "hyprtoolkit"
+hyprutils               = "hyprutils"
+hyprwayland-scanner     = "hyprwayland-scanner"
+hyprwire                = "hyprwire"
+import-tree             = "import-tree"
+lib-aggregate           = "lib-aggregate"
+naersk                  = "naersk"
+neorg                   = "neorg"
+neorg-telescope         = "neorg-telescope"
+nix-github-actions      = "nix-github-actions"
+nixos-compose           = "nixos-compose"
+nixvim                  = ["nix-vim"]
+optnix                  = "optnix"
+purescript-overlay      = "purescript-overlay"
+rust-analyzer-src       = "rust-analyzer"
+rust-overlay            = "rust-overlay"
+nuschtosSearch          = "search"
+slimlock                = "slimlock"
+spectrum                = "spectrum"
+norg-meta               = "tree-sitter-norg-meta"
+treefmt-nix             = "treefmt-nix"
+xdph                    = "xdg-desktop-portal-hyprland"
+yants                   = "yants"
 
-# recursively omit selected upstream inputs from every top-level pin
 [omit_inputs]
 # names = ["flake-compat", "tack:cachix"]
 
@@ -69,9 +178,12 @@ recomposable = true
 #   campground  my own repos               nix-tools   nix itself and nix CLI tools
 #   sbom        SBOM generators            snowfall    snowfall lib and flake
 
-# yazi plugins and themes are plain source trees, not flakes
+# yazi plugins and themes are plain source trees, not flakes. They are only interpolated into
+# derivations (packages/applications/yazi, modules/home/cli/yazi), never read at eval time, so fetch
+# them at build time (fixed-output derivations) instead of during evaluation.
 [groups.yazi]
 type = "fetch"
+fetch_mode = "build"
 
 [inputs]
 
@@ -94,6 +206,7 @@ group = "ai"
 url = "github:suchipi/Bibata_Cursor"
 group = "desktop"
 type = "fetch"
+fetch_mode = "build"
 
 [inputs.bunny-yazi]
 url = "github:stelcodes/bunny.yazi"
@@ -201,6 +314,7 @@ group = "yazi"
 [inputs.gpg-base-conf]
 url = "github:drduh/config"
 type = "fetch"
+fetch_mode = "build"
 
 [inputs.hexyl-yazi]
 url = "github:Reledia/hexyl.yazi"
@@ -315,6 +429,8 @@ dir = "flags/container-tests/disabled"
 # so the build matches what cache.manic.systems holds.
 [inputs.tack]
 url = "github:manic-systems/tack"
+# keep upstream's exact inputs so its binary cache matches
+exclude_follow = ["*"]
 group = "nix-tools"
 frozen = "673997981720feebb3870645932b6cfe6657db9f"
 
@@ -418,6 +534,8 @@ url = "github:nixos/nixos-hardware"
 # ours changes the kernel derivation and forces a source build.
 [inputs.nixos-raspberrypi]
 url = "github:nvmd/nixos-raspberrypi/main"
+# keep upstream's exact inputs so its binary cache matches
+exclude_follow = ["*"]
 
 [inputs.nixos-router]
 url = "github:chayleaf/nixos-router"
@@ -490,6 +608,7 @@ group = "yazi"
 url = "github:ex-machina-co/opencode-anthropic-auth"
 group = "ai"
 type = "fetch"
+fetch_mode = "build"
 
 [inputs.poetry2nix]
 url = "github:TyberiusPrime/poetry2nix/pyarrow_fix"

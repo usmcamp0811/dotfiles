@@ -15,7 +15,11 @@
         {outPath = value;}
         // builtins.intersectAttrs {rev = 0; narHash = 0; lastModified = 0;} (pins._meta.${name} or {})
       else value;
-    tackInputs = builtins.mapAttrs asInput (removeAttrs pins ["_meta" "_patched" "__functor"]);
+    # Only the pins declared in pins.toml. tack also exposes its [all_follow] auto-dedup targets as
+    # top-level attrs; flake-utils-plus probes every input (`value ? outputs`), which would fetch all
+    # of them on every evaluation.
+    declared = (builtins.fromJSON (builtins.readFile ./.tack/pins.lock.json))."$declared";
+    tackInputs = builtins.mapAttrs asInput (builtins.intersectAttrs declared pins);
     inputs = tackInputs // {inherit self;};
     inherit (inputs) deploy-rs;
 
