@@ -15,7 +15,9 @@ in {
       rustfmt
       clippy
       rustc
-      dioxus-cli
+      # deno also ships a `dx` binary; hiPrio makes dioxus-cli's win in the profile without
+      # rebuilding deno (overriding deno meant compiling it from source).
+      (lib.hiPrio dioxus-cli)
       wasm-bindgen-cli
       lld
       rustlings

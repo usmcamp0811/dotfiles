@@ -137,13 +137,8 @@ in {
     })
   ];
 
-  # Fix binary name conflict: deno now ships a 'dx' binary which conflicts with dioxus-cli
-  # Remove the dx binary from deno since it's less commonly used than dioxus-cli's dx
-  deno = prev.deno.overrideAttrs (oldAttrs: {
-    postInstall = (oldAttrs.postInstall or "") + ''
-      # Remove dx binary to avoid conflict with dioxus-cli
-      rm -f $out/bin/dx
-    '';
-  });
+  # deno's `dx` vs dioxus-cli's `dx` is resolved with lib.hiPrio in modules/home/tools/rust, not by
+  # overriding deno here: an override changes deno's hash, so it (and yt-dlp, which depends on it)
+  # had to be compiled from source instead of coming from cache.nixos.org.
 
 }
