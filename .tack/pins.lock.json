@@ -60,7 +60,7 @@
     "nixos-hardware": "github:nixos/nixos-hardware",
     "nixos-raspberrypi": "github:nvmd/nixos-raspberrypi/main",
     "nixos-router": "github:chayleaf/nixos-router",
-    "nixpkgs": "github:nixos/nixpkgs/release-26.05",
+    "nixpkgs": "github:nixos/nixpkgs/nixos-26.05",
     "nixpkgs-multiverse": "github:fzakaria/nixpkgs-multiverse",
     "nixpkgs-python": "github:cachix/nixpkgs-python",
     "nixpkgs-wayland": "github:nix-community/nixpkgs-wayland",
@@ -894,9 +894,10 @@
     "type": "github",
     "owner": "nixos",
     "repo": "nixpkgs",
-    "rev": "c733f6609bcdebf6b56ae082d3cfd5af4f510e56",
-    "narHash": "sha256-JRmA4vvBCKyU28hzSBUlWFZqizvisefJiqNzitYcb10=",
-    "lastModified": 1795832972
+    "rev": "5b31ff946309736077f0c4ee23bb85d0a0a1c181",
+    "narHash": "sha256-CiSQ3/bsP5gXG2SQzOgwhqwl9MkBRhQQqJd3YmpaYL4=",
+    "lastModified": 1795502373,
+    "public": true
   },
   "nixpkgs-multiverse": {
     "type": "github",

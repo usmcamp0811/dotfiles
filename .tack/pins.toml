@@ -552,7 +552,9 @@ url = "github:chayleaf/nixos-router"
 nixpkgs = "nixpkgs"
 
 [inputs.nixpkgs]
-url = "github:nixos/nixpkgs/release-26.05"
+# nixos-26.05 channel, not the release-26.05 branch: the channel only advances once Hydra has built it,
+# so everything is in cache.nixos.org (the branch can be ahead of Hydra and force source builds).
+url = "github:nixos/nixpkgs/nixos-26.05"
 group = "channels"
 
 # Every nixpkgs revision that ever existed, reachable from one input, fetched lazily. Use
