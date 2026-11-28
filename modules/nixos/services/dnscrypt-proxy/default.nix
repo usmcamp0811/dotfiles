@@ -8,21 +8,15 @@ with lib;
 with lib.fmf; let
   cfg = config.fmf.services.dnscrypt-proxy;
 
-  # OISD blocklist for dnscrypt-proxy
-  # Fetched from GitLab Pages with hash verification.
-  # The create-pages CI job fetches the upstream file, computes the hash,
-  # updates this file, and publishes to Pages.
-  # See .gitlab-ci.yml for the CI job.
-  oisd-blocklist = pkgs.fetchurl {
-    url = "https://usmcamp0811.gitlab.io/dotfiles/domainswild";
-    # Hash auto-updated by CI (trigger create-pages job in CI/CD → Pipelines)
-    sha256 = "sha256-tuMp6EaGivBA8flyQVBeLsI6ZxKpIsMMkpQHX0iJaJA=";
-  };
-
-  blocklist_base = builtins.readFile oisd-blocklist;
-  blocklist_txt = pkgs.writeText "blocklist.txt" ''
-    ${cfg.extraBlocklist}
-    ${blocklist_base}
+  # OISD blocklist for dnscrypt-proxy: the `oisd-blocklist` tack pin (a fixed-output download of our
+  # GitLab Pages mirror), packaged as pkgs.fmf.oisd-blocklist. The create-pages CI job refreshes the
+  # mirror and the pin's hash in .tack/pins.lock.json (see .gitlab-ci.yml).
+  # Combined at build time; reading the download with builtins.readFile would be import-from-derivation.
+  blocklist_txt = pkgs.runCommand "blocklist.txt" {
+    extra = cfg.extraBlocklist;
+    passAsFile = ["extra"];
+  } ''
+    { cat "$extraPath"; echo; cat ${pkgs.fmf.oisd-blocklist}; } > $out
   '';
 
   # dnscrypt-proxy state directory

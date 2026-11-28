@@ -434,6 +434,14 @@ exclude_follow = ["*"]
 group = "nix-tools"
 frozen = "673997981720feebb3870645932b6cfe6657db9f"
 
+# OISD domainswild blocklist for dnscrypt-proxy (pkgs.fmf.oisd-blocklist). Points at our GitLab
+# Pages mirror, not big.oisd.nl: upstream changes daily, so a build-time fetch of it would break as
+# soon as the locked hash goes stale. The create-pages CI job refreshes the mirror and this lock.
+[inputs.oisd-blocklist]
+url = "https://usmcamp0811.gitlab.io/dotfiles/domainswild"
+type = "fixed"
+unpack = "file"
+
 # Nixery
 [inputs.nixery-flake]
 url = "github:tazjin/nixery"

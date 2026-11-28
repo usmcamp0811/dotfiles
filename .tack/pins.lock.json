@@ -70,6 +70,7 @@
     "nur": "github:nix-community/NUR",
     "office-yazi": "github:macydnah/office.yazi",
     "official-plugins-yazi": "github:yazi-rs/plugins",
+    "oisd-blocklist": "https://usmcamp0811.gitlab.io/dotfiles/domainswild",
     "old-nixpkgs": "github:nixos/nixpkgs/nixos-25.05",
     "onedark-yazi": "github:BennyOe/onedark.yazi",
     "opencode-anthropic-auth": "github:ex-machina-co/opencode-anthropic-auth",
@@ -994,6 +995,12 @@
       "outHash": "sha256-2yRN5eaVybu0Wgn4MbqXPL0QsIeJ8+X/et3WfVjevHY="
     },
     "public": true
+  },
+  "oisd-blocklist": {
+    "type": "fixed",
+    "url": "https://usmcamp0811.gitlab.io/dotfiles/domainswild",
+    "sha256": "sha256-tuMp6EaGivBA8flyQVBeLsI6ZxKpIsMMkpQHX0iJaJA=",
+    "unpack": "file"
   },
   "old-nixpkgs": {
     "type": "github",

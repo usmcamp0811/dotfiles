@@ -257,13 +257,13 @@ create-pages:
   tags:
     - nix
   script:
-    - apk add --no-cache curl git
+    - apk add --no-cache curl git jq
     # Fetch the latest blocklist from OISD
     - curl -sSL -o /tmp/domainswild "https://big.oisd.nl/domainswild"
     # Compute the SRI hash
     - HASH=$(nix hash file --type sha256 --sri /tmp/domainswild)
-    # Get the current hash from the Nix module
-    - CURRENT_HASH=$(sed -n 's/.*sha256 = "\(.*\)";/\1/p' modules/nixos/services/dnscrypt-proxy/default.nix)
+    # Get the current hash from the oisd-blocklist tack pin (a fixed pin of the Pages mirror)
+    - CURRENT_HASH=$(jq -r '."oisd-blocklist".sha256' .tack/pins.lock.json)
     # Copy to public/ for Pages (always)
     - mkdir -p public
     - cp /tmp/domainswild public/domainswild
@@ -272,18 +272,21 @@ create-pages:
     - nix build .#campground --out-link result
     - mkdir -p public/campground
     - cp -a result/share/campground/. public/campground/
-    # If the hash changed, update the Nix module and push
+    # If the hash changed, update the pin's lock entry and push. Written directly (not with
+    # `tack update oisd-blocklist --accept`) because the mirror isn't published until this job ends;
+    # the hash is of exactly the file this job publishes.
     - |
       if [ "$HASH" != "$CURRENT_HASH" ]; then
         echo "Hash changed: $CURRENT_HASH -> $HASH"
-        sed -i "s|sha256 = \"$CURRENT_HASH\"|sha256 = \"$HASH\"|" modules/nixos/services/dnscrypt-proxy/default.nix
+        jq --arg h "$HASH" '."oisd-blocklist".sha256 = $h' .tack/pins.lock.json > /tmp/pins.lock.json
+        mv /tmp/pins.lock.json .tack/pins.lock.json
         git config user.email 'ci-bot@gitlab.com'
         git config user.name 'CI Bot'
         # CI_DEPLOY_USER/CI_DEPLOY_PASSWORD are not a Git-write credential here.
         # Use the job token; the project must allow Git pushes with CI_JOB_TOKEN
         # under Settings → CI/CD → Job token permissions.
         git remote set-url origin "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-        git add modules/nixos/services/dnscrypt-proxy/default.nix
+        git add .tack/pins.lock.json
         git commit -m "CI: update OISD blocklist hash"
         git push origin HEAD:${CI_DEFAULT_BRANCH}
       else
