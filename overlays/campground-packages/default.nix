@@ -131,7 +131,9 @@ in {
     k3s
     pnpm_9
     zathura
-    clippy
+    # not clippy: nixpkgs builds rusty-v8's rust toolchain with pkgs.clippy, so overriding it
+    # rebuilt rusty-v8 -> deno -> yt-dlp from source (uncached, and rusty-v8 fails to build).
+    # It also mismatched clippy (unstable) with rustc/cargo (stable) in modules/home/tools/rust.
     blueman
     djvulibre
     home-manager-path
